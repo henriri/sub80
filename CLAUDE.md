@@ -13,12 +13,14 @@ The full plan lives in the Claude Docs page "sub80: Project Plan". This file is 
 - Android-first PWA. The phone is not used during workouts.
 
 ## Commands
-Fill these in as soon as the scaffold exists, and keep them current:
+Keep these current:
 - `pnpm dev` start the dev server
-- `pnpm lint` lint
-- `pnpm typecheck` TypeScript check
-- `pnpm test` unit tests
 - `pnpm build` production build
+- `pnpm start` serve the production build
+- `pnpm lint` ESLint over the whole repo
+- `pnpm typecheck` generate Next route types, then `tsc --noEmit`
+- `pnpm test` run Vitest once (`src/**/*.test.ts`, `tools/**/*.test.ts`)
+- `pnpm test:watch` Vitest in watch mode
 
 Before opening a PR, `pnpm lint && pnpm typecheck && pnpm test` must pass.
 
