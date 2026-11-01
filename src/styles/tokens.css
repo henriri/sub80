@@ -1,0 +1,261 @@
+/*
+ * sub80 design tokens. The single source of truth for colour, radius, type,
+ * spacing and size values.
+ *
+ * Layers
+ *   1. Primitives: raw values. Never change with a mode.
+ *   2. Semantic: what a value is for. Modes act here.
+ *   3. Component: one component's knobs. Reference semantic tokens only.
+ *
+ * Figma mapping
+ *   A Figma variable `color/neutral/100` is the CSS variable
+ *   `--color-neutral-100`: slashes become hyphens, the first segment is the
+ *   category. Keep names one to one with Figma. Renaming a token must be
+ *   called out in the PR.
+ *
+ * Modes
+ *   data-theme   light | dark
+ *   data-palette default | forest
+ *   data-radius  default | sharp | round
+ *   data-type    default | alt
+ *   data-density comfortable | compact
+ *
+ *   Set all five attributes together on one element (<html>, or a preview
+ *   wrapper on /design). Semantic and component tokens are declared on
+ *   `:root, [data-theme]`, so they resolve again at every mode root. A
+ *   custom property's var() resolves where it is declared, not where it is
+ *   used.
+ *
+ *   `--palette-*` variables are mode plumbing, not tokens, and have no Figma
+ *   counterpart.
+ *
+ * Every token declared here must also be listed in src/lib/design/tokens.ts
+ * (a test checks both directions).
+ */
+
+/* 1. Primitives -------------------------------------------------------- */
+
+:root {
+  --color-neutral-0: oklch(1 0 0);
+  --color-neutral-50: oklch(0.985 0.002 260);
+  --color-neutral-100: oklch(0.967 0.003 260);
+  --color-neutral-200: oklch(0.922 0.005 260);
+  --color-neutral-300: oklch(0.87 0.006 260);
+  --color-neutral-400: oklch(0.708 0.01 260);
+  --color-neutral-500: oklch(0.556 0.012 260);
+  --color-neutral-600: oklch(0.439 0.012 260);
+  --color-neutral-700: oklch(0.371 0.01 260);
+  --color-neutral-800: oklch(0.269 0.008 260);
+  --color-neutral-900: oklch(0.205 0.006 260);
+  --color-neutral-950: oklch(0.145 0.004 260);
+  --color-neutral-1000: oklch(0 0 0);
+
+  --color-blue-50: oklch(0.97 0.014 255);
+  --color-blue-100: oklch(0.932 0.032 255);
+  --color-blue-200: oklch(0.882 0.059 255);
+  --color-blue-300: oklch(0.809 0.105 255);
+  --color-blue-400: oklch(0.707 0.165 255);
+  --color-blue-500: oklch(0.623 0.214 259);
+  --color-blue-600: oklch(0.546 0.245 263);
+  --color-blue-700: oklch(0.488 0.243 264);
+  --color-blue-800: oklch(0.424 0.199 266);
+  --color-blue-900: oklch(0.379 0.146 266);
+  --color-blue-950: oklch(0.282 0.091 268);
+
+  --color-green-50: oklch(0.97 0.018 150);
+  --color-green-100: oklch(0.932 0.042 150);
+  --color-green-200: oklch(0.882 0.075 150);
+  --color-green-300: oklch(0.809 0.12 150);
+  --color-green-400: oklch(0.707 0.15 150);
+  --color-green-500: oklch(0.623 0.15 150);
+  --color-green-600: oklch(0.546 0.135 152);
+  --color-green-700: oklch(0.488 0.12 153);
+  --color-green-800: oklch(0.424 0.1 154);
+  --color-green-900: oklch(0.379 0.08 155);
+  --color-green-950: oklch(0.282 0.06 156);
+
+  --color-red-400: oklch(0.704 0.191 22);
+  --color-red-600: oklch(0.577 0.245 27);
+
+  --radius-0: 0;
+  --radius-2: 0.125rem;
+  --radius-4: 0.25rem;
+  --radius-8: 0.5rem;
+  --radius-12: 0.75rem;
+  --radius-16: 1rem;
+  --radius-full: 9999px;
+
+  --space-0: 0;
+  --space-0-5: 0.125rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --size-touch-target: 44px;
+
+  --border-width-1: 1px;
+  --border-width-2: 2px;
+
+  --font-family-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-family-serif: "Iowan Old Style", Charter, Georgia, serif;
+  --font-family-mono: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+}
+
+/* Palette plumbing: which hue ramp the accent comes from. */
+
+:root,
+[data-palette="default"] {
+  --palette-accent-300: var(--color-blue-300);
+  --palette-accent-400: var(--color-blue-400);
+  --palette-accent-500: var(--color-blue-500);
+  --palette-accent-600: var(--color-blue-600);
+  --palette-accent-700: var(--color-blue-700);
+}
+
+[data-palette="forest"] {
+  --palette-accent-300: var(--color-green-300);
+  --palette-accent-400: var(--color-green-400);
+  --palette-accent-500: var(--color-green-500);
+  --palette-accent-600: var(--color-green-600);
+  --palette-accent-700: var(--color-green-700);
+}
+
+/* 2. Semantic ---------------------------------------------------------- */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg-canvas: var(--color-neutral-50);
+  --color-bg-surface: var(--color-neutral-0);
+  --color-bg-raised: var(--color-neutral-100);
+  --color-text-primary: var(--color-neutral-950);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-on-accent: var(--color-neutral-0);
+  --color-border-default: var(--color-neutral-200);
+  --color-accent: var(--palette-accent-600);
+  --color-accent-hover: var(--palette-accent-700);
+  --color-focus-ring: var(--palette-accent-500);
+  --color-danger: var(--color-red-600);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg-canvas: var(--color-neutral-950);
+  --color-bg-surface: var(--color-neutral-900);
+  --color-bg-raised: var(--color-neutral-800);
+  --color-text-primary: var(--color-neutral-50);
+  --color-text-secondary: var(--color-neutral-400);
+  --color-text-on-accent: var(--color-neutral-950);
+  --color-border-default: var(--color-neutral-700);
+  --color-accent: var(--palette-accent-400);
+  --color-accent-hover: var(--palette-accent-300);
+  --color-focus-ring: var(--palette-accent-400);
+  --color-danger: var(--color-red-400);
+}
+
+:root,
+[data-radius="default"] {
+  --radius-control: var(--radius-8);
+  --radius-surface: var(--radius-12);
+}
+
+[data-radius="sharp"] {
+  --radius-control: var(--radius-2);
+  --radius-surface: var(--radius-4);
+}
+
+[data-radius="round"] {
+  --radius-control: var(--radius-full);
+  --radius-surface: var(--radius-16);
+}
+
+:root,
+[data-density="comfortable"] {
+  --space-inset-sm: var(--space-2);
+  --space-inset-md: var(--space-4);
+  --space-inset-lg: var(--space-6);
+  --space-stack-sm: var(--space-2);
+  --space-stack-md: var(--space-4);
+  --space-stack-lg: var(--space-8);
+  --space-inline-sm: var(--space-2);
+  --space-inline-md: var(--space-4);
+}
+
+[data-density="compact"] {
+  --space-inset-sm: var(--space-1);
+  --space-inset-md: var(--space-3);
+  --space-inset-lg: var(--space-4);
+  --space-stack-sm: var(--space-1);
+  --space-stack-md: var(--space-3);
+  --space-stack-lg: var(--space-6);
+  --space-inline-sm: var(--space-1);
+  --space-inline-md: var(--space-3);
+}
+
+:root,
+[data-type="default"] {
+  --font-family-body: var(--font-family-sans);
+  --font-family-heading: var(--font-family-sans);
+}
+
+[data-type="alt"] {
+  --font-family-body: var(--font-family-sans);
+  --font-family-heading: var(--font-family-serif);
+}
+
+/* Mode-independent semantic tokens. */
+:root,
+[data-theme] {
+  --font-family-code: var(--font-family-mono);
+  --font-size-small: var(--font-size-sm);
+  --font-size-body: var(--font-size-md);
+  --font-size-heading-sm: var(--font-size-lg);
+  --font-size-heading-md: var(--font-size-xl);
+  --font-size-heading-lg: var(--font-size-3xl);
+  --font-weight-body: var(--font-weight-regular);
+  --font-weight-strong: var(--font-weight-medium);
+  --font-weight-heading: var(--font-weight-bold);
+  --line-height-body: var(--line-height-normal);
+  --line-height-heading: var(--line-height-tight);
+  --size-touch-min: var(--size-touch-target);
+  --border-width-default: var(--border-width-1);
+  --border-width-focus: var(--border-width-2);
+  --space-focus-offset: var(--space-0-5);
+}
+
+/* 3. Component --------------------------------------------------------- */
+
+:root,
+[data-theme] {
+  --button-bg: var(--color-accent);
+  --button-bg-hover: var(--color-accent-hover);
+  --button-fg: var(--color-text-on-accent);
+  --button-radius: var(--radius-control);
+  --button-padding-x: var(--space-inset-md);
+  --button-padding-y: var(--space-inset-sm);
+  --button-min-height: var(--size-touch-min);
+  --button-font-family: var(--font-family-body);
+  --button-font-weight: var(--font-weight-strong);
+}
