@@ -179,6 +179,9 @@ importers:
       '@tailwindcss/turbopack':
         specifier: ^4
         version: 4.3.3
+      '@types/estree':
+        specifier: ^1.0.10
+        version: 1.0.10
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6
