@@ -32,11 +32,23 @@ Before opening a PR, `pnpm lint && pnpm typecheck && pnpm test` must pass.
 - No health data or personal data in the repo, fixtures included. Use synthetic data.
 
 ## Design system rules
-- Three token layers as CSS variables: primitives, semantic, component. All live in one tokens file.
-- Root attributes drive theming: `data-theme`, `data-palette`, `data-radius`, `data-type`, `data-density`. Every new component must work under all of them.
-- Components may not contain literal colours, radii, font families or spacing values. Use tokens only. A lint rule enforces this, so do not disable it.
+- Three token layers as CSS variables: primitives, semantic, component. All live in one tokens file: `src/styles/tokens.css`. Component tokens reference semantic tokens only.
+- Every token is also listed in `src/lib/design/tokens.ts`. A test fails if the list and the CSS drift apart.
+- Root attributes drive theming: `data-theme`, `data-palette`, `data-radius`, `data-type`, `data-density`. Every new component must work under all of them. Always set all five together on one element (`<html>`, or a preview wrapper).
+
+  | attribute | values (default first) |
+  |---|---|
+  | `data-theme` | `light`, `dark` |
+  | `data-palette` | `default` (blue), `forest` (green) |
+  | `data-radius` | `default`, `sharp`, `round` |
+  | `data-type` | `default`, `alt` (serif headings) |
+  | `data-density` | `comfortable`, `compact` |
+
+- Tailwind only knows tokens: the default palette, radii, fonts, type scale and spacing are removed in `src/app/globals.css`. Use semantic utilities (`bg-surface`, `text-secondary`, `rounded-control`, `p-inset-md`, `gap-stack-md`, `font-heading`, `text-body`). Use component tokens through the variable syntax (`bg-(--button-bg)`).
+- Components may not contain literal colours, radii, font families or spacing values. Use tokens only. The `sub80/no-literal-design-values` lint rule (`tools/eslint`) enforces this in `src/components` and `src/app`, so do not disable it. Components have no CSS files of their own.
+- Text and background pairs meet WCAG AA (4.5:1) in every theme and palette.
 - A hidden `/design` page shows every token and component in every mode. Add new components there.
-- Token names mirror Figma variables one to one. Do not rename a token without saying so in the PR.
+- Token names mirror Figma variables one to one: `color/neutral/100` in Figma is `--color-neutral-100` in CSS. Do not rename a token without saying so in the PR.
 
 ## Domain rules
 - Units: metric. Pace in min/km. Time zone Europe/Paris. Interface language English.

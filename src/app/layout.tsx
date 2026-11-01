@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { defaultModes, modeAttributes } from "@/lib/design/tokens";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en">
+    <html lang="en" {...modeAttributes(defaultModes)}>
       <body>{children}</body>
     </html>
   );
