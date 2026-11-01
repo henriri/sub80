@@ -1,1 +1,92 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
+
+/*
+ * Tailwind only knows sub80 tokens. The default palette, radii, fonts, type
+ * scale and spacing scale are removed, so `bg-red-500` or `p-4` generate
+ * nothing. `inline` makes utilities read the token at the element, so mode
+ * attributes on a wrapper take effect.
+ *
+ * Component tokens are used through Tailwind's variable syntax, for example
+ * `bg-(--button-bg)`.
+ */
+@theme inline reference {
+  --color-*: initial;
+  --radius-*: initial;
+  --font-*: initial;
+  --font-weight-*: initial;
+  --text-*: initial;
+  --leading-*: initial;
+  --tracking-*: initial;
+  --shadow-*: initial;
+  --spacing: initial;
+  --spacing-*: initial;
+
+  --background-color-canvas: var(--color-bg-canvas);
+  --background-color-surface: var(--color-bg-surface);
+  --background-color-raised: var(--color-bg-raised);
+  --background-color-accent: var(--color-accent);
+  --background-color-accent-hover: var(--color-accent-hover);
+  --background-color-danger: var(--color-danger);
+
+  --text-color-primary: var(--color-text-primary);
+  --text-color-secondary: var(--color-text-secondary);
+  --text-color-on-accent: var(--color-text-on-accent);
+  --text-color-accent: var(--color-accent);
+  --text-color-danger: var(--color-danger);
+
+  --border-color-default: var(--color-border-default);
+  --outline-color-focus: var(--color-focus-ring);
+
+  --radius-control: var(--radius-control);
+  --radius-surface: var(--radius-surface);
+
+  --spacing-inset-sm: var(--space-inset-sm);
+  --spacing-inset-md: var(--space-inset-md);
+  --spacing-inset-lg: var(--space-inset-lg);
+  --spacing-stack-sm: var(--space-stack-sm);
+  --spacing-stack-md: var(--space-stack-md);
+  --spacing-stack-lg: var(--space-stack-lg);
+  --spacing-inline-sm: var(--space-inline-sm);
+  --spacing-inline-md: var(--space-inline-md);
+
+  --min-height-touch: var(--size-touch-min);
+  --min-width-touch: var(--size-touch-min);
+
+  --font-body: var(--font-family-body);
+  --font-heading: var(--font-family-heading);
+  --font-code: var(--font-family-code);
+
+  --font-weight-body: var(--font-weight-body);
+  --font-weight-strong: var(--font-weight-strong);
+  --font-weight-heading: var(--font-weight-heading);
+
+  --text-small: var(--font-size-small);
+  --text-small--line-height: var(--line-height-body);
+  --text-body: var(--font-size-body);
+  --text-body--line-height: var(--line-height-body);
+  --text-heading-sm: var(--font-size-heading-sm);
+  --text-heading-sm--line-height: var(--line-height-heading);
+  --text-heading-md: var(--font-size-heading-md);
+  --text-heading-md--line-height: var(--line-height-heading);
+  --text-heading-lg: var(--font-size-heading-lg);
+  --text-heading-lg--line-height: var(--line-height-heading);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg-canvas);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-heading);
+    line-height: var(--line-height-heading);
+  }
+}
