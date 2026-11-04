@@ -245,6 +245,12 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# The login form signs in with a 6-digit code, so the email must contain it.
+# Mirror this template in the dashboard (Auth > Emails > Magic link) for the remote project.
+[auth.email.template.magic_link]
+subject = "Your sub80 sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
