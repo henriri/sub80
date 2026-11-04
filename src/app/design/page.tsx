@@ -2,7 +2,17 @@ import type { Metadata } from "next";
 import { Button } from "@/components/Button";
 import { TextField } from "@/components/TextField";
 import { WorkoutList } from "@/components/WorkoutList";
-import type { StoredWorkout } from "@/lib/plan";
+import { Calendar } from "@/components/calendar/Calendar";
+import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
+import { KindBadge } from "@/components/calendar/KindBadge";
+import { WorkoutCard } from "@/components/calendar/WorkoutCard";
+import {
+  buildDayView,
+  buildMonthView,
+  buildWeekView,
+  type CalendarItem,
+} from "@/lib/calendar";
+import { WORKOUT_KINDS, type StoredWorkout } from "@/lib/plan";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
 import { ModePreview, TokenValue } from "./mode-preview";
 
@@ -50,10 +60,48 @@ const sampleWorkouts = [
     pace_zone: "10K",
     strides: false,
   },
+  {
+    id: "00000000-0000-4000-8000-000000000004",
+    generated_key: null,
+    planned_date: "2027-03-19",
+    kind: "tt",
+    title: "30′ time trial",
+    is_key: true,
+    target_distance_m: 9000,
+    week_index: 22,
+    pace_zone: "T",
+    strides: false,
+  },
 ] satisfies StoredWorkout[];
 
 /** The VDOT the sample paces are derived from: the plan's starting point. */
 const SAMPLE_VDOT = 47;
+
+/**
+ * A Thursday in plan week 22, which is the week the sample rows sit in. Today
+ * is the same day, so the "today" marking shows up in every view.
+ */
+const SAMPLE_DATE = "2027-03-18";
+
+const sampleInput = {
+  date: SAMPLE_DATE,
+  today: SAMPLE_DATE,
+  workouts: sampleWorkouts,
+  vdot: SAMPLE_VDOT,
+};
+
+const sampleWeek = buildWeekView(sampleInput);
+const sampleMonth = buildMonthView(sampleInput);
+const sampleDay = buildDayView(sampleInput);
+const sampleItems: readonly CalendarItem[] = sampleWeek.days.flatMap(
+  (day) => day.items,
+);
+
+/** A bordered surface, as the component cards on this page use. */
+const card = [
+  "flex flex-col gap-stack-md rounded-surface bg-surface p-inset-md",
+  "border-(length:--border-width-default) border-default",
+].join(" ");
 
 const layers: { layer: TokenLayer; title: string }[] = [
   { layer: "primitive", title: "Primitives" },
@@ -117,6 +165,17 @@ function Group({ group }: { group: TokenGroup }) {
   );
 }
 
+/** Every workout kind, as a label and as a month-grid marker. */
+function KindBadges({ size }: { size: "label" | "short" }) {
+  return (
+    <div className="flex flex-wrap gap-inline-sm">
+      {WORKOUT_KINDS.map((kind) => (
+        <KindBadge key={kind} kind={kind} size={size} />
+      ))}
+    </div>
+  );
+}
+
 function Sample() {
   return (
     <>
@@ -130,6 +189,11 @@ function Sample() {
       </p>
       <div className="rounded-surface bg-raised p-inset-sm text-small">Raised surface</div>
       <WorkoutList items={sampleWorkouts.slice(0, 1)} vdot={SAMPLE_VDOT} />
+      <KindBadges size="label" />
+      <KindBadges size="short" />
+      {sampleItems.slice(0, 1).map((item) => (
+        <WorkoutCard key={item.id} item={item} />
+      ))}
     </>
   );
 }
@@ -160,6 +224,52 @@ export default function DesignPage() {
           <div className="flex flex-col gap-stack-md rounded-surface border-(length:--border-width-default) border-default bg-surface p-inset-md">
             <h3 className="text-heading-sm">WorkoutList</h3>
             <WorkoutList items={sampleWorkouts} vdot={SAMPLE_VDOT} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">KindBadge</h3>
+            <p className="text-small text-secondary">
+              Ten kinds, each with its own hue and its own word. The short marker
+              keeps the full name for screen readers.
+            </p>
+            <KindBadges size="label" />
+            <KindBadges size="short" />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">WorkoutCard</h3>
+            <p className="text-small text-secondary">Compact, as in a week column.</p>
+            <div className="flex flex-col gap-stack-sm">
+              {sampleItems.map((item) => (
+                <WorkoutCard key={item.id} item={item} />
+              ))}
+            </div>
+            <p className="text-small text-secondary">Full, as in the day view.</p>
+            <div className="flex flex-col gap-stack-sm">
+              {sampleItems.map((item) => (
+                <WorkoutCard key={`full-${item.id}`} item={item} size="full" />
+              ))}
+            </div>
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">Calendar · week</h3>
+            <Calendar model={sampleWeek} today={SAMPLE_DATE} titleLevel={4} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">Calendar · month</h3>
+            <Calendar model={sampleMonth} today={SAMPLE_DATE} titleLevel={4} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">Calendar · day</h3>
+            <Calendar model={sampleDay} today={SAMPLE_DATE} titleLevel={4} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">CalendarSkeleton</h3>
+            <CalendarSkeleton />
           </div>
         </section>
 

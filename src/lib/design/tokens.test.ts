@@ -44,9 +44,15 @@ describe("token manifest", () => {
   });
 
   it("keeps component tokens on the semantic layer", () => {
-    for (const m of component.matchAll(/--button-[a-z-]+:\s*var\((--[a-z0-9-]+)\)/g)) {
-      const ref = m[1] as string;
-      expect(declaredIn(semantic)).toContain(ref);
+    // Every component token, not just --button-*: a component token that
+    // reached past the semantic layer to a primitive would break theming.
+    const refs = [
+      ...component.matchAll(/^\s*--[a-z0-9-]+:\s*var\((--[a-z0-9-]+)\)\s*;/gm),
+    ].map((m) => m[1] as string);
+
+    expect(refs.length).toBe(declaredIn(component).length);
+    for (const ref of refs) {
+      expect(declaredIn(semantic), ref).toContain(ref);
     }
   });
 });
