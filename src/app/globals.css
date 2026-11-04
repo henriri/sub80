@@ -29,6 +29,32 @@
   --background-color-accent-hover: var(--color-accent-hover);
   --background-color-danger: var(--color-danger);
 
+  /*
+   * Workout kinds: `bg-kind-easy` with `text-on-kind-easy`. Two namespaces per
+   * kind, because --color-* is reset above and never repopulated.
+   */
+  --background-color-kind-easy: var(--kind-easy);
+  --background-color-kind-long: var(--kind-long);
+  --background-color-kind-hills: var(--kind-hills);
+  --background-color-kind-steady: var(--kind-steady);
+  --background-color-kind-sweet: var(--kind-sweet);
+  --background-color-kind-threshold: var(--kind-threshold);
+  --background-color-kind-interval: var(--kind-interval);
+  --background-color-kind-tt: var(--kind-tt);
+  --background-color-kind-race: var(--kind-race);
+  --background-color-kind-rest: var(--kind-rest);
+
+  --text-color-on-kind-easy: var(--kind-easy-fg);
+  --text-color-on-kind-long: var(--kind-long-fg);
+  --text-color-on-kind-hills: var(--kind-hills-fg);
+  --text-color-on-kind-steady: var(--kind-steady-fg);
+  --text-color-on-kind-sweet: var(--kind-sweet-fg);
+  --text-color-on-kind-threshold: var(--kind-threshold-fg);
+  --text-color-on-kind-interval: var(--kind-interval-fg);
+  --text-color-on-kind-tt: var(--kind-tt-fg);
+  --text-color-on-kind-race: var(--kind-race-fg);
+  --text-color-on-kind-rest: var(--kind-rest-fg);
+
   --text-color-primary: var(--color-text-primary);
   --text-color-secondary: var(--color-text-secondary);
   --text-color-on-accent: var(--color-text-on-accent);

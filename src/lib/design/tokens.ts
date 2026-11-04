@@ -27,6 +27,26 @@ const range = (prefix: string, steps: readonly (string | number)[]) =>
 
 const ramp = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
+/** The four steps a workout-kind hue needs: two per theme. */
+const kindRamp = [100, 300, 900, 950];
+
+/** Every workout kind, in the order `WORKOUT_KINDS` declares them. */
+const kinds = [
+  "easy",
+  "long",
+  "hills",
+  "steady",
+  "sweet",
+  "threshold",
+  "interval",
+  "tt",
+  "race",
+  "rest",
+] as const;
+
+/** `--kind-easy` and `--kind-easy-fg` for every kind. */
+const kindTokens = kinds.flatMap((kind) => [`--kind-${kind}`, `--kind-${kind}-fg`]);
+
 export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
   primitive: [
     {
@@ -36,7 +56,21 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
     },
     { name: "Blue", kind: "color", tokens: range("--color-blue", ramp) },
     { name: "Green", kind: "color", tokens: range("--color-green", ramp) },
-    { name: "Red", kind: "color", tokens: range("--color-red", [400, 600]) },
+    {
+      name: "Red",
+      kind: "color",
+      tokens: range("--color-red", [100, 300, 400, 600, 900, 950]),
+    },
+    { name: "Orange", kind: "color", tokens: range("--color-orange", kindRamp) },
+    { name: "Amber", kind: "color", tokens: range("--color-amber", kindRamp) },
+    { name: "Teal", kind: "color", tokens: range("--color-teal", kindRamp) },
+    { name: "Cyan", kind: "color", tokens: range("--color-cyan", kindRamp) },
+    { name: "Violet", kind: "color", tokens: range("--color-violet", kindRamp) },
+    {
+      name: "Magenta",
+      kind: "color",
+      tokens: range("--color-magenta", kindRamp),
+    },
     {
       name: "Radius",
       kind: "radius",
@@ -96,6 +130,7 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--color-border-default",
       ],
     },
+    { name: "Workout kind", kind: "color", tokens: kindTokens },
     {
       name: "Radius",
       kind: "radius",
@@ -188,6 +223,63 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       name: "Field type",
       kind: "font-family",
       tokens: ["--field-font-family"],
+    },
+    {
+      name: "Calendar colour",
+      kind: "color",
+      tokens: [
+        "--cal-cell-bg",
+        "--cal-cell-bg-muted",
+        "--cal-cell-border",
+        "--cal-date-fg",
+        "--cal-date-fg-muted",
+        "--cal-today-bg",
+        "--cal-today-ring",
+        "--cal-event-border",
+        "--cal-card-bg",
+        "--cal-card-fg",
+        "--cal-card-border",
+        "--cal-header-bg",
+        "--cal-weekday-fg",
+      ],
+    },
+    {
+      name: "Calendar radius",
+      kind: "radius",
+      tokens: ["--cal-cell-radius", "--cal-card-radius", "--cal-marker-radius"],
+    },
+    {
+      name: "Calendar space",
+      kind: "space",
+      tokens: [
+        "--cal-cell-padding",
+        "--cal-cell-gap",
+        "--cal-card-padding-x",
+        "--cal-card-padding-y",
+        "--cal-card-gap",
+        "--cal-marker-size",
+        "--cal-header-gap",
+      ],
+    },
+    {
+      name: "Calendar size",
+      kind: "size",
+      tokens: [
+        "--cal-cell-min-size",
+        "--cal-card-min-height",
+        "--cal-nav-min-size",
+      ],
+    },
+    {
+      name: "Calendar border width",
+      kind: "border-width",
+      tokens: ["--cal-today-ring-width"],
+    },
+    { name: "Calendar type", kind: "font-family", tokens: ["--cal-marker-font"] },
+    {
+      name: "Calendar font size",
+      kind: "font-size",
+      tokens: ["--cal-marker-font-size"],
     },
   ],
 };

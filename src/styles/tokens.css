@@ -74,8 +74,49 @@
   --color-green-900: oklch(0.379 0.08 155);
   --color-green-950: oklch(0.282 0.06 156);
 
+  --color-red-100: oklch(0.932 0.034 25);
+  --color-red-300: oklch(0.809 0.108 25);
   --color-red-400: oklch(0.704 0.191 22);
   --color-red-600: oklch(0.577 0.245 27);
+  --color-red-900: oklch(0.379 0.11 27);
+  --color-red-950: oklch(0.282 0.08 27);
+
+  /*
+   * Workout-kind hues. Only the four steps the kind tokens use, as with red:
+   * 100 and 900 are the light-theme chip, 950 and 300 the dark-theme one.
+   * Hues are spread around the wheel so ten kinds stay apart from each other
+   * and from the blue and green accents.
+   */
+
+  --color-orange-100: oklch(0.932 0.04 55);
+  --color-orange-300: oklch(0.809 0.11 55);
+  --color-orange-900: oklch(0.379 0.09 50);
+  --color-orange-950: oklch(0.282 0.07 50);
+
+  --color-amber-100: oklch(0.932 0.045 85);
+  --color-amber-300: oklch(0.809 0.115 85);
+  --color-amber-900: oklch(0.379 0.079 80);
+  --color-amber-950: oklch(0.282 0.06 80);
+
+  --color-teal-100: oklch(0.932 0.038 185);
+  --color-teal-300: oklch(0.809 0.1 185);
+  --color-teal-900: oklch(0.379 0.066 190);
+  --color-teal-950: oklch(0.282 0.049 190);
+
+  --color-cyan-100: oklch(0.932 0.036 225);
+  --color-cyan-300: oklch(0.809 0.1 225);
+  --color-cyan-900: oklch(0.379 0.076 230);
+  --color-cyan-950: oklch(0.282 0.057 230);
+
+  --color-violet-100: oklch(0.932 0.034 290);
+  --color-violet-300: oklch(0.809 0.103 290);
+  --color-violet-900: oklch(0.379 0.13 292);
+  --color-violet-950: oklch(0.282 0.1 294);
+
+  --color-magenta-100: oklch(0.932 0.04 330);
+  --color-magenta-300: oklch(0.809 0.11 330);
+  --color-magenta-900: oklch(0.379 0.12 332);
+  --color-magenta-950: oklch(0.282 0.09 334);
 
   --radius-0: 0;
   --radius-2: 0.125rem;
@@ -158,6 +199,32 @@
   --color-accent-hover: var(--palette-accent-700);
   --color-focus-ring: var(--palette-accent-500);
   --color-danger: var(--color-red-600);
+
+  /*
+   * Workout kinds. A pale tint with same-hue dark text. These do not follow
+   * the palette: a kind is categorical identity, not branding, so `easy` is
+   * green under both palettes. contrast.test.ts holds every pair at 4.5:1.
+   */
+  --kind-easy: var(--color-green-100);
+  --kind-easy-fg: var(--color-green-900);
+  --kind-long: var(--color-blue-100);
+  --kind-long-fg: var(--color-blue-900);
+  --kind-hills: var(--color-orange-100);
+  --kind-hills-fg: var(--color-orange-900);
+  --kind-steady: var(--color-teal-100);
+  --kind-steady-fg: var(--color-teal-900);
+  --kind-sweet: var(--color-cyan-100);
+  --kind-sweet-fg: var(--color-cyan-900);
+  --kind-threshold: var(--color-amber-100);
+  --kind-threshold-fg: var(--color-amber-900);
+  --kind-interval: var(--color-violet-100);
+  --kind-interval-fg: var(--color-violet-900);
+  --kind-tt: var(--color-magenta-100);
+  --kind-tt-fg: var(--color-magenta-900);
+  --kind-race: var(--color-red-100);
+  --kind-race-fg: var(--color-red-900);
+  --kind-rest: var(--color-neutral-100);
+  --kind-rest-fg: var(--color-neutral-600);
 }
 
 [data-theme="dark"] {
@@ -173,6 +240,28 @@
   --color-accent-hover: var(--palette-accent-300);
   --color-focus-ring: var(--palette-accent-400);
   --color-danger: var(--color-red-400);
+
+  /* Same twenty names, inverted: a deep tint with same-hue light text. */
+  --kind-easy: var(--color-green-950);
+  --kind-easy-fg: var(--color-green-300);
+  --kind-long: var(--color-blue-950);
+  --kind-long-fg: var(--color-blue-300);
+  --kind-hills: var(--color-orange-950);
+  --kind-hills-fg: var(--color-orange-300);
+  --kind-steady: var(--color-teal-950);
+  --kind-steady-fg: var(--color-teal-300);
+  --kind-sweet: var(--color-cyan-950);
+  --kind-sweet-fg: var(--color-cyan-300);
+  --kind-threshold: var(--color-amber-950);
+  --kind-threshold-fg: var(--color-amber-300);
+  --kind-interval: var(--color-violet-950);
+  --kind-interval-fg: var(--color-violet-300);
+  --kind-tt: var(--color-magenta-950);
+  --kind-tt-fg: var(--color-magenta-300);
+  --kind-race: var(--color-red-950);
+  --kind-race-fg: var(--color-red-300);
+  --kind-rest: var(--color-neutral-800);
+  --kind-rest-fg: var(--color-neutral-400);
 }
 
 :root,
@@ -268,4 +357,40 @@
   --field-padding-y: var(--space-inset-sm);
   --field-min-height: var(--size-touch-min);
   --field-font-family: var(--font-family-body);
+
+  /* Calendar: the week, month and day views and the cards inside them. */
+  --cal-cell-bg: var(--color-bg-surface);
+  --cal-cell-bg-muted: var(--color-bg-canvas);
+  --cal-cell-border: var(--color-border-default);
+  --cal-cell-radius: var(--radius-control);
+  --cal-cell-min-size: var(--size-touch-min);
+  --cal-cell-padding: var(--space-inset-sm);
+  --cal-cell-gap: var(--space-stack-sm);
+  --cal-date-fg: var(--color-text-primary);
+  --cal-date-fg-muted: var(--color-text-secondary);
+
+  --cal-today-bg: var(--color-bg-raised);
+  --cal-today-ring: var(--color-accent);
+  --cal-today-ring-width: var(--border-width-focus);
+  /* Race and time-trial days: a neutral outline, so the mark is not a hue. */
+  --cal-event-border: var(--color-text-primary);
+
+  --cal-card-bg: var(--color-bg-surface);
+  --cal-card-fg: var(--color-text-primary);
+  --cal-card-border: var(--color-border-default);
+  --cal-card-radius: var(--radius-surface);
+  --cal-card-padding-x: var(--space-inset-md);
+  --cal-card-padding-y: var(--space-inset-sm);
+  --cal-card-gap: var(--space-stack-sm);
+  --cal-card-min-height: var(--size-touch-min);
+
+  --cal-marker-radius: var(--radius-control);
+  --cal-marker-size: var(--space-inline-md);
+  --cal-marker-font: var(--font-family-code);
+  --cal-marker-font-size: var(--font-size-small);
+
+  --cal-header-bg: var(--color-bg-canvas);
+  --cal-header-gap: var(--space-inline-sm);
+  --cal-nav-min-size: var(--size-touch-min);
+  --cal-weekday-fg: var(--color-text-secondary);
 }
