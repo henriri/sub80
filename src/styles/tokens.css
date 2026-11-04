@@ -288,6 +288,7 @@
   --space-stack-sm: var(--space-2);
   --space-stack-md: var(--space-4);
   --space-stack-lg: var(--space-8);
+  --space-inline-xs: var(--space-1);
   --space-inline-sm: var(--space-2);
   --space-inline-md: var(--space-4);
 }
@@ -299,6 +300,7 @@
   --space-stack-sm: var(--space-1);
   --space-stack-md: var(--space-3);
   --space-stack-lg: var(--space-6);
+  --space-inline-xs: var(--space-0-5);
   --space-inline-sm: var(--space-1);
   --space-inline-md: var(--space-3);
 }
@@ -366,6 +368,8 @@
   --cal-cell-min-size: var(--size-touch-min);
   --cal-cell-padding: var(--space-inset-sm);
   --cal-cell-gap: var(--space-stack-sm);
+  --cal-grid-gap: var(--space-inline-xs);
+  --cal-grid-cell-padding: var(--space-inline-xs);
   --cal-date-fg: var(--color-text-primary);
   --cal-date-fg-muted: var(--color-text-secondary);
 

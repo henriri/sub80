@@ -142,7 +142,7 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       tokens: [
         ...range("--space-inset", ["sm", "md", "lg"]),
         ...range("--space-stack", ["sm", "md", "lg"]),
-        ...range("--space-inline", ["sm", "md"]),
+        ...range("--space-inline", ["xs", "sm", "md"]),
         "--space-focus-offset",
       ],
     },
@@ -254,6 +254,8 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       tokens: [
         "--cal-cell-padding",
         "--cal-cell-gap",
+        "--cal-grid-gap",
+        "--cal-grid-cell-padding",
         "--cal-card-padding-x",
         "--cal-card-padding-y",
         "--cal-card-gap",

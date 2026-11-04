@@ -3,7 +3,12 @@ import { MonthDayCell } from "./MonthDayCell";
 
 type MonthViewProps = { month: MonthViewModel };
 
-const grid = "grid grid-cols-7 gap-(--cal-cell-gap)";
+/**
+ * A tighter gap than a week column uses: at 360px, seven columns plus six
+ * 8px gaps leave cells under the 44px touch target, and `minmax(0, 1fr)`
+ * columns mean the grid itself can never scroll the page sideways.
+ */
+const grid = "grid grid-cols-7 gap-(--cal-grid-gap)";
 
 /**
  * Monday-first, six rows, with the leading and trailing days greyed. The
@@ -14,12 +19,12 @@ export function MonthView({ month }: MonthViewProps) {
   const headings = month.weeks[0] ?? [];
 
   return (
-    <div className="flex flex-col gap-(--cal-cell-gap)">
+    <div className="flex flex-col gap-(--cal-grid-gap)">
       <div aria-hidden="true" className={grid}>
         {headings.map((day) => (
           <span
             key={day.date}
-            className="px-(--cal-cell-padding) text-small text-(color:--cal-weekday-fg)"
+            className="px-(--cal-grid-cell-padding) text-small text-(color:--cal-weekday-fg)"
           >
             {day.weekdayLabel}
           </span>

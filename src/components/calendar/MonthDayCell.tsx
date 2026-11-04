@@ -12,7 +12,7 @@ type MonthDayCellProps = { day: MonthDay };
 
 const cell = [
   "flex min-h-(--cal-cell-min-size) flex-col gap-(--cal-cell-gap)",
-  "p-(--cal-cell-padding) rounded-(--cal-cell-radius)",
+  "p-(--cal-grid-cell-padding) rounded-(--cal-cell-radius)",
   "hover:bg-raised",
   focusRing,
 ].join(" ");
@@ -62,7 +62,7 @@ export function MonthDayCell({ day }: MonthDayCellProps) {
       </span>
 
       {day.items.length === 0 ? null : (
-        <span aria-hidden="true" className="flex flex-wrap gap-(--cal-cell-gap)">
+        <span aria-hidden="true" className="flex flex-wrap gap-(--cal-grid-gap)">
           {day.items.map((item) => (
             <KindBadge key={item.id} kind={item.kind} size="short" />
           ))}

@@ -85,9 +85,13 @@ async function CalendarSection({
   );
 }
 
+/**
+ * A narrow gutter on a phone: a month grid needs the width for seven 44px
+ * columns. Wider screens get the usual page inset.
+ */
 export default function Home(props: PageProps<"/">) {
   return (
-    <main className="flex flex-col gap-stack-md p-inset-lg">
+    <main className="flex flex-col gap-stack-md p-inset-sm md:p-inset-lg">
       <Suspense fallback={<p className="text-small text-secondary">sub80</p>}>
         <AppHeader />
       </Suspense>

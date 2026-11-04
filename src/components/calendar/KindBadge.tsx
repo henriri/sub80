@@ -17,7 +17,9 @@ const base = [
 
 const sizes = {
   label: "px-inline-sm",
-  short: "min-w-(--cal-marker-size) px-inline-sm",
+  // No horizontal padding: a month cell is about 45px wide on a phone, and the
+  // minimum width already keeps a one-letter marker from looking squashed.
+  short: "min-w-(--cal-marker-size) px-inline-xs",
 } satisfies Record<NonNullable<KindBadgeProps["size"]>, string>;
 
 /**

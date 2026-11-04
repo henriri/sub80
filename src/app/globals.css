@@ -73,6 +73,7 @@
   --spacing-stack-sm: var(--space-stack-sm);
   --spacing-stack-md: var(--space-stack-md);
   --spacing-stack-lg: var(--space-stack-lg);
+  --spacing-inline-xs: var(--space-inline-xs);
   --spacing-inline-sm: var(--space-inline-sm);
   --spacing-inline-md: var(--space-inline-md);
 
