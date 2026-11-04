@@ -9,6 +9,12 @@ export {
 export { KIND_META, isEventKind, type KindMeta } from "./kinds";
 export { monthGrid, type MonthCell } from "./month-grid";
 export {
+  rejectHint,
+  rejectMessage,
+  warningMessage,
+  warningTitle,
+} from "./move-messages";
+export {
   CALENDAR_VIEWS,
   calendarHref,
   defaultParams,
