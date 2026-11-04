@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/Button";
 import { TextField } from "@/components/TextField";
+import { WorkoutList } from "@/components/WorkoutList";
+import type { StoredWorkout } from "@/lib/plan";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
 import { ModePreview, TokenValue } from "./mode-preview";
 
@@ -8,6 +10,50 @@ export const metadata: Metadata = {
   title: "Design system · sub80",
   robots: { index: false, follow: false },
 };
+
+/** Synthetic sessions, shaped like rows of planned_workouts. */
+const sampleWorkouts = [
+  {
+    id: "00000000-0000-4000-8000-000000000001",
+    generated_key: "w22-d1",
+    planned_date: "2027-03-16",
+    kind: "threshold",
+    title: "Threshold 3 × 12′ (2′ jog)",
+    is_key: true,
+    target_distance_m: 11000,
+    week_index: 22,
+    pace_zone: "T",
+    strides: false,
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000002",
+    generated_key: "w22-d3",
+    planned_date: "2027-03-18",
+    kind: "easy",
+    title: "Easy run + 6 strides",
+    is_key: false,
+    target_distance_m: 8500,
+    week_index: 22,
+    pace_zone: "E",
+    strides: true,
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000003",
+    // Null: a row added by hand or by the coach, not by the generator.
+    generated_key: null,
+    planned_date: "2027-03-21",
+    kind: "race",
+    title: "RACE: 10k",
+    is_key: true,
+    target_distance_m: 14000,
+    week_index: 22,
+    pace_zone: "10K",
+    strides: false,
+  },
+] satisfies StoredWorkout[];
+
+/** The VDOT the sample paces are derived from: the plan's starting point. */
+const SAMPLE_VDOT = 47;
 
 const layers: { layer: TokenLayer; title: string }[] = [
   { layer: "primitive", title: "Primitives" },
@@ -83,6 +129,7 @@ function Sample() {
         <span className="text-accent">Accent.</span> <span className="text-danger">Danger.</span>
       </p>
       <div className="rounded-surface bg-raised p-inset-sm text-small">Raised surface</div>
+      <WorkoutList items={sampleWorkouts.slice(0, 1)} vdot={SAMPLE_VDOT} />
     </>
   );
 }
@@ -109,6 +156,10 @@ export default function DesignPage() {
             <TextField id="design-field-default" label="Email" hint="We send a 6-digit code." />
             <TextField id="design-field-error" label="Code" defaultValue="12" error="Enter the 6-digit code." />
             <TextField id="design-field-disabled" label="Disabled" disabled />
+          </div>
+          <div className="flex flex-col gap-stack-md rounded-surface border-(length:--border-width-default) border-default bg-surface p-inset-md">
+            <h3 className="text-heading-sm">WorkoutList</h3>
+            <WorkoutList items={sampleWorkouts} vdot={SAMPLE_VDOT} />
           </div>
         </section>
 

@@ -4,7 +4,7 @@
 
 begin;
 
-select plan(22);
+select plan(26);
 
 -- Two synthetic users. The on_auth_user_created trigger creates their profiles.
 insert into auth.users (id, email) values
@@ -12,16 +12,17 @@ insert into auth.users (id, email) values
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'runner-b@example.test');
 
 -- Rows owned by user B.
-insert into public.planned_workouts (id, user_id, planned_date, kind, title) values
-  ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04', 'easy', 'B run');
+insert into public.planned_workouts (id, user_id, planned_date, kind, title, week_index, pace_zone, generated_key) values
+  ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04', 'easy', 'B run', 12, 'E', 'w12-d0');
 insert into public.activities (user_id, started_at, distance_m, duration_s, hr_source) values
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04 07:00+01', 8000, 2700, 'wrist');
 insert into public.plan_events (id, user_id, kind, source) values
   ('b0000000-0000-0000-0000-0000000000e1', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'swap_workout', 'coach');
 
 -- Row owned by user A.
-insert into public.planned_workouts (user_id, planned_date, kind, title) values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05', 'long', 'A run');
+-- Same generated_key as B's row: the unique index is per user, so both fit.
+insert into public.planned_workouts (user_id, planned_date, kind, title, week_index, pace_zone, generated_key) values
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05', 'long', 'A run', 12, 'E', 'w12-d0');
 
 select is(
   (select count(*)::int from public.profiles),
@@ -44,8 +45,8 @@ select is((select count(*)::int from public.activities), 0, 'A sees none of B''s
 select is((select count(*)::int from public.plan_events), 0, 'A sees none of B''s plan events');
 
 select throws_ok(
-  $$insert into public.planned_workouts (user_id, planned_date, kind, title)
-    values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-06', 'easy', 'planted')$$,
+  $$insert into public.planned_workouts (user_id, planned_date, kind, title, week_index)
+    values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-06', 'easy', 'planted', 12)$$,
   '42501', null,
   'A cannot insert a planned workout for B'
 );
@@ -63,6 +64,40 @@ select throws_ok(
     values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05 07:00+01', 5000, 1500, 'chest')$$,
   '23514', null,
   'hr_source accepts only strap or wrist'
+);
+
+-- The unique index behind "Generate my plan": a second row with the same
+-- generated_key is refused, so a double click cannot duplicate the plan, even
+-- on another date and under another title.
+select throws_ok(
+  $$insert into public.planned_workouts (user_id, planned_date, kind, title, week_index, generated_key)
+    values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-02-09', 'easy', 'A run again', 12, 'w12-d0')$$,
+  '23505', null,
+  'a generated session cannot be planned twice for one user'
+);
+
+-- Rows the coach or the athlete adds later leave generated_key null, and a
+-- unique index allows any number of nulls.
+select lives_ok(
+  $$insert into public.planned_workouts (user_id, planned_date, kind, title, week_index)
+    values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-07', 'easy', 'A run', 12),
+           ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-07', 'easy', 'A run', 12)$$,
+  'rows without a generated_key may share a date and a title'
+);
+
+-- Moving a workout must never conflict with the workout already there: this
+-- lands 'A run' on a day that already holds two rows with that same title.
+select lives_ok(
+  $$update public.planned_workouts set planned_date = '2027-01-07'
+    where user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' and generated_key = 'w12-d0'$$,
+  'a generated workout can move onto a day that already has workouts'
+);
+
+select throws_ok(
+  $$insert into public.planned_workouts (user_id, planned_date, kind, title, week_index)
+    values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-07', 'tempo', 'A tempo', 12)$$,
+  '23514', null,
+  'kind accepts only the kinds the plan generator produces'
 );
 
 select lives_ok(
