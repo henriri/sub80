@@ -76,3 +76,9 @@ Never let model output write to the plan directly. It must pass validation first
 - The owner is a product designer. Explain decisions briefly, and flag trade-offs rather than silently choosing.
 - Do one phase at a time, as in the roadmap. Do not build ahead.
 - If a request conflicts with this file, say so before acting.
+
+## Safety hooks and CI
+- `.claude/settings.json` registers a PreToolUse hook, `.claude/hooks/guard.mjs`. It blocks (exit 2): pushes to `main`, force pushes, `git commit` and `git merge` on `main` (or when the branch is unknown), Supabase commands with `--remote` or `--linked`, and any access to `.env` / `.env.*` except `.env.example` (Read, Edit, Write, Grep and shell commands like `cat`, `type`, `Get-Content`).
+- The hook is a guardrail, not a replacement for the rules above. It only sees Claude Code tool calls. A bare `supabase db push` or `db pull` is not caught, so always pass `--local` or leave them to the owner.
+- The decision logic is the pure `decide` function, tested in `tools/claude-hooks/guard.test.ts`. Update the tests when changing a rule.
+- `.github/workflows/ci.yml` runs on pull requests and on pushes to `main`: install with a frozen lockfile, then `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`. The build uses fake `NEXT_PUBLIC_SUPABASE_*` placeholders; they are not secrets.
