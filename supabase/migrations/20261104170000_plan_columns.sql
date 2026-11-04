@@ -28,7 +28,8 @@ alter table public.planned_workouts
   add column week_index smallint not null check (week_index between 1 and 78),
   add column pace_zone text
     check (pace_zone in ('E', 'S', 'SS', 'T', 'I', 'R', '5K', '10K', 'HM')),
-  add column strides boolean not null default false;
+  add column strides boolean not null default false,
+  add column generated_key text check (length(generated_key) > 0);
 
 comment on column public.planned_workouts.week_index is
   'Plan week, 1 to 78. Week 1 starts 2026-10-19, week 78 holds the race.';
@@ -37,11 +38,24 @@ comment on column public.planned_workouts.pace_zone is
   'time, which is why target_pace_s_per_km stays null.';
 comment on column public.planned_workouts.strides is
   'The session finishes with strides.';
+comment on column public.planned_workouts.generated_key is
+  'Stable id from the plan generator, e.g. w13-d1. Null for rows added by '
+  'hand or by the coach. Unique per user, so generating the plan twice is '
+  'refused while moving a workout to another day is not.';
 
--- A double click on "Generate my plan" cannot create a second copy: the insert
--- is one statement, so the unique violation rolls the whole thing back.
-create unique index planned_workouts_user_date_title_idx
-  on public.planned_workouts (user_id, planned_date, title);
+-- A double click on "Generate my plan" cannot create a second copy: the second
+-- insert hits this index and, being one statement, rolls all 357 rows back.
+--
+-- The key is the generator's own session id, not (planned_date, title), so
+-- moving a workout to another day can never collide with the workout already
+-- there, and two sessions may legitimately share a date and a title.
+--
+-- NULLS DISTINCT is the default, written out because the design depends on it:
+-- rows added later by hand or by the coach leave generated_key null, and any
+-- number of nulls may coexist. planned_workouts_user_date_idx from the initial
+-- schema still carries the by-date lookups.
+create unique index planned_workouts_user_generated_key_idx
+  on public.planned_workouts (user_id, generated_key) nulls distinct;
 
 -- profiles -------------------------------------------------------------------
 

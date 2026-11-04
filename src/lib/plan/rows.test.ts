@@ -85,9 +85,29 @@ describe("toPlannedRows", () => {
     expect(rows.filter((row) => row.is_key).length).toBeGreaterThan(0);
   });
 
-  it("never repeats a date and title, so the unique index cannot fire", () => {
-    const seen = new Set(rows.map((row) => `${row.planned_date}|${row.title}`));
-    expect(seen.size).toBe(rows.length);
+  it("gives every row a unique generated_key, so one insert cannot self-conflict", () => {
+    const keys = new Set(rows.map((row) => row.generated_key));
+    expect(keys.size).toBe(rows.length);
+  });
+
+  it("carries the generator's session id as generated_key", () => {
+    for (const week of weeks) {
+      for (const session of week.sessions) {
+        expect(rows.some((row) => row.generated_key === session.id), session.id).toBe(true);
+      }
+    }
+    expect(rows[0]?.generated_key).toBe("w1-d1");
+    expect(rows.at(-1)?.generated_key).toBe("w78-d6");
+  });
+
+  it("repeats titles across the plan, so a title is not an identity", () => {
+    const titles = new Set(rows.map((row) => row.title));
+    expect(titles.size).toBeLessThan(rows.length);
+    // The generated rows do happen to be unique by date and title as well.
+    // generated_key is not there for them: it is there so a row added later,
+    // or a workout moved onto a day that already has one, cannot collide.
+    const pairs = new Set(rows.map((row) => `${row.planned_date}|${row.title}`));
+    expect(pairs.size).toBe(rows.length);
   });
 
   it("gives every row a pace zone and a plan week", () => {

@@ -11,9 +11,9 @@ import { createClient } from "@/lib/supabase/server";
  */
 
 const COLUMNS =
-  "id, planned_date, kind, title, is_key, target_distance_m, week_index, pace_zone, strides";
+  "id, generated_key, planned_date, kind, title, is_key, target_distance_m, week_index, pace_zone, strides";
 
-/** Unique violation: a row for this date and title already exists. */
+/** Unique violation: a row with this generated_key already exists. */
 const UNIQUE_VIOLATION = "23505";
 
 export async function countPlannedWorkouts(userId: string): Promise<number> {
@@ -65,7 +65,7 @@ export type InsertOutcome = { ok: true } | { ok: false; duplicate: true };
 /**
  * Inserts the whole plan in one statement, so it either all lands or none of
  * it does. A concurrent second submit hits the unique index on
- * (user_id, planned_date, title) and is rolled back as a whole.
+ * (user_id, generated_key) and is rolled back as a whole.
  */
 export async function insertPlannedWorkouts(
   rows: readonly PlannedWorkoutRow[],

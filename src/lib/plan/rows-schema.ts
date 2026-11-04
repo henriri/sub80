@@ -10,9 +10,13 @@ import { ZONE_KEYS } from "./vdot";
 
 const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected a YYYY-MM-DD date.");
 
-/** One row as generated, before insert. */
+/** The generator's session id: week and day of week. */
+const generatedKey = z.string().regex(/^w([1-9]|[1-7][0-9])-d[0-6]$/, "Expected a key like w13-d1.");
+
+/** One row as generated, before insert. Every generated row carries its key. */
 export const insertRowSchema = z.object({
   user_id: z.uuid(),
+  generated_key: generatedKey,
   planned_date: ymd,
   kind: z.enum(WORKOUT_KINDS),
   title: z.string().min(1),
@@ -29,6 +33,8 @@ export const insertRowsSchema = z.array(insertRowSchema);
 /** One row read back from Postgres, for display. */
 export const storedWorkoutSchema = z.object({
   id: z.uuid(),
+  // Null on a row added by hand or by the coach.
+  generated_key: generatedKey.nullable(),
   planned_date: ymd,
   kind: z.enum(WORKOUT_KINDS),
   title: z.string().min(1),

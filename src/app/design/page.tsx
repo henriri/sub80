@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 const sampleWorkouts = [
   {
     id: "00000000-0000-4000-8000-000000000001",
+    generated_key: "w22-d1",
     planned_date: "2027-03-16",
     kind: "threshold",
     title: "Threshold 3 × 12′ (2′ jog)",
@@ -26,6 +27,7 @@ const sampleWorkouts = [
   },
   {
     id: "00000000-0000-4000-8000-000000000002",
+    generated_key: "w22-d3",
     planned_date: "2027-03-18",
     kind: "easy",
     title: "Easy run + 6 strides",
@@ -37,6 +39,8 @@ const sampleWorkouts = [
   },
   {
     id: "00000000-0000-4000-8000-000000000003",
+    // Null: a row added by hand or by the coach, not by the generator.
+    generated_key: null,
     planned_date: "2027-03-21",
     kind: "race",
     title: "RACE: 10k",

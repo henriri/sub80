@@ -14,6 +14,13 @@ import type { ZoneKey } from "./vdot";
 /** A row of public.planned_workouts, as inserted. */
 export type PlannedWorkoutRow = {
   user_id: string;
+  /**
+   * The generator's session id, e.g. 'w13-d1'. Unique per user, so generating
+   * the plan twice is refused; rows added later by hand or by the coach leave
+   * it null. Keying on this rather than the date means moving a workout can
+   * never collide with the workout already on that day.
+   */
+  generated_key: string;
   planned_date: Ymd;
   kind: WorkoutKind;
   title: string;
@@ -48,6 +55,7 @@ export function toPlannedRows(weeks: readonly Week[], userId: string): PlannedWo
   return weeks.flatMap((week) =>
     week.sessions.map((session) => ({
       user_id: userId,
+      generated_key: session.id,
       planned_date: addDays(week.start, session.dow),
       kind: session.kind,
       title: session.title,
