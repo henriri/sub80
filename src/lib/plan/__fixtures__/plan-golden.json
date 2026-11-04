@@ -1,0 +1,4463 @@
+[
+  {
+    "i": 1,
+    "start": "2026-10-19",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 22,
+    "sessions": [
+      {
+        "id": "w1-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w1-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w1-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 2,
+    "start": "2026-10-26",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 26,
+    "sessions": [
+      {
+        "id": "w2-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w2-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w2-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 10.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 3,
+    "start": "2026-11-02",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 30,
+    "sessions": [
+      {
+        "id": "w3-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w3-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w3-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 12.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 4,
+    "start": "2026-11-09",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 22,
+    "sessions": [
+      {
+        "id": "w4-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w4-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 6,
+        "strides": true
+      },
+      {
+        "id": "w4-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 5,
+    "start": "2026-11-16",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 28,
+    "sessions": [
+      {
+        "id": "w5-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w5-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 6,
+        "strides": true
+      },
+      {
+        "id": "w5-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 5.5,
+        "strides": false
+      },
+      {
+        "id": "w5-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 10.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 6,
+    "start": "2026-11-23",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 32,
+    "sessions": [
+      {
+        "id": "w6-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w6-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 7,
+        "strides": true
+      },
+      {
+        "id": "w6-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w6-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 11.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 7,
+    "start": "2026-11-30",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 36,
+    "sessions": [
+      {
+        "id": "w7-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w7-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w7-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w7-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 13,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 8,
+    "start": "2026-12-07",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 26,
+    "sessions": [
+      {
+        "id": "w8-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 5,
+        "strides": false
+      },
+      {
+        "id": "w8-d3",
+        "dow": 3,
+        "kind": "tt",
+        "title": "30′ time trial (2 km warm-up, steady hard effort, 1 km cool-down)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w8-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 4.5,
+        "strides": false
+      },
+      {
+        "id": "w8-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 9,
+    "start": "2026-12-14",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 34,
+    "sessions": [
+      {
+        "id": "w9-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w9-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w9-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w9-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 12,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 10,
+    "start": "2026-12-21",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 38,
+    "sessions": [
+      {
+        "id": "w10-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w10-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w10-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w10-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 13.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 11,
+    "start": "2026-12-28",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 42,
+    "sessions": [
+      {
+        "id": "w11-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w11-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 9,
+        "strides": true
+      },
+      {
+        "id": "w11-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w11-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 15.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 12,
+    "start": "2027-01-04",
+    "phase": {
+      "id": "P0",
+      "name": "Re-entry",
+      "from": 1,
+      "to": 12,
+      "goal": "Easy running only. Rebuild routine, tendons and adductors. Strides from week 3."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 30,
+    "sessions": [
+      {
+        "id": "w12-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w12-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 6.5,
+        "strides": true
+      },
+      {
+        "id": "w12-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w12-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 11,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 13,
+    "start": "2027-01-11",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 41,
+    "sessions": [
+      {
+        "id": "w13-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w13-d3",
+        "dow": 3,
+        "kind": "hills",
+        "title": "Easy + 6 × 10 s hill sprints",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w13-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 5.5,
+        "strides": false
+      },
+      {
+        "id": "w13-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7,
+        "strides": true
+      },
+      {
+        "id": "w13-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 13.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 14,
+    "start": "2027-01-18",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 44,
+    "sessions": [
+      {
+        "id": "w14-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w14-d3",
+        "dow": 3,
+        "kind": "hills",
+        "title": "Easy + 8 × 10 s hill sprints",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w14-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w14-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w14-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 14,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 15,
+    "start": "2027-01-25",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 46,
+    "sessions": [
+      {
+        "id": "w15-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w15-d3",
+        "dow": 3,
+        "kind": "hills",
+        "title": "Easy + 8 × 12 s hill sprints",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w15-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w15-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w15-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 14.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 16,
+    "start": "2027-02-01",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 32,
+    "sessions": [
+      {
+        "id": "w16-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w16-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w16-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 6.5,
+        "strides": true
+      },
+      {
+        "id": "w16-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 11.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 17,
+    "start": "2027-02-08",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 45,
+    "sessions": [
+      {
+        "id": "w17-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w17-d3",
+        "dow": 3,
+        "kind": "steady",
+        "title": "Steady 2 × 12′ (3′ easy between)",
+        "key": "S",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w17-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w17-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w17-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 14.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 18,
+    "start": "2027-02-15",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 48,
+    "sessions": [
+      {
+        "id": "w18-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w18-d3",
+        "dow": 3,
+        "kind": "steady",
+        "title": "Steady 2 × 15′ (3′ easy between)",
+        "key": "S",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w18-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w18-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w18-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 19,
+    "start": "2027-02-22",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 50,
+    "sessions": [
+      {
+        "id": "w19-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w19-d3",
+        "dow": 3,
+        "kind": "steady",
+        "title": "Steady 20′ continuous",
+        "key": "S",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w19-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w19-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w19-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 20,
+    "start": "2027-03-01",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 35,
+    "sessions": [
+      {
+        "id": "w20-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w20-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w20-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7,
+        "strides": true
+      },
+      {
+        "id": "w20-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 12.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 21,
+    "start": "2027-03-08",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 50,
+    "sessions": [
+      {
+        "id": "w21-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w21-d3",
+        "dow": 3,
+        "kind": "steady",
+        "title": "Steady 25′ + 4 strides",
+        "key": "S",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w21-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w21-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w21-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 22,
+    "start": "2027-03-15",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 52,
+    "sessions": [
+      {
+        "id": "w22-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w22-d3",
+        "dow": 3,
+        "kind": "steady",
+        "title": "Steady 30′ continuous",
+        "key": "S",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w22-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w22-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": true
+      },
+      {
+        "id": "w22-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 10′ steady",
+        "key": "S",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 23,
+    "start": "2027-03-22",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 55,
+    "sessions": [
+      {
+        "id": "w23-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w23-d3",
+        "dow": 3,
+        "kind": "steady",
+        "title": "Steady 2 × 20′ (3′ easy between)",
+        "key": "S",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w23-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7.5,
+        "strides": false
+      },
+      {
+        "id": "w23-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 9.5,
+        "strides": true
+      },
+      {
+        "id": "w23-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 10′ steady",
+        "key": "S",
+        "km": 17.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 24,
+    "start": "2027-03-29",
+    "phase": {
+      "id": "P1",
+      "name": "Aerobic base",
+      "from": 13,
+      "to": 24,
+      "goal": "Volume and light steady running. Hill sprints for strength."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 39,
+    "sessions": [
+      {
+        "id": "w24-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w24-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w24-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w24-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 13.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 25,
+    "start": "2027-04-05",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 50,
+    "sessions": [
+      {
+        "id": "w25-d1",
+        "dow": 1,
+        "kind": "sweet",
+        "title": "Sweet spot 3 × 10′ (2′ jog)",
+        "key": "SS",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w25-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 8 × 200 m strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w25-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w25-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7,
+        "strides": true
+      },
+      {
+        "id": "w25-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 18.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 26,
+    "start": "2027-04-12",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 52,
+    "sessions": [
+      {
+        "id": "w26-d1",
+        "dow": 1,
+        "kind": "sweet",
+        "title": "Sweet spot 3 × 12′ (2′ jog)",
+        "key": "SS",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w26-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "8 × 400 m @ I (200 m jog)",
+        "key": "I",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w26-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w26-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w26-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 18.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 27,
+    "start": "2027-04-19",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 55,
+    "sessions": [
+      {
+        "id": "w27-d1",
+        "dow": 1,
+        "kind": "sweet",
+        "title": "Sweet spot 2 × 20′ (3′ jog)",
+        "key": "SS",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w27-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "10 × 400 m @ I (200 m jog)",
+        "key": "I",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w27-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w27-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w27-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 28,
+    "start": "2027-04-26",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 39,
+    "sessions": [
+      {
+        "id": "w28-d1",
+        "dow": 1,
+        "kind": "sweet",
+        "title": "Sweet spot 2 × 10′ (down week)",
+        "key": "SS",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w28-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w28-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w28-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 14.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 29,
+    "start": "2027-05-03",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 51,
+    "sessions": [
+      {
+        "id": "w29-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 4 × 6′ (90″ jog)",
+        "key": "T",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w29-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w29-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w29-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7,
+        "strides": true
+      },
+      {
+        "id": "w29-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 18.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 30,
+    "start": "2027-05-10",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w30-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 10′ (2′ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w30-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "6 × 600 m @ I (2′ jog)",
+        "key": "I",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w30-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w30-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w30-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 15′ steady",
+        "key": "S",
+        "km": 19.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 31,
+    "start": "2027-05-17",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 57,
+    "sessions": [
+      {
+        "id": "w31-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 15′ (3′ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w31-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "5 × 800 m @ I (2′ jog)",
+        "key": "I",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w31-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w31-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w31-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 15′ steady",
+        "key": "S",
+        "km": 20.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 32,
+    "start": "2027-05-24",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 40,
+    "sessions": [
+      {
+        "id": "w32-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 6′ (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w32-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w32-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w32-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 15,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 33,
+    "start": "2027-05-31",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 52,
+    "sessions": [
+      {
+        "id": "w33-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 4 × 8′ (90″ jog)",
+        "key": "T",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w33-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "5 × 1 km @ I (2′ jog)",
+        "key": "I",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w33-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w33-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w33-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 18.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 34,
+    "start": "2027-06-07",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 55,
+    "sessions": [
+      {
+        "id": "w34-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 12′ (2′ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w34-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "6 × 800 m @ I (2′ jog)",
+        "key": "I",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w34-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w34-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w34-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 15′ steady",
+        "key": "S",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 35,
+    "start": "2027-06-14",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 58,
+    "sessions": [
+      {
+        "id": "w35-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 18′ (3′ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w35-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w35-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w35-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w35-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 15′ steady",
+        "key": "S",
+        "km": 21.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 36,
+    "start": "2027-06-21",
+    "phase": {
+      "id": "P2",
+      "name": "Threshold build",
+      "from": 25,
+      "to": 36,
+      "goal": "Sweet spot, then threshold. Short VO₂ work. Ends with a 5k time trial."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 41,
+    "sessions": [
+      {
+        "id": "w36-d1",
+        "dow": 1,
+        "kind": "tt",
+        "title": "5k time trial (15′ warm-up, even pacing, 10′ cool-down)",
+        "key": "5K",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w36-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w36-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w36-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 15,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 37,
+    "start": "2027-06-28",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 52,
+    "sessions": [
+      {
+        "id": "w37-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 25′ continuous",
+        "key": "T",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w37-d3",
+        "dow": 3,
+        "kind": "hills",
+        "title": "Easy + 6 × 30 s hills",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w37-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w37-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w37-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 19,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 38,
+    "start": "2027-07-05",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 55,
+    "sessions": [
+      {
+        "id": "w38-d1",
+        "dow": 1,
+        "kind": "sweet",
+        "title": "Sweet spot 2 × 15′ (3′ jog)",
+        "key": "SS",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w38-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w38-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w38-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w38-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 20.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 39,
+    "start": "2027-07-12",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 58,
+    "sessions": [
+      {
+        "id": "w39-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 30′ continuous",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w39-d3",
+        "dow": 3,
+        "kind": "hills",
+        "title": "Easy + 8 × 30 s hills",
+        "key": "E",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w39-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w39-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w39-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 3 km steady",
+        "key": "S",
+        "km": 21.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 40,
+    "start": "2027-07-19",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 41,
+    "sessions": [
+      {
+        "id": "w40-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 20′ (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w40-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w40-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w40-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 41,
+    "start": "2027-07-26",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w41-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 30′ continuous",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w41-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "Fartlek 8 × 1′ hard / 1′ easy",
+        "key": "I",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w41-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w41-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w41-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 4 km steady",
+        "key": "S",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 42,
+    "start": "2027-08-02",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 57,
+    "sessions": [
+      {
+        "id": "w42-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 12′ (2′ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w42-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w42-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w42-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w42-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 5 km steady",
+        "key": "S",
+        "km": 21,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 43,
+    "start": "2027-08-09",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 60,
+    "sessions": [
+      {
+        "id": "w43-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 35′ continuous",
+        "key": "T",
+        "km": 12,
+        "strides": false
+      },
+      {
+        "id": "w43-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "Fartlek 10 × 1′ hard / 1′ easy",
+        "key": "I",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w43-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w43-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w43-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 6 km steady",
+        "key": "S",
+        "km": 22.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 44,
+    "start": "2027-08-16",
+    "phase": {
+      "id": "P3",
+      "name": "Summer base",
+      "from": 37,
+      "to": 44,
+      "goal": "Aerobic volume, tempo runs, long runs up to 22 km."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 42,
+    "sessions": [
+      {
+        "id": "w44-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 10′ (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w44-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w44-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w44-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 45,
+    "start": "2027-08-23",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 52,
+    "sessions": [
+      {
+        "id": "w45-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 5 × 1 km (60″ jog)",
+        "key": "T",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w45-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "8 × 400 m @ I (200 m jog)",
+        "key": "I",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w45-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w45-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w45-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 19,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 46,
+    "start": "2027-08-30",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 55,
+    "sessions": [
+      {
+        "id": "w46-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 4 × 1.5 km (75″ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w46-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "6 × 800 m @ 5k pace (2′ jog)",
+        "key": "5K",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w46-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w46-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w46-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 4 km steady",
+        "key": "S",
+        "km": 20.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 47,
+    "start": "2027-09-06",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 58,
+    "sessions": [
+      {
+        "id": "w47-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 2 km (90″ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w47-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "5 × 1 km @ 5k pace (2′ jog)",
+        "key": "5K",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w47-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w47-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w47-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 4 km steady",
+        "key": "S",
+        "km": 21.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 48,
+    "start": "2027-09-13",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 41,
+    "sessions": [
+      {
+        "id": "w48-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 1 km (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w48-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w48-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w48-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 49,
+    "start": "2027-09-20",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w49-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 6 × 1 km (60″ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w49-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "6 × 1 km @ 5k pace (2′ jog)",
+        "key": "5K",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w49-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w49-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w49-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 50,
+    "start": "2027-09-27",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 57,
+    "sessions": [
+      {
+        "id": "w50-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 15′ (3′ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w50-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "5 × 1200 m @ 5k pace (2′30″ jog)",
+        "key": "5K",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w50-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w50-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w50-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 21,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 51,
+    "start": "2027-10-04",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 60,
+    "sessions": [
+      {
+        "id": "w51-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 8′ (sharpening)",
+        "key": "T",
+        "km": 12,
+        "strides": false
+      },
+      {
+        "id": "w51-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "8 × 400 m @ 5k pace (sharpening)",
+        "key": "5K",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w51-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w51-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w51-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 22.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 52,
+    "start": "2027-10-11",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Race week",
+    "down": true,
+    "km": 30,
+    "sessions": [
+      {
+        "id": "w52-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w52-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "Openers: 4 × 400 m @ 5k pace",
+        "key": "5K",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w52-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Shakeout + 4 strides",
+        "key": "E",
+        "km": 5,
+        "strides": true
+      },
+      {
+        "id": "w52-d6",
+        "dow": 6,
+        "kind": "race",
+        "title": "RACE: 5k",
+        "key": "5K",
+        "km": 9,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 53,
+    "start": "2027-10-18",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w53-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 5 × 1.5 km (75″ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w53-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "6 × 1 km @ 10k pace (90″ jog)",
+        "key": "10K",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w53-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w53-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w53-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 54,
+    "start": "2027-10-25",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 57,
+    "sessions": [
+      {
+        "id": "w54-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 20′ (3′ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w54-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "4 × 1.5 km @ 10k pace (2′ jog)",
+        "key": "10K",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w54-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w54-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w54-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 4 km steady",
+        "key": "S",
+        "km": 21,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 55,
+    "start": "2027-11-01",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 60,
+    "sessions": [
+      {
+        "id": "w55-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 6 × 1 km (60″ jog)",
+        "key": "T",
+        "km": 12,
+        "strides": false
+      },
+      {
+        "id": "w55-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "3 × 2 km @ 10k pace (2′30″ jog)",
+        "key": "10K",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w55-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w55-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w55-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 4 km steady",
+        "key": "S",
+        "km": 22.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 56,
+    "start": "2027-11-08",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 42,
+    "sessions": [
+      {
+        "id": "w56-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 6′ (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w56-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w56-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w56-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 57,
+    "start": "2027-11-15",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w57-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Sharpen: 3 × 1 km @ T + 4 × 200 m @ R",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w57-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "5 × 1 km @ 10k pace (90″ jog)",
+        "key": "10K",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w57-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w57-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w57-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 58,
+    "start": "2027-11-22",
+    "phase": {
+      "id": "P4",
+      "name": "5k / 10k block",
+      "from": 45,
+      "to": 58,
+      "goal": "Threshold plus 5k and 10k pace work. 5k race in week 52, 10k race in week 58."
+    },
+    "label": "Race week",
+    "down": false,
+    "km": 35,
+    "sessions": [
+      {
+        "id": "w58-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w58-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "Openers: 4 × 400 m @ 10k pace",
+        "key": "10K",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w58-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Shakeout + 4 strides",
+        "key": "E",
+        "km": 5,
+        "strides": true
+      },
+      {
+        "id": "w58-d6",
+        "dow": 6,
+        "kind": "race",
+        "title": "RACE: 10k",
+        "key": "10K",
+        "km": 14,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 59,
+    "start": "2027-11-29",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 52,
+    "sessions": [
+      {
+        "id": "w59-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 25′ continuous",
+        "key": "T",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w59-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w59-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w59-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w59-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 19,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 60,
+    "start": "2027-12-06",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 55,
+    "sessions": [
+      {
+        "id": "w60-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 10′ (2′ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w60-d3",
+        "dow": 3,
+        "kind": "hills",
+        "title": "Easy + 8 × 30 s hills",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w60-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w60-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w60-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 20′ steady",
+        "key": "S",
+        "km": 20.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 61,
+    "start": "2027-12-13",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 58,
+    "sessions": [
+      {
+        "id": "w61-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 30′ continuous",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w61-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w61-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w61-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w61-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 25′ steady",
+        "key": "S",
+        "km": 21.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 62,
+    "start": "2027-12-20",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 41,
+    "sessions": [
+      {
+        "id": "w62-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 8′ (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w62-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w62-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w62-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 63,
+    "start": "2027-12-27",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w63-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 12′ (2′ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w63-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w63-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w63-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w63-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 30′ steady",
+        "key": "S",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 64,
+    "start": "2028-01-03",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 57,
+    "sessions": [
+      {
+        "id": "w64-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 35′ continuous",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w64-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "6 × 600 m @ I (2′ jog)",
+        "key": "I",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w64-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w64-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w64-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 30′ steady",
+        "key": "S",
+        "km": 21,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 65,
+    "start": "2028-01-10",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 60,
+    "sessions": [
+      {
+        "id": "w65-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 20′ (3′ jog)",
+        "key": "T",
+        "km": 12,
+        "strides": false
+      },
+      {
+        "id": "w65-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w65-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w65-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w65-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run, last 35′ steady",
+        "key": "S",
+        "km": 22.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 66,
+    "start": "2028-01-17",
+    "phase": {
+      "id": "P5",
+      "name": "Winter base",
+      "from": 59,
+      "to": 66,
+      "goal": "Easy volume, bike and aqua-jog for extra hours, one tempo a week."
+    },
+    "label": "Down week + tune-up",
+    "down": true,
+    "km": 42,
+    "sessions": [
+      {
+        "id": "w66-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy + 4 strides (tune-up week)",
+        "key": "E",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w66-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w66-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": true
+      },
+      {
+        "id": "w66-d6",
+        "dow": 6,
+        "kind": "race",
+        "title": "Optional tune-up race: 10k or 15k",
+        "key": "10K",
+        "km": 14,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 67,
+    "start": "2028-01-24",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 52,
+    "sessions": [
+      {
+        "id": "w67-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 12′ (2′ jog)",
+        "key": "T",
+        "km": 10.5,
+        "strides": false
+      },
+      {
+        "id": "w67-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w67-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w67-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w67-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 19,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 68,
+    "start": "2028-01-31",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 55,
+    "sessions": [
+      {
+        "id": "w68-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 20′ (3′ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w68-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "5 × 1 km @ I (2′ jog)",
+        "key": "I",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w68-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w68-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w68-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run with 6 km @ half-marathon pace",
+        "key": "HM",
+        "km": 20.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 69,
+    "start": "2028-02-07",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 58,
+    "sessions": [
+      {
+        "id": "w69-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 4 × 10′ (90″ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w69-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w69-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w69-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w69-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run with 8 km @ half-marathon pace",
+        "key": "HM",
+        "km": 21.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 70,
+    "start": "2028-02-14",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 41,
+    "sessions": [
+      {
+        "id": "w70-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 8′ (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w70-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w70-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w70-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 71,
+    "start": "2028-02-21",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w71-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 4 × 10′ (90″ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w71-d3",
+        "dow": 3,
+        "kind": "threshold",
+        "title": "3 × 3 km @ half-marathon pace (90″ jog)",
+        "key": "HM",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w71-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w71-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w71-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run with 10 km @ half-marathon pace",
+        "key": "HM",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 72,
+    "start": "2028-02-28",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 57,
+    "sessions": [
+      {
+        "id": "w72-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 15′ (2′ jog)",
+        "key": "T",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w72-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w72-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w72-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w72-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run with 12 km @ half-marathon pace",
+        "key": "HM",
+        "km": 21,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 73,
+    "start": "2028-03-06",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 60,
+    "sessions": [
+      {
+        "id": "w73-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Tempo 6 km continuous",
+        "key": "T",
+        "km": 12,
+        "strides": false
+      },
+      {
+        "id": "w73-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "6 × 800 m @ I (2′ jog)",
+        "key": "I",
+        "km": 10,
+        "strides": false
+      },
+      {
+        "id": "w73-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w73-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w73-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run: 2 × 6 km @ half-marathon pace",
+        "key": "HM",
+        "km": 22.5,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 74,
+    "start": "2028-03-13",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Down week",
+    "down": true,
+    "km": 42,
+    "sessions": [
+      {
+        "id": "w74-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 3 × 8′ (down week)",
+        "key": "T",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w74-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": false
+      },
+      {
+        "id": "w74-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8.5,
+        "strides": true
+      },
+      {
+        "id": "w74-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long easy run",
+        "key": "E",
+        "km": 16,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 75,
+    "start": "2028-03-20",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 54,
+    "sessions": [
+      {
+        "id": "w75-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Threshold 2 × 20′ (3′ jog)",
+        "key": "T",
+        "km": 11,
+        "strides": false
+      },
+      {
+        "id": "w75-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9,
+        "strides": false
+      },
+      {
+        "id": "w75-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6.5,
+        "strides": false
+      },
+      {
+        "id": "w75-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 7.5,
+        "strides": true
+      },
+      {
+        "id": "w75-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run with 10 km @ half-marathon pace",
+        "key": "HM",
+        "km": 20,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 76,
+    "start": "2028-03-27",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Build week",
+    "down": false,
+    "km": 57,
+    "sessions": [
+      {
+        "id": "w76-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "2 × 5 km @ half-marathon pace (2′ jog)",
+        "key": "HM",
+        "km": 11.5,
+        "strides": false
+      },
+      {
+        "id": "w76-d3",
+        "dow": 3,
+        "kind": "easy",
+        "title": "Easy + 6 strides",
+        "key": "E",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w76-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 7,
+        "strides": false
+      },
+      {
+        "id": "w76-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w76-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Long run with 8 km @ half-marathon pace (last big one)",
+        "key": "HM",
+        "km": 21,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 77,
+    "start": "2028-04-03",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Taper week",
+    "down": false,
+    "km": 48,
+    "sessions": [
+      {
+        "id": "w77-d1",
+        "dow": 1,
+        "kind": "threshold",
+        "title": "Taper: threshold 3 × 8′",
+        "key": "T",
+        "km": 9.5,
+        "strides": false
+      },
+      {
+        "id": "w77-d3",
+        "dow": 3,
+        "kind": "threshold",
+        "title": "Openers: 4 × 1 km @ half-marathon pace",
+        "key": "HM",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w77-d4",
+        "dow": 4,
+        "kind": "easy",
+        "title": "Easy run",
+        "key": "E",
+        "km": 6,
+        "strides": false
+      },
+      {
+        "id": "w77-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Easy run + 6 strides",
+        "key": "E",
+        "km": 6.5,
+        "strides": true
+      },
+      {
+        "id": "w77-d6",
+        "dow": 6,
+        "kind": "long",
+        "title": "Taper long run, easy",
+        "key": "E",
+        "km": 18,
+        "strides": false
+      }
+    ]
+  },
+  {
+    "i": 78,
+    "start": "2028-04-10",
+    "phase": {
+      "id": "P6",
+      "name": "Half-specific",
+      "from": 67,
+      "to": 78,
+      "goal": "Threshold, long runs with half-marathon pace blocks, taper, race."
+    },
+    "label": "Race week",
+    "down": true,
+    "km": 46,
+    "sessions": [
+      {
+        "id": "w78-d1",
+        "dow": 1,
+        "kind": "easy",
+        "title": "Easy run + 4 strides",
+        "key": "E",
+        "km": 8,
+        "strides": true
+      },
+      {
+        "id": "w78-d3",
+        "dow": 3,
+        "kind": "interval",
+        "title": "Openers: 4 × 1 km @ half-marathon pace",
+        "key": "HM",
+        "km": 8,
+        "strides": false
+      },
+      {
+        "id": "w78-d5",
+        "dow": 5,
+        "kind": "easy",
+        "title": "Shakeout + 4 strides",
+        "key": "E",
+        "km": 5,
+        "strides": true
+      },
+      {
+        "id": "w78-d6",
+        "dow": 6,
+        "kind": "race",
+        "title": "RACE: half marathon, target sub-1:20",
+        "key": "HM",
+        "km": 25.1,
+        "strides": false
+      }
+    ]
+  }
+]
