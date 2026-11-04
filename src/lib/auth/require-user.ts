@@ -1,5 +1,6 @@
 import "server-only";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -8,6 +9,10 @@ import { createClient } from "@/lib/supabase/server";
  * redirects, but this is the check that sits next to the data.
  */
 export async function requireUser() {
+  // getClaims() can read Date.now() to check token expiry. Opt into request
+  // time first so prerendering never evaluates it.
+  await connection();
+
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 
