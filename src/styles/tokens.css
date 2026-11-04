@@ -258,4 +258,14 @@
   --button-min-height: var(--size-touch-min);
   --button-font-family: var(--font-family-body);
   --button-font-weight: var(--font-weight-strong);
+
+  --field-bg: var(--color-bg-surface);
+  --field-fg: var(--color-text-primary);
+  --field-border: var(--color-text-secondary);
+  --field-border-error: var(--color-danger);
+  --field-radius: var(--radius-control);
+  --field-padding-x: var(--space-inset-md);
+  --field-padding-y: var(--space-inset-sm);
+  --field-min-height: var(--size-touch-min);
+  --field-font-family: var(--font-family-body);
 }

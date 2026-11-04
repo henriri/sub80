@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/Button";
+import { TextField } from "@/components/TextField";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
 import { ModePreview, TokenValue } from "./mode-preview";
 
@@ -102,6 +103,12 @@ export default function DesignPage() {
               <Button>Default</Button>
               <Button disabled>Disabled</Button>
             </div>
+          </div>
+          <div className="flex flex-col gap-stack-md rounded-surface border-(length:--border-width-default) border-default bg-surface p-inset-md">
+            <h3 className="text-heading-sm">TextField</h3>
+            <TextField id="design-field-default" label="Email" hint="We send a 6-digit code." />
+            <TextField id="design-field-error" label="Code" defaultValue="12" error="Enter the 6-digit code." />
+            <TextField id="design-field-disabled" label="Disabled" disabled />
           </div>
         </section>
 
