@@ -167,6 +167,28 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       kind: "font-weight",
       tokens: ["--button-font-weight"],
     },
+    {
+      name: "Field colour",
+      kind: "color",
+      tokens: [
+        "--field-bg",
+        "--field-fg",
+        "--field-border",
+        "--field-border-error",
+      ],
+    },
+    { name: "Field radius", kind: "radius", tokens: ["--field-radius"] },
+    {
+      name: "Field space",
+      kind: "space",
+      tokens: ["--field-padding-x", "--field-padding-y"],
+    },
+    { name: "Field size", kind: "size", tokens: ["--field-min-height"] },
+    {
+      name: "Field type",
+      kind: "font-family",
+      tokens: ["--field-font-family"],
+    },
   ],
 };
 
