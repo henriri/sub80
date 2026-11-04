@@ -1,7 +1,13 @@
 import "server-only";
+import { z } from "zod";
 import { addDays, type Ymd } from "@/lib/plan/dates";
 import type { PlannedWorkoutRow } from "@/lib/plan/rows";
-import { storedWorkoutsSchema, vdotSchema, type StoredWorkout } from "@/lib/plan/rows-schema";
+import {
+  storedWorkoutSchema,
+  storedWorkoutsSchema,
+  vdotSchema,
+  type StoredWorkout,
+} from "@/lib/plan/rows-schema";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -60,6 +66,76 @@ export async function readNextWorkouts(
   if (error) throw new Error(`Could not read planned workouts: ${error.message}`);
   // Rows cross a boundary, so they are validated rather than trusted.
   return storedWorkoutsSchema.parse(data);
+}
+
+/** One workout by id, or null when it is not the caller's. */
+export async function readWorkout(id: string): Promise<StoredWorkout | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("planned_workouts")
+    .select(COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`Could not read the planned workout: ${error.message}`);
+  return data === null ? null : storedWorkoutSchema.parse(data);
+}
+
+/**
+ * The outcome of a database function that refuses a move. The functions raise
+ * with a message written for the athlete, so it is passed through rather than
+ * replaced -- but only for the codes they raise deliberately. Anything else is
+ * a fault and throws.
+ */
+export type RpcOutcome = { ok: true; eventId: string } | { ok: false; message: string };
+
+/** Raised by the move and undo functions for a refusal, not a fault. */
+const RAISE_EXCEPTION = "P0001";
+const NO_DATA_FOUND = "P0002";
+
+/** `move_planned_workout: the workout is completed, not planned` -> the tail. */
+function refusal(message: string): string {
+  const [, detail] = message.split(/^[a-z_]+: /);
+  const sentence = (detail ?? message).trim();
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1) + ".";
+}
+
+/**
+ * Moves the workout and records the event, in one transaction. The database
+ * re-checks ownership, the plan bounds, the status and the day's capacity; the
+ * weekly limits were already checked by validateMove in the action.
+ */
+export async function moveWorkoutRow(
+  workoutId: string,
+  toDate: Ymd,
+  overrides: readonly string[],
+): Promise<RpcOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("move_planned_workout", {
+    p_workout_id: workoutId,
+    p_to_date: toDate,
+    p_overrides: overrides,
+  });
+
+  if (!error) return { ok: true, eventId: z.uuid().parse(data) };
+  if (error.code === RAISE_EXCEPTION || error.code === NO_DATA_FOUND) {
+    return { ok: false, message: refusal(error.message) };
+  }
+  throw new Error(`Could not move the workout: ${error.message}`);
+}
+
+/** Reverses one move. Only the caller's newest undoable one; undo is a stack. */
+export async function undoPlanEventRow(eventId: string): Promise<RpcOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("undo_plan_event", {
+    p_event_id: eventId,
+  });
+
+  if (!error) return { ok: true, eventId: z.uuid().parse(data) };
+  if (error.code === RAISE_EXCEPTION || error.code === NO_DATA_FOUND) {
+    return { ok: false, message: refusal(error.message) };
+  }
+  throw new Error(`Could not undo the change: ${error.message}`);
 }
 
 export type InsertOutcome = { ok: true } | { ok: false; duplicate: true };
