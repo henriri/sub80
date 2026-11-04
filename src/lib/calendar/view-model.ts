@@ -20,10 +20,11 @@ import {
 import {
   formatDateRange,
   formatFullDate,
+  formatKm,
   formatMonthTitle,
   formatWeekdayShort,
 } from "./format";
-import { isEventKind } from "./kinds";
+import { KIND_META, isEventKind } from "./kinds";
 import { monthGrid, type MonthCell } from "./month-grid";
 import type { CalendarView } from "./params";
 import { monthRange, weekRange } from "./range";
@@ -184,6 +185,22 @@ function toDay(date: Ymd, today: Ymd, items: CalendarItem[]): CalendarDay {
     items,
     metres: sumMetres(items),
   };
+}
+
+/**
+ * A day cell's accessible name: the whole date, then what is planned on it.
+ * The visible cell shows a bare day number and a marker or two, which on its
+ * own tells a screen-reader user almost nothing.
+ */
+export function describeDay(day: CalendarDay): string {
+  if (day.items.length === 0) {
+    return day.inPlan
+      ? `${day.fullLabel}, nothing planned`
+      : `${day.fullLabel}, outside the plan`;
+  }
+
+  const kinds = day.items.map((item) => KIND_META[item.kind].label).join(", ");
+  return `${day.fullLabel}, ${kinds}, ${formatKm(day.metres)}`;
 }
 
 export function buildWeekView({ date, today, workouts, vdot }: ViewInput): WeekViewModel {

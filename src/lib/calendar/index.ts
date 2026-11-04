@@ -41,6 +41,7 @@ export {
   buildDayView,
   buildMonthView,
   buildWeekView,
+  describeDay,
   isPlanWeek,
   plannedKmFor,
   sumMetres,
