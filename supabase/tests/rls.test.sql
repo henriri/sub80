@@ -4,7 +4,7 @@
 
 begin;
 
-select plan(22);
+select plan(24);
 
 -- Two synthetic users. The on_auth_user_created trigger creates their profiles.
 insert into auth.users (id, email) values
@@ -12,16 +12,16 @@ insert into auth.users (id, email) values
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'runner-b@example.test');
 
 -- Rows owned by user B.
-insert into public.planned_workouts (id, user_id, planned_date, kind, title) values
-  ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04', 'easy', 'B run');
+insert into public.planned_workouts (id, user_id, planned_date, kind, title, week_index, pace_zone) values
+  ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04', 'easy', 'B run', 12, 'E');
 insert into public.activities (user_id, started_at, distance_m, duration_s, hr_source) values
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04 07:00+01', 8000, 2700, 'wrist');
 insert into public.plan_events (id, user_id, kind, source) values
   ('b0000000-0000-0000-0000-0000000000e1', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'swap_workout', 'coach');
 
 -- Row owned by user A.
-insert into public.planned_workouts (user_id, planned_date, kind, title) values
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05', 'long', 'A run');
+insert into public.planned_workouts (user_id, planned_date, kind, title, week_index, pace_zone) values
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05', 'long', 'A run', 12, 'E');
 
 select is(
   (select count(*)::int from public.profiles),
@@ -44,8 +44,8 @@ select is((select count(*)::int from public.activities), 0, 'A sees none of B''s
 select is((select count(*)::int from public.plan_events), 0, 'A sees none of B''s plan events');
 
 select throws_ok(
-  $$insert into public.planned_workouts (user_id, planned_date, kind, title)
-    values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-06', 'easy', 'planted')$$,
+  $$insert into public.planned_workouts (user_id, planned_date, kind, title, week_index)
+    values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-06', 'easy', 'planted', 12)$$,
   '42501', null,
   'A cannot insert a planned workout for B'
 );
@@ -63,6 +63,22 @@ select throws_ok(
     values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05 07:00+01', 5000, 1500, 'chest')$$,
   '23514', null,
   'hr_source accepts only strap or wrist'
+);
+
+-- The unique index behind "Generate my plan": a second insert of the same date
+-- and title is refused, so a double click cannot duplicate the plan.
+select throws_ok(
+  $$insert into public.planned_workouts (user_id, planned_date, kind, title, week_index)
+    values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05', 'long', 'A run', 12)$$,
+  '23505', null,
+  'the same date and title cannot be planned twice'
+);
+
+select throws_ok(
+  $$insert into public.planned_workouts (user_id, planned_date, kind, title, week_index)
+    values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-07', 'tempo', 'A tempo', 12)$$,
+  '23514', null,
+  'kind accepts only the kinds the plan generator produces'
 );
 
 select lives_ok(
