@@ -14,6 +14,7 @@ import {
   weekIndexOf,
   type StoredWorkout,
   type WorkoutKind,
+  type WorkoutStatus,
   type Ymd,
   type ZoneKey,
 } from "@/lib/plan";
@@ -41,6 +42,10 @@ export type CalendarItem = {
   paceLabel: string | null;
   strides: boolean;
   isKey: boolean;
+  /** Only a planned workout may be moved. */
+  status: WorkoutStatus;
+  /** Order within the day: 0 first, 1 second. */
+  daySlot: 0 | 1;
 };
 
 export type CalendarDay = {
@@ -144,13 +149,19 @@ function toItem(workout: StoredWorkout, vdot: number): CalendarItem {
     paceLabel: workout.pace_zone ? paceRangeLabel(workout.pace_zone, vdot) : null,
     strides: workout.strides,
     isKey: workout.is_key,
+    status: workout.status,
+    daySlot: workout.day_slot,
   };
 }
 
 /**
- * Rows by date. The query orders by date only, so same-day order is settled
- * here: key sessions first, then by title, so a day never reshuffles between
- * renders.
+ * Rows by date. Same-day order is `day_slot`, the stored order a move writes,
+ * so dragging a session into the second slot of a day keeps it there.
+ *
+ * Key-session-first and then title remain as tie-breaks. They are unreachable
+ * while the slots are distinct, which a day of at most two workouts
+ * guarantees; they are kept so that data breaking that invariant still renders
+ * in a stable order rather than reshuffling between renders.
  */
 function itemsByDate(
   workouts: readonly StoredWorkout[],
@@ -166,7 +177,10 @@ function itemsByDate(
 
   for (const items of byDate.values()) {
     items.sort(
-      (a, b) => Number(b.isKey) - Number(a.isKey) || a.title.localeCompare(b.title),
+      (a, b) =>
+        a.daySlot - b.daySlot ||
+        Number(b.isKey) - Number(a.isKey) ||
+        a.title.localeCompare(b.title),
     );
   }
 

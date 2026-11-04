@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
  */
 
 const COLUMNS =
-  "id, generated_key, planned_date, kind, title, is_key, target_distance_m, week_index, pace_zone, strides";
+  "id, generated_key, planned_date, kind, title, is_key, target_distance_m, week_index, pace_zone, strides, status, day_slot";
 
 /** Unique violation: a row with this generated_key already exists. */
 const UNIQUE_VIOLATION = "23505";
@@ -53,7 +53,9 @@ export async function readNextWorkouts(
     .eq("user_id", userId)
     .gte("planned_date", from)
     .lt("planned_date", addDays(from, days))
-    .order("planned_date", { ascending: true });
+    .order("planned_date", { ascending: true })
+    // Second, so a double day always comes back in the order it is shown in.
+    .order("day_slot", { ascending: true });
 
   if (error) throw new Error(`Could not read planned workouts: ${error.message}`);
   // Rows cross a boundary, so they are validated rather than trusted.

@@ -27,6 +27,15 @@ export const WORKOUT_KINDS = [
   "rest",
 ] as const satisfies readonly WorkoutKind[];
 
+/** Matches the `status` check on public.planned_workouts. */
+export type WorkoutStatus = "planned" | "completed" | "skipped";
+
+export const WORKOUT_STATUSES = [
+  "planned",
+  "completed",
+  "skipped",
+] as const satisfies readonly WorkoutStatus[];
+
 export type PhaseId = "P0" | "P1" | "P2" | "P3" | "P4" | "P5" | "P6";
 
 export type Phase = {

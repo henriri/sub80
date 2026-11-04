@@ -44,6 +44,8 @@ function workout(
     week_index: 1,
     pace_zone: "E" as ZoneKey,
     strides: false,
+    status: "planned",
+    day_slot: 0,
     ...overrides,
   };
 }
@@ -181,7 +183,45 @@ describe("buildWeekView", () => {
     expect(view.metres).toBe(8000);
   });
 
-  it("puts key sessions first on a day that holds more than one", () => {
+  it("orders a double day by day_slot, not by kind", () => {
+    // Slot wins over the key-session tie-break: the athlete put the easy run
+    // first, so it stays first even though the threshold is the key session.
+    const view = buildWeekView(
+      input("2027-03-15", "2027-03-15", [
+        workout("2027-03-15", {
+          title: "Threshold",
+          kind: "threshold",
+          is_key: true,
+          day_slot: 1,
+        }),
+        workout("2027-03-15", { title: "Morning easy", day_slot: 0 }),
+      ]),
+    );
+
+    expect(view.days[0]?.items.map((item) => item.title)).toEqual([
+      "Morning easy",
+      "Threshold",
+    ]);
+    expect(view.days[0]?.items.map((item) => item.daySlot)).toEqual([0, 1]);
+  });
+
+  it("renders a day whose only workout sits in slot 1", () => {
+    // Undoing a move can leave a lone workout in slot 1. It must still show.
+    const view = buildWeekView(
+      input("2027-03-15", "2027-03-15", [
+        workout("2027-03-15", { title: "Lone second session", day_slot: 1 }),
+      ]),
+    );
+
+    expect(view.days[0]?.items.map((item) => item.title)).toEqual([
+      "Lone second session",
+    ]);
+    expect(view.days[0]?.metres).toBe(8000);
+  });
+
+  it("falls back to key sessions first when two rows share a slot", () => {
+    // Unreachable while the two-per-day rule holds. Kept so that data which
+    // breaks it still renders in a stable order rather than reshuffling.
     const view = buildWeekView(
       input("2027-03-15", "2027-03-15", [
         workout("2027-03-15", { title: "Afternoon shakeout" }),
@@ -195,6 +235,17 @@ describe("buildWeekView", () => {
       "Aerobic double",
       "Afternoon shakeout",
     ]);
+  });
+
+  it("carries status and slot onto the item", () => {
+    const view = buildWeekView(
+      input("2027-03-15", "2027-03-15", [
+        workout("2027-03-15", { status: "completed", day_slot: 1 }),
+      ]),
+    );
+
+    expect(view.days[0]?.items[0]?.status).toBe("completed");
+    expect(view.days[0]?.items[0]?.daySlot).toBe(1);
   });
 
   it("marks a race or a time trial as an event", () => {

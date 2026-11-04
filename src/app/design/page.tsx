@@ -34,6 +34,8 @@ const sampleWorkouts = [
     week_index: 22,
     pace_zone: "T",
     strides: false,
+    status: "planned",
+    day_slot: 0,
   },
   {
     id: "00000000-0000-4000-8000-000000000002",
@@ -46,6 +48,8 @@ const sampleWorkouts = [
     week_index: 22,
     pace_zone: "E",
     strides: true,
+    status: "planned",
+    day_slot: 0,
   },
   {
     id: "00000000-0000-4000-8000-000000000003",
@@ -59,6 +63,8 @@ const sampleWorkouts = [
     week_index: 22,
     pace_zone: "10K",
     strides: false,
+    status: "planned",
+    day_slot: 0,
   },
   {
     id: "00000000-0000-4000-8000-000000000004",
@@ -71,6 +77,25 @@ const sampleWorkouts = [
     week_index: 22,
     pace_zone: "T",
     strides: false,
+    status: "planned",
+    day_slot: 0,
+  },
+  {
+    // A double day, sharing 2027-03-19 with the time trial above. Slot 1, so
+    // it renders second in the week view and gives the month cell its second
+    // marker: the two-per-day case needs a specimen like any other state.
+    id: "00000000-0000-4000-8000-000000000005",
+    generated_key: null,
+    planned_date: "2027-03-19",
+    kind: "easy",
+    title: "Easy shakeout",
+    is_key: false,
+    target_distance_m: 5000,
+    week_index: 22,
+    pace_zone: "E",
+    strides: false,
+    status: "planned",
+    day_slot: 1,
   },
 ] satisfies StoredWorkout[];
 

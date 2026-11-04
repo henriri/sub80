@@ -27,7 +27,15 @@ export {
   vdotSchema,
   type StoredWorkout,
 } from "./rows-schema";
-export { WORKOUT_KINDS, type Phase, type Session, type Week, type WorkoutKind } from "./types";
+export {
+  WORKOUT_KINDS,
+  WORKOUT_STATUSES,
+  type Phase,
+  type Session,
+  type Week,
+  type WorkoutKind,
+  type WorkoutStatus,
+} from "./types";
 export {
   ZONES,
   ZONE_KEYS,
