@@ -14,6 +14,21 @@ export {
 } from "./dates";
 export { allWeeks, buildWeek, phaseOf, phases, plan } from "./generator";
 export {
+  MAX_PER_DAY,
+  MAX_RUNS_PER_WEEK,
+  MOVE_REJECT_CODES,
+  MOVE_WARNING_CODES,
+  moveReadRange,
+  nextFreeSlot,
+  validateMove,
+  type MoveCandidate,
+  type MoveCheck,
+  type MoveNeighbour,
+  type MoveWarning,
+  type RejectReason,
+  type ValidateMoveInput,
+} from "./moves";
+export {
   PLAN_SESSION_COUNT,
   isKeyKind,
   toPlannedRows,
