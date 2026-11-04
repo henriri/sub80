@@ -32,3 +32,34 @@ jobs:
           # Fake placeholders so the build can run. Not secrets; no real project is contacted.
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.invalid
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-not-a-real-key
+
+  # The migrations and the pgTAP tests, which `check` above cannot touch: they
+  # need a running Postgres. Everything here is local to the runner -- the
+  # stack is started in Docker on the runner itself and torn down with it. No
+  # command is ever given --remote or --linked, and no project is linked, so
+  # there is nothing for a secret to point at and none is needed.
+  #
+  # A separate job rather than more steps on `check`, so a broken migration
+  # reports as a broken migration and the lint and type results still arrive
+  # while this one is still pulling containers.
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+      # The Supabase CLI is a devDependency, so the version the owner runs
+      # locally is the version that runs here.
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec supabase start
+      # Applies every migration to an empty database, so a migration that
+      # cannot run on a fresh schema fails here rather than on the owner's
+      # machine. The day_slot backfill is exercised by this.
+      - run: pnpm exec supabase db reset
+      - run: pnpm exec supabase test db
+      # `if: always()` so a failing test still releases the containers.
+      - run: pnpm exec supabase stop --no-backup
+        if: always()
