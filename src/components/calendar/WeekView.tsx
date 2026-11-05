@@ -1,3 +1,5 @@
+"use client";
+
 import { formatKm, type WeekViewModel } from "@/lib/calendar";
 import { WEEKLY_CAP } from "@/lib/plan";
 import { DayColumn } from "./DayColumn";

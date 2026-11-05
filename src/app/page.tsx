@@ -81,6 +81,7 @@ async function CalendarSection({
     <Calendar
       model={buildCalendarView(view, { date, today, workouts, vdot })}
       today={today}
+      interactive
     />
   );
 }

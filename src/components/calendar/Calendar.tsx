@@ -1,5 +1,7 @@
+import type { ComponentProps } from "react";
 import type { CalendarViewModel } from "@/lib/calendar";
 import type { Ymd } from "@/lib/plan";
+import { CalendarBoard } from "./CalendarBoard";
 import { CalendarHeader } from "./CalendarHeader";
 import { DayView } from "./DayView";
 import { MonthView } from "./MonthView";
@@ -11,6 +13,15 @@ type CalendarProps = {
   today: Ymd;
   /** Passed through to the header. 1 on `/`, deeper inside a specimen card. */
   titleLevel?: 1 | 2 | 3 | 4;
+  /**
+   * Whether sessions can be moved. Off by default, so /design and any other
+   * read-only use render exactly what they rendered before, through the same
+   * components: the move API reaches them through a context whose default is
+   * null rather than through props.
+   */
+  interactive?: boolean;
+  /** Only /design sets this: see `CalendarBoard`. */
+  onMove?: ComponentProps<typeof CalendarBoard>["onMove"];
 };
 
 function subtitleOf(model: CalendarViewModel): string | null {
@@ -25,7 +36,13 @@ function subtitleOf(model: CalendarViewModel): string | null {
 }
 
 /** The header and whichever view the URL asked for. */
-export function Calendar({ model, today, titleLevel }: CalendarProps) {
+export function Calendar({
+  model,
+  today,
+  titleLevel,
+  interactive,
+  onMove,
+}: CalendarProps) {
   return (
     <div className="flex flex-col gap-stack-md">
       <CalendarHeader
@@ -37,9 +54,15 @@ export function Calendar({ model, today, titleLevel }: CalendarProps) {
         titleLevel={titleLevel}
       />
 
-      {model.view === "week" ? <WeekView week={model} /> : null}
-      {model.view === "month" ? <MonthView month={model} /> : null}
-      {model.view === "day" ? <DayView day={model} /> : null}
+      {interactive ? (
+        <CalendarBoard model={model} today={today} onMove={onMove} />
+      ) : (
+        <>
+          {model.view === "week" ? <WeekView week={model} /> : null}
+          {model.view === "month" ? <MonthView month={model} /> : null}
+          {model.view === "day" ? <DayView day={model} /> : null}
+        </>
+      )}
     </div>
   );
 }

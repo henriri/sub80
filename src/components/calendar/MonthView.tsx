@@ -1,3 +1,5 @@
+"use client";
+
 import type { MonthViewModel } from "@/lib/calendar";
 import { MonthDayCell } from "./MonthDayCell";
 

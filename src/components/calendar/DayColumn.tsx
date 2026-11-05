@@ -1,7 +1,18 @@
+"use client";
+
+import { useDroppable } from "@dnd-kit/react";
 import Link from "next/link";
-import { calendarHref, describeDay, formatKm, type CalendarDay } from "@/lib/calendar";
+import {
+  calendarHref,
+  describeDay,
+  dropState,
+  formatKm,
+  type CalendarDay,
+} from "@/lib/calendar";
 import { CalendarEmpty } from "./CalendarEmpty";
+import { DropHint, dropSurfaceClasses } from "./DropHint";
 import { WorkoutCard } from "./WorkoutCard";
+import { useMove } from "./move-context";
 import { focusRing, joinClasses } from "./styles";
 
 type DayColumnProps = { day: CalendarDay };
@@ -37,18 +48,35 @@ function surfaceClasses({ isToday, isEvent }: CalendarDay) {
 
 /**
  * One day of the week view: a heading that opens the day view, then the day's
- * sessions. `data-date` is the drop target drag and drop will need.
+ * sessions.
+ *
+ * While a session is being dragged, every day says whether it would take it,
+ * not only the one under the pointer: deciding where to drop something is
+ * easier when all seven answers are visible at once. The day actually under
+ * the session is marked by a thicker outline rather than a second colour.
  */
 export function DayColumn({ day }: DayColumnProps) {
-  const headingId = `day-${day.date}`;
+  const move = useMove();
+  const { ref, isDropTarget } = useDroppable({
+    id: day.date,
+    data: { date: day.date },
+  });
+
+  const check = move?.dragging ? move.check(move.dragging, day.date) : null;
 
   return (
     <section
+      ref={ref}
       data-date={day.date}
-      aria-labelledby={headingId}
-      className={joinClasses(column, surfaceClasses(day))}
+      aria-labelledby={`day-${day.date}`}
+      className={joinClasses(
+        column,
+        check
+          ? dropSurfaceClasses(dropState(check), isDropTarget)
+          : surfaceClasses(day),
+      )}
     >
-      <h2 id={headingId}>
+      <h2 id={`day-${day.date}`}>
         <Link
           href={calendarHref({ view: "day", date: day.date })}
           aria-current={day.isToday ? "date" : undefined}
@@ -70,6 +98,8 @@ export function DayColumn({ day }: DayColumnProps) {
           ) : null}
         </Link>
       </h2>
+
+      {check ? <DropHint check={check} /> : null}
 
       {day.items.length === 0 ? (
         <CalendarEmpty inPlan={day.inPlan} />
