@@ -10,8 +10,10 @@ import {
   dropHint,
   dropState,
   movedMessage,
+  planEventMessage,
   rejectHint,
   rejectMessage,
+  undoableIndex,
   undoneMessage,
   warningMessage,
   warningTitle,
@@ -204,5 +206,69 @@ describe("the toast sentences", () => {
   it("tells the athlete what to do when undo is refused as stale", () => {
     expect(STALE_UNDO_MESSAGE).toContain("most recent change");
     expect(STALE_UNDO_MESSAGE.trim()).toMatch(/\.$/);
+  });
+});
+
+describe("planEventMessage", () => {
+  const move = { from: DATE, to: "2027-03-20" };
+
+  it("names both days of a move", () => {
+    expect(
+      planEventMessage({ kind: "move_workout", status: "accepted", move }),
+    ).toBe("Moved from Thursday 18 March to Saturday 20 March.");
+  });
+
+  it("says so when a move has been undone", () => {
+    expect(
+      planEventMessage({ kind: "move_workout", status: "undone", move }),
+    ).toContain("Undone.");
+  });
+
+  it("reads an undo as the day the session went back to", () => {
+    // The undo event's own payload runs the other way round.
+    expect(
+      planEventMessage({
+        kind: "undo_move",
+        status: "accepted",
+        move: { from: "2027-03-20", to: DATE },
+      }),
+    ).toBe("Put back on Thursday 18 March.");
+  });
+
+  it("stays a sentence for a kind it cannot read", () => {
+    expect(
+      planEventMessage({ kind: "coach_proposal", status: "proposed", move: null }),
+    ).toBe("A plan change.");
+  });
+});
+
+describe("undoableIndex", () => {
+  const move = (status = "accepted") => ({ kind: "move_workout", status });
+  const undo = { kind: "undo_move", status: "accepted" };
+
+  it("is the newest move when nothing has been undone", () => {
+    expect(undoableIndex([move(), move()])).toBe(0);
+  });
+
+  it("skips the undo row that sits above the move it reversed", () => {
+    // What the list looks like straight after an undo: the undo is newest,
+    // the move it reversed is marked undone, and the one before is next.
+    expect(undoableIndex([undo, move("undone"), move()])).toBe(2);
+  });
+
+  it("skips an already undone move", () => {
+    expect(undoableIndex([move("undone"), move()])).toBe(1);
+  });
+
+  it("never points at an undo, because there is no redo", () => {
+    expect(undoableIndex([undo, undo])).toBe(-1);
+  });
+
+  it("has nothing to offer for an empty list", () => {
+    expect(undoableIndex([])).toBe(-1);
+  });
+
+  it("ignores a kind it does not know", () => {
+    expect(undoableIndex([{ kind: "coach_proposal", status: "proposed" }])).toBe(-1);
   });
 });

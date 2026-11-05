@@ -60,16 +60,9 @@ function withMove(event: z.infer<typeof planEventSchema>): PlanEvent {
 }
 
 /**
- * Whether undo may be offered for an event. The same rule undo_plan_event
- * applies, so the interface never offers what the database will refuse.
- */
-export function isUndoable(event: PlanEvent): boolean {
-  return event.kind === "move_workout" && event.status !== "undone";
-}
-
-/**
- * The newest events first. Undo is a stack, so only the first undoable event
- * in this list may actually be undone -- see `isUndoable`.
+ * The newest events first. Undo is a stack, so only one row of this list may
+ * actually be undone: `undoableIndex` in src/lib/calendar/move-messages.ts
+ * says which, by the same rule undo_plan_event applies.
  */
 export async function readRecentPlanEvents(
   userId: string,

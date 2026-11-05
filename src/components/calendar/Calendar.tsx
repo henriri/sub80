@@ -1,7 +1,10 @@
-import type { ComponentProps } from "react";
 import type { CalendarViewModel } from "@/lib/calendar";
 import type { Ymd } from "@/lib/plan";
-import { CalendarBoard } from "./CalendarBoard";
+import {
+  CalendarBoard,
+  type MoveAction,
+  type UndoAction,
+} from "./CalendarBoard";
 import { CalendarHeader } from "./CalendarHeader";
 import { DayView } from "./DayView";
 import { MonthView } from "./MonthView";
@@ -20,8 +23,9 @@ type CalendarProps = {
    * null rather than through props.
    */
   interactive?: boolean;
-  /** Only /design sets this: see `CalendarBoard`. */
-  onMove?: ComponentProps<typeof CalendarBoard>["onMove"];
+  /** Only /design sets these: see `CalendarBoard`. */
+  onMove?: MoveAction;
+  onUndo?: UndoAction;
 };
 
 function subtitleOf(model: CalendarViewModel): string | null {
@@ -42,6 +46,7 @@ export function Calendar({
   titleLevel,
   interactive,
   onMove,
+  onUndo,
 }: CalendarProps) {
   return (
     <div className="flex flex-col gap-stack-md">
@@ -55,7 +60,12 @@ export function Calendar({
       />
 
       {interactive ? (
-        <CalendarBoard model={model} today={today} onMove={onMove} />
+        <CalendarBoard
+          model={model}
+          today={today}
+          onMove={onMove}
+          onUndo={onUndo}
+        />
       ) : (
         <>
           {model.view === "week" ? <WeekView week={model} /> : null}

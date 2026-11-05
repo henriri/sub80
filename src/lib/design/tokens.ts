@@ -82,7 +82,16 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       kind: "space",
       tokens: range("--space", [0, "0-5", 1, 2, 3, 4, 5, 6, 8, 10, 12, 16]),
     },
-    { name: "Size", kind: "size", tokens: ["--size-touch-target"] },
+    {
+      name: "Size",
+      kind: "size",
+      tokens: ["--size-touch-target", "--size-dialog-max"],
+    },
+    {
+      name: "Scrim",
+      kind: "color",
+      tokens: ["--color-scrim-dim", "--color-scrim-deep"],
+    },
     {
       name: "Border width",
       kind: "border-width",
@@ -134,6 +143,7 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--color-focus-ring",
         "--color-danger",
         "--color-border-default",
+        "--color-scrim",
       ],
     },
     {
@@ -163,7 +173,11 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--space-focus-offset",
       ],
     },
-    { name: "Size", kind: "size", tokens: ["--size-touch-min"] },
+    {
+      name: "Size",
+      kind: "size",
+      tokens: ["--size-touch-min", "--size-dialog-width"],
+    },
     {
       name: "Border width",
       kind: "border-width",
@@ -264,13 +278,15 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--cal-drop-invalid-bg",
         "--cal-drop-invalid-fg",
         "--cal-drop-invalid-border",
+        "--cal-dialog-scrim",
       ],
     },
     {
       name: "Calendar elevation",
       kind: "shadow",
-      tokens: ["--cal-drag-overlay-shadow"],
+      tokens: ["--cal-drag-overlay-shadow", "--cal-dialog-shadow"],
     },
+    { name: "Calendar dialog size", kind: "size", tokens: ["--cal-dialog-width"] },
     {
       name: "Calendar radius",
       kind: "radius",

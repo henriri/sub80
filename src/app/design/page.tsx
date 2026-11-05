@@ -15,6 +15,7 @@ import {
 import { WORKOUT_KINDS, type StoredWorkout } from "@/lib/plan";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
 import { ModePreview, TokenValue } from "./mode-preview";
+import { MoveDemo } from "./move-demo";
 
 export const metadata: Metadata = {
   title: "Design system · sub80",
@@ -113,6 +114,18 @@ const sampleInput = {
   today: SAMPLE_DATE,
   workouts: sampleWorkouts,
   vdot: SAMPLE_VDOT,
+};
+
+/**
+ * The easy run, which the picker and the dialog specimens talk about. Found by
+ * title rather than by index, so reordering the samples above cannot silently
+ * point these at a different session.
+ */
+const easyRun = sampleWorkouts.find((workout) => workout.kind === "easy");
+const sampleSession = {
+  id: easyRun?.id ?? "",
+  title: easyRun?.title ?? "",
+  date: easyRun?.planned_date ?? SAMPLE_DATE,
 };
 
 const sampleWeek = buildWeekView(sampleInput);
@@ -307,6 +320,13 @@ export default function DesignPage() {
             <h3 className="text-heading-sm">CalendarSkeleton</h3>
             <CalendarSkeleton />
           </div>
+
+          <MoveDemo
+            week={sampleWeek}
+            month={sampleMonth}
+            today={SAMPLE_DATE}
+            sample={sampleSession}
+          />
         </section>
 
         {layers.map(({ layer, title }) => (

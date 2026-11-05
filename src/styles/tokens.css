@@ -140,6 +140,17 @@
   --space-16: 4rem;
 
   --size-touch-target: 44px;
+  /* A dialog wide enough for two sentences and seven day columns. */
+  --size-dialog-max: 28rem;
+
+  /*
+   * Scrims. Transparent black rather than a neutral step, because what is
+   * behind a dialog has to stay recognisable: an opaque tint would hide the
+   * calendar the athlete is deciding about. Two steps, since a scrim that
+   * dims a white page is barely visible over a near-black one.
+   */
+  --color-scrim-dim: oklch(0 0 0 / 0.5);
+  --color-scrim-deep: oklch(0 0 0 / 0.7);
 
   --border-width-1: 1px;
   --border-width-2: 2px;
@@ -210,6 +221,7 @@
   --color-focus-ring: var(--palette-accent-500);
   --color-danger: var(--color-red-600);
   --shadow-overlay: var(--shadow-soft);
+  --color-scrim: var(--color-scrim-dim);
 
   /*
    * Whether a day will take the session being dragged over it. Deliberately
@@ -267,6 +279,7 @@
   --color-focus-ring: var(--palette-accent-400);
   --color-danger: var(--color-red-400);
   --shadow-overlay: var(--shadow-deep);
+  --color-scrim: var(--color-scrim-deep);
 
   /* The same six names, inverted: a deep tint with same-hue light text. */
   --color-drop-valid: var(--color-green-950);
@@ -366,6 +379,7 @@
   --line-height-body: var(--line-height-normal);
   --line-height-heading: var(--line-height-tight);
   --size-touch-min: var(--size-touch-target);
+  --size-dialog-width: var(--size-dialog-max);
   --border-width-default: var(--border-width-1);
   --border-width-focus: var(--border-width-2);
   --space-focus-offset: var(--space-0-5);
@@ -435,6 +449,9 @@
   --cal-drop-invalid-fg: var(--color-drop-invalid-fg);
   --cal-drop-invalid-border: var(--color-drop-invalid-border);
   --cal-drag-overlay-shadow: var(--shadow-overlay);
+  --cal-dialog-scrim: var(--color-scrim);
+  --cal-dialog-width: var(--size-dialog-width);
+  --cal-dialog-shadow: var(--shadow-overlay);
 
   --cal-marker-radius: var(--radius-control);
   --cal-marker-size: var(--space-inline-md);

@@ -17,6 +17,8 @@ const moved = (eventId: string, now = T0): MoveFeedback =>
     type: "moved",
     eventId,
     workoutId: "workout-1",
+    title: "Easy run",
+    from: "2027-03-15",
     message: "Easy run moved to Saturday 20 March.",
     now,
   });
@@ -55,6 +57,8 @@ describe("moveFeedback", () => {
       type: "moved",
       eventId: "event-b",
       workoutId: "workout-2",
+      title: "Long run",
+      from: "2027-03-16",
       message: "Long run moved to Sunday 21 March.",
       now: at(6),
     });

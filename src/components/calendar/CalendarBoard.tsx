@@ -14,12 +14,18 @@ import {
   useReducer,
   useState,
 } from "react";
-import { moveWorkout } from "@/app/actions";
 import {
+  moveWorkout,
+  undoLastMove,
+  type MoveResult,
+  type UndoResult,
+} from "@/app/actions";
+import {
+  STALE_UNDO_MESSAGE,
   applyMove,
   movedMessage,
   rejectMessage,
-  warningMessage,
+  undoneMessage,
   type CalendarItem,
   type CalendarViewModel,
 } from "@/lib/calendar";
@@ -37,9 +43,12 @@ import {
   announceDragStart,
   announceDrop,
 } from "@/lib/ui/drag-announce";
-import { feedbackRole, idle, moveFeedback } from "@/lib/ui/move-feedback";
+import { idle, moveFeedback } from "@/lib/ui/move-feedback";
 import { DayView } from "./DayView";
 import { MonthView } from "./MonthView";
+import { MoveDialog } from "./MoveDialog";
+import { MovePicker } from "./MovePicker";
+import { UndoToast } from "./UndoToast";
 import { WeekView } from "./WeekView";
 import { MoveContext, type MoveApi } from "./move-context";
 
@@ -55,7 +64,32 @@ type CalendarBoardProps = {
    * and a drag that cannot be completed is not a specimen of a drag. The
    * calendar on `/` takes the default and never names an action of its own.
    */
-  onMove?: typeof moveWorkout;
+  onMove?: MoveAction;
+  /** Overridable for the same reason as `onMove`. */
+  onUndo?: UndoAction;
+};
+
+/**
+ * The two actions, spelled out rather than written as `typeof moveWorkout`.
+ *
+ * The real actions take `unknown` and validate it, which is right for a
+ * boundary the browser can post anything to, but it would make every
+ * substitute take `unknown` too. Both of these are assignable to the real
+ * signature, so nothing is loosened.
+ */
+export type MoveAction = (input: {
+  workoutId: string;
+  toDate: Ymd;
+  overrides: readonly MoveWarning["code"][];
+}) => Promise<MoveResult>;
+
+export type UndoAction = (eventId: string) => Promise<UndoResult>;
+
+/** A move the athlete still has to confirm, and what it would cause. */
+type PendingMove = {
+  workoutId: string;
+  toDate: Ymd;
+  warnings: readonly MoveWarning[];
 };
 
 /** Every day in a model, whichever view it is. */
@@ -118,11 +152,14 @@ export function CalendarBoard({
   model,
   today,
   onMove = moveWorkout,
+  onUndo = undoLastMove,
 }: CalendarBoardProps) {
   const [optimistic, addMove] = useOptimistic(model, applyMove);
   const [feedback, send] = useReducer(moveFeedback, idle);
   const [dragging, setDragging] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const [pending, setPending] = useState<PendingMove | null>(null);
+  const [picking, setPicking] = useState<string | null>(null);
 
   const candidates = useMemo(() => candidatesOf(optimistic), [optimistic]);
 
@@ -155,19 +192,21 @@ export function CalendarBoard({
             type: "moved",
             eventId: result.eventId,
             workoutId: result.workoutId,
+            title: result.title,
+            from: result.from,
             message: movedMessage(result.title, result.to),
             now: Date.now(),
           });
           return;
         }
 
+        // The client could not see the whole picture -- a day at the edge of
+        // the loaded window, or a picker reaching outside it altogether -- so
+        // the question arrives after the attempt rather than before it. The
+        // card has already snapped back by now, which is the honest picture:
+        // nothing has been saved until this is answered.
         if (result.status === "needs_confirmation") {
-          // Until the dialog exists, a move the server wants confirmed is
-          // refused rather than accepted on the athlete's behalf.
-          send({
-            type: "error",
-            message: result.warnings.map(warningMessage).join(" "),
-          });
+          setPending({ workoutId, toDate, warnings: result.warnings });
           return;
         }
 
@@ -184,11 +223,10 @@ export function CalendarBoard({
         send({ type: "error", message: rejectMessage(outcome.reason) });
         return;
       }
+      // Asked before the move rather than after it, so a card the athlete may
+      // decide against never appears to have landed.
       if (outcome.warnings.length > 0) {
-        send({
-          type: "error",
-          message: outcome.warnings.map(warningMessage).join(" "),
-        });
+        setPending({ workoutId, toDate, warnings: outcome.warnings });
         return;
       }
       commit(workoutId, toDate, []);
@@ -196,19 +234,40 @@ export function CalendarBoard({
     [check, commit],
   );
 
+  const undo = useCallback(
+    (eventId: string) => {
+      startTransition(async () => {
+        const restored =
+          feedback.kind === "moved"
+            ? undoneMessage(feedback.title, feedback.from)
+            : "That change has been put back.";
+
+        const result = await onUndo(eventId);
+        if (result.status === "ok") {
+          send({ type: "undone", message: restored });
+          return;
+        }
+        // The only way the database refuses an undo the interface offered is
+        // that something has changed since: another move, or the session
+        // having moved on again. Its own message names a row id, which is no
+        // use to the athlete, so this says what to do instead.
+        send({ type: "error", message: STALE_UNDO_MESSAGE });
+      });
+    },
+    [feedback, onUndo],
+  );
+
   const api = useMemo<MoveApi>(
     () => ({
       canMove: (item: CalendarItem) => item.status === "planned",
       check,
       dragging,
-      // The picker arrives with the dialog. Until then the handle is the one
-      // route, which is why it is a real button and not a decorative grip.
-      pick: () => {},
+      pick: setPicking,
     }),
     [check, dragging],
   );
 
-  const role = feedbackRole(feedback);
+  const pickingFrom = candidates.find((candidate) => candidate.id === picking);
 
   return (
     <MoveContext.Provider value={api}>
@@ -262,23 +321,56 @@ export function CalendarBoard({
           {optimistic.view === "month" ? <MonthView month={optimistic} /> : null}
           {optimistic.view === "day" ? <DayView day={optimistic} /> : null}
 
+          {/*
+            The running commentary of a drag, which must stay polite. The
+            toast below has its own region, because a refused move has to be
+            heard over whatever else is being read.
+          */}
           <p aria-live="polite" className="sr-only">
             {announcement}
           </p>
 
-          {role === null || feedback.kind === "idle" ? null : (
-            <p
-              role={role}
-              className={
-                role === "alert"
-                  ? "text-small text-danger"
-                  : "text-small text-secondary"
-              }
-            >
-              {feedback.message}
-            </p>
-          )}
+          <UndoToast
+            state={feedback}
+            onUndo={undo}
+            onHold={(held) => send({ type: "hold", hold: held, now: Date.now() })}
+            onRelease={(held) =>
+              send({ type: "release", hold: held, now: Date.now() })
+            }
+            onDismiss={() => send({ type: "dismiss" })}
+          />
         </div>
+
+        {pending === null ? null : (
+          <MoveDialog
+            warnings={pending.warnings}
+            onCancel={() => setPending(null)}
+            onConfirm={() => {
+              // Every warning the athlete was shown goes back by name. The
+              // server accepts only codes it raised itself, so this cannot
+              // silence a rule it did not ask about.
+              commit(
+                pending.workoutId,
+                pending.toDate,
+                pending.warnings.map((warning) => warning.code),
+              );
+              setPending(null);
+            }}
+          />
+        )}
+
+        {pickingFrom === undefined ? null : (
+          <MovePicker
+            title={pickingFrom.title}
+            fromDate={pickingFrom.planned_date}
+            check={(toDate) => check(pickingFrom.id, toDate)}
+            onCancel={() => setPicking(null)}
+            onPick={(toDate) => {
+              setPicking(null);
+              request(pickingFrom.id, toDate);
+            }}
+          />
+        )}
       </DragDropProvider>
     </MoveContext.Provider>
   );

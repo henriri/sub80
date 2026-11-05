@@ -29,6 +29,9 @@ export type MoveFeedback =
       /** The plan_events row the Undo button will name. */
       eventId: string;
       workoutId: string;
+      /** Kept so undoing can say which session went back, and where to. */
+      title: string;
+      from: string;
       message: string;
       countdown: Countdown;
     }
@@ -40,6 +43,8 @@ export type MoveFeedbackEvent =
       type: "moved";
       eventId: string;
       workoutId: string;
+      title: string;
+      from: string;
       message: string;
       now: number;
     }
@@ -64,6 +69,8 @@ export function moveFeedback(
         kind: "moved",
         eventId: event.eventId,
         workoutId: event.workoutId,
+        title: event.title,
+        from: event.from,
         message: event.message,
         countdown: start(event.now),
       };

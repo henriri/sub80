@@ -3,13 +3,16 @@ import { Suspense } from "react";
 import { Button } from "@/components/Button";
 import { Calendar } from "@/components/calendar/Calendar";
 import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
+import { RecentChanges } from "@/components/calendar/RecentChanges";
 import { requireUser } from "@/lib/auth/require-user";
 import {
   buildCalendarView,
   calendarHref,
   parseCalendarParams,
+  undoableIndex,
   visibleRange,
 } from "@/lib/calendar";
+import { readRecentPlanEvents } from "@/lib/data/plan-events";
 import {
   countPlannedWorkouts,
   readNextWorkouts,
@@ -36,6 +39,9 @@ const panel = [
   "flex flex-col gap-stack-sm rounded-surface bg-surface p-inset-md",
   "border-(length:--border-width-default) border-default",
 ].join(" ");
+
+/** How much history "Recent changes" shows. */
+const RECENT_CHANGES = 10;
 
 /** Nothing to show a calendar of yet, so the seed path lives here. */
 function NoPlan() {
@@ -68,21 +74,36 @@ async function CalendarSection({
   const { view, date } = parsed.params;
   const { from, days } = visibleRange(view, date);
 
-  // Three reads, one round trip. Only the visible range is fetched.
-  const [planned, vdot, workouts] = await Promise.all([
+  // Four reads, one round trip. Only the visible range of workouts is fetched.
+  const [planned, vdot, workouts, events] = await Promise.all([
     countPlannedWorkouts(user.id),
     readVdot(user.id),
     readNextWorkouts(user.id, from, days),
+    readRecentPlanEvents(user.id, RECENT_CHANGES),
   ]);
 
   if (planned === 0) return <NoPlan />;
 
+  // Undo is a stack, so exactly one row may be undone and it is not always
+  // the first: an undo, or an already undone move, can sit above it.
+  const undoable = undoableIndex(events);
+  const changes = events.map((event, index) => ({
+    id: event.id,
+    kind: event.kind,
+    status: event.status,
+    move: event.move,
+    undoable: index === undoable,
+  }));
+
   return (
-    <Calendar
-      model={buildCalendarView(view, { date, today, workouts, vdot })}
-      today={today}
-      interactive
-    />
+    <>
+      <Calendar
+        model={buildCalendarView(view, { date, today, workouts, vdot })}
+        today={today}
+        interactive
+      />
+      <RecentChanges changes={changes} />
+    </>
   );
 }
 

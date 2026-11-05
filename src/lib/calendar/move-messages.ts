@@ -141,3 +141,43 @@ export function undoneMessage(title: string, fromDate: string): string {
  */
 export const STALE_UNDO_MESSAGE =
   "Something else has changed since then. Undo the most recent change instead.";
+
+/**
+ * One row of "Recent changes".
+ *
+ * Structural rather than taking a `PlanEvent`, because that type lives in a
+ * server-only module and this one has no business importing it. The payload
+ * carries no title -- only the workout id -- so a row names the days and not
+ * the session, rather than a second read being done to make a sentence
+ * prettier.
+ */
+export type PlanEventSummary = {
+  kind: string;
+  status: string;
+  move: { from: string; to: string } | null;
+};
+
+export function planEventMessage(event: PlanEventSummary): string {
+  if (event.move === null) return "A plan change.";
+  if (event.kind === "undo_move") return `Put back on ${dayName(event.move.to)}.`;
+
+  const sentence = `Moved from ${dayName(event.move.from)} to ${dayName(event.move.to)}.`;
+  return event.status === "undone" ? `${sentence} Undone.` : sentence;
+}
+
+/**
+ * Which row of a change list may be undone.
+ *
+ * Undo is a stack: the database accepts only the caller's newest move that is
+ * not already undone, skipping undo rows entirely. So exactly one row carries
+ * the button, and it is not always the first -- an undo, or an already undone
+ * move, sits above it. Deriving it here, from the same rule, is what keeps the
+ * interface from offering what the database will refuse.
+ */
+export function undoableIndex(
+  events: readonly { kind: string; status: string }[],
+): number {
+  return events.findIndex(
+    (event) => event.kind === "move_workout" && event.status !== "undone",
+  );
+}

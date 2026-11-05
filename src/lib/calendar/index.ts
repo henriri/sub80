@@ -13,12 +13,15 @@ export {
   dropHint,
   dropState,
   movedMessage,
+  planEventMessage,
   rejectHint,
   rejectMessage,
+  undoableIndex,
   undoneMessage,
   warningMessage,
   warningTitle,
   type DropState,
+  type PlanEventSummary,
 } from "./move-messages";
 export { applyMove, applyMoves, type OptimisticMove } from "./move-reducer";
 export {
