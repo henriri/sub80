@@ -156,6 +156,17 @@ function Specimen({ kind, name }: { kind: TokenGroup["kind"]; name: string }) {
       return <span className="h-(--space-2) shrink-0 bg-accent" style={{ width: value }} />;
     case "border-width":
       return <span className="w-(--space-10) shrink-0 bg-accent" style={{ height: value }} />;
+    case "shadow":
+      // On a surface, with a gap round it: a shadow is only legible against
+      // the background it is meant to lift off.
+      return (
+        <span className="inline-flex p-inset-sm">
+          <span
+            className="size-(--space-8) shrink-0 rounded-control bg-surface"
+            style={{ boxShadow: value }}
+          />
+        </span>
+      );
     case "font-family":
       return <span style={{ fontFamily: value }}>Pace 3:47/km</span>;
     case "font-size":

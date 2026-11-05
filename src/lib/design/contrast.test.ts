@@ -50,12 +50,22 @@ const textPairs: Pair[] = [
   { fg: "--cal-date-fg-muted", bg: "--cal-today-bg" },
   { fg: "--cal-card-fg", bg: "--cal-card-bg" },
   { fg: "--cal-weekday-fg", bg: "--cal-header-bg" },
+  // The word in a drop target. It is the word, not the colour, that says
+  // whether the day will take the session, so it has to read.
+  { fg: "--cal-drop-valid-fg", bg: "--cal-drop-valid-bg" },
+  { fg: "--cal-drop-invalid-fg", bg: "--cal-drop-invalid-bg" },
 ];
 
 /** The ring round today carries meaning on its own, so it needs 3:1. */
 const nonTextPairs: Pair[] = [
   { fg: "--cal-today-ring", bg: "--cal-today-bg" },
   { fg: "--cal-event-border", bg: "--cal-cell-bg" },
+  // A drop target's outline, both against its own tint and against the cell
+  // next to it, since the outline is what picks one cell out of seven.
+  { fg: "--cal-drop-valid-border", bg: "--cal-drop-valid-bg" },
+  { fg: "--cal-drop-valid-border", bg: "--cal-cell-bg" },
+  { fg: "--cal-drop-invalid-border", bg: "--cal-drop-invalid-bg" },
+  { fg: "--cal-drop-invalid-border", bg: "--cal-cell-bg" },
 ];
 
 const combinations = modes.theme.flatMap((theme) =>

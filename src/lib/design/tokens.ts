@@ -9,6 +9,7 @@ export type TokenKind =
   | "space"
   | "size"
   | "border-width"
+  | "shadow"
   | "font-family"
   | "font-size"
   | "font-weight"
@@ -88,6 +89,11 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       tokens: range("--border-width", [1, 2]),
     },
     {
+      name: "Shadow",
+      kind: "shadow",
+      tokens: ["--shadow-soft", "--shadow-deep"],
+    },
+    {
       name: "Font family",
       kind: "font-family",
       tokens: range("--font-family", ["sans", "serif", "mono"]),
@@ -130,6 +136,17 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--color-border-default",
       ],
     },
+    {
+      name: "Drop state",
+      kind: "color",
+      tokens: [
+        ...range("--color-drop-valid", ["fg", "border"]),
+        "--color-drop-valid",
+        ...range("--color-drop-invalid", ["fg", "border"]),
+        "--color-drop-invalid",
+      ],
+    },
+    { name: "Elevation", kind: "shadow", tokens: ["--shadow-overlay"] },
     { name: "Workout kind", kind: "color", tokens: kindTokens },
     {
       name: "Radius",
@@ -241,7 +258,18 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--cal-card-border",
         "--cal-header-bg",
         "--cal-weekday-fg",
+        "--cal-drop-valid-bg",
+        "--cal-drop-valid-fg",
+        "--cal-drop-valid-border",
+        "--cal-drop-invalid-bg",
+        "--cal-drop-invalid-fg",
+        "--cal-drop-invalid-border",
       ],
+    },
+    {
+      name: "Calendar elevation",
+      kind: "shadow",
+      tokens: ["--cal-drag-overlay-shadow"],
     },
     {
       name: "Calendar radius",
