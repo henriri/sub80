@@ -9,11 +9,18 @@ export {
 export { KIND_META, isEventKind, type KindMeta } from "./kinds";
 export { monthGrid, type MonthCell } from "./month-grid";
 export {
+  STALE_UNDO_MESSAGE,
+  dropHint,
+  dropState,
+  movedMessage,
   rejectHint,
   rejectMessage,
+  undoneMessage,
   warningMessage,
   warningTitle,
+  type DropState,
 } from "./move-messages";
+export { applyMove, applyMoves, type OptimisticMove } from "./move-reducer";
 export {
   CALENDAR_VIEWS,
   calendarHref,
@@ -47,6 +54,7 @@ export {
   buildDayView,
   buildMonthView,
   buildWeekView,
+  compareCalendarItems,
   describeDay,
   isPlanWeek,
   plannedKmFor,

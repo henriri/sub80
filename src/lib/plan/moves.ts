@@ -143,8 +143,16 @@ export function moveReadRange(fromDate: Ymd, toDate: Ymd): { from: Ymd; to: Ymd 
   };
 }
 
-/** The slot a workout would take on a day, or null when the day is full. */
-export function nextFreeSlot(dayWorkouts: readonly MoveCandidate[]): 0 | 1 | null {
+/**
+ * The slot a workout would take on a day, or null when the day is full.
+ *
+ * Takes the slots alone rather than whole candidates, so the optimistic
+ * client reducer can run the same function over rendered items instead of
+ * keeping a second copy of the rule.
+ */
+export function nextFreeSlot(
+  dayWorkouts: readonly Pick<MoveCandidate, "day_slot">[],
+): 0 | 1 | null {
   const taken = new Set(dayWorkouts.map((workout) => workout.day_slot));
   if (!taken.has(0)) return 0;
   if (!taken.has(1)) return 1;

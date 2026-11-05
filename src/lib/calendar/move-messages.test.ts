@@ -6,8 +6,13 @@ import {
   type RejectReason,
 } from "@/lib/plan";
 import {
+  STALE_UNDO_MESSAGE,
+  dropHint,
+  dropState,
+  movedMessage,
   rejectHint,
   rejectMessage,
+  undoneMessage,
   warningMessage,
   warningTitle,
 } from "./move-messages";
@@ -152,5 +157,52 @@ describe("warningTitle", () => {
 
   it("stays sensible with no warnings at all", () => {
     expect(warningTitle([])).toBe("Move this session?");
+  });
+});
+
+describe("dropState and dropHint", () => {
+  const ok = { ok: true, warnings: [] } as const;
+  const warned = { ok: true, warnings: [warnings.double_day] } as const;
+
+  it("calls a clean day valid and a refused day invalid", () => {
+    expect(dropState(ok)).toBe("valid");
+    expect(dropState({ ok: false, reason: reasons.day_full })).toBe("invalid");
+  });
+
+  it("calls a day that needs confirming a warning, not a rejection", () => {
+    // It can still be dropped on; the dialog is what asks.
+    expect(dropState(warned)).toBe("warning");
+  });
+
+  it("gives each state its own word, so colour is never alone", () => {
+    expect(dropHint(ok)).toBe("Drop");
+    expect(dropHint(warned)).toBe("Confirm");
+    expect(dropHint({ ok: false, reason: reasons.day_full })).toBe("Full");
+  });
+
+  it.each(MOVE_REJECT_CODES)("has a cell-sized word for %s", (code) => {
+    const hint = dropHint({ ok: false, reason: reasons[code] });
+    expect(hint.length).toBeGreaterThan(0);
+    // A day cell at 360px fits about eight characters and no more.
+    expect(hint.length).toBeLessThanOrEqual(8);
+  });
+});
+
+describe("the toast sentences", () => {
+  it("names the session and the day it went to", () => {
+    expect(movedMessage("Easy run", DATE)).toBe(
+      "Easy run moved to Thursday 18 March.",
+    );
+  });
+
+  it("names the day a session came back to", () => {
+    expect(undoneMessage("Easy run", NEIGHBOUR)).toBe(
+      "Easy run is back on Wednesday 17 March.",
+    );
+  });
+
+  it("tells the athlete what to do when undo is refused as stale", () => {
+    expect(STALE_UNDO_MESSAGE).toContain("most recent change");
+    expect(STALE_UNDO_MESSAGE.trim()).toMatch(/\.$/);
   });
 });
