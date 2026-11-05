@@ -5,7 +5,7 @@
 
 import { z } from "zod";
 import { MAX_WEEK } from "./dates";
-import { WORKOUT_KINDS } from "./types";
+import { WORKOUT_KINDS, WORKOUT_STATUSES } from "./types";
 import { ZONE_KEYS } from "./vdot";
 
 const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected a YYYY-MM-DD date.");
@@ -30,6 +30,13 @@ export const insertRowSchema = z.object({
 /** The whole plan. The row count is part of the contract. */
 export const insertRowsSchema = z.array(insertRowSchema);
 
+/**
+ * Order within the day: 0 first, 1 second. A literal union rather than
+ * z.int().min(0).max(1), so the type carries the two cases the move rules
+ * branch on and `day_slot in (0, 1)` on the column has an exact counterpart.
+ */
+const daySlot = z.union([z.literal(0), z.literal(1)]);
+
 /** One row read back from Postgres, for display. */
 export const storedWorkoutSchema = z.object({
   id: z.uuid(),
@@ -43,6 +50,9 @@ export const storedWorkoutSchema = z.object({
   week_index: z.int().min(1).max(MAX_WEEK),
   pace_zone: z.enum(ZONE_KEYS).nullable(),
   strides: z.boolean(),
+  // Only a planned workout may be moved, so the move rules need the status.
+  status: z.enum(WORKOUT_STATUSES),
+  day_slot: daySlot,
 });
 
 export const storedWorkoutsSchema = z.array(storedWorkoutSchema);

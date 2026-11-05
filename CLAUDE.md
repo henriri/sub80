@@ -65,6 +65,19 @@ Plain code measures and validates. The LLM only proposes and explains.
 4. Proposals: the user always accepts or rejects. Every change is a `plan_events` row and can be undone.
 Never let model output write to the plan directly. It must pass validation first.
 
+### Known limits
+The 60 km ceiling and the five-runs-a-week limit are enforced in TypeScript only, in
+`validateMove` (`src/lib/plan/moves.ts`), which the Server Action re-runs against fresh data
+before it writes. The database does not check them: a direct call to
+`move_planned_workout` would bypass both. Day capacity, plan-week bounds and ownership *are*
+enforced in SQL.
+
+That is acceptable while the only caller is the athlete's own session. Add a database-level
+guard — a deferred constraint trigger summing distance per `(user_id, week_index)`, not a
+PL/pgSQL copy of the rule — **before the coach is allowed to write plan changes**. A safety
+limit with one definition and one caller is fine; a safety limit with two writers and no
+guarantee is not.
+
 ## Code conventions
 - TypeScript strict, no `any`. Validate all external input (forms, FIT files, webhooks) with a schema.
 - Server components by default. Client components only for interaction.
