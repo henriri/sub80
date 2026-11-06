@@ -6,8 +6,15 @@ import {
   type RejectReason,
 } from "@/lib/plan";
 import {
+  STALE_UNDO_MESSAGE,
+  dropHint,
+  dropState,
+  movedMessage,
+  planEventMessage,
   rejectHint,
   rejectMessage,
+  undoableIndex,
+  undoneMessage,
   warningMessage,
   warningTitle,
 } from "./move-messages";
@@ -152,5 +159,116 @@ describe("warningTitle", () => {
 
   it("stays sensible with no warnings at all", () => {
     expect(warningTitle([])).toBe("Move this session?");
+  });
+});
+
+describe("dropState and dropHint", () => {
+  const ok = { ok: true, warnings: [] } as const;
+  const warned = { ok: true, warnings: [warnings.double_day] } as const;
+
+  it("calls a clean day valid and a refused day invalid", () => {
+    expect(dropState(ok)).toBe("valid");
+    expect(dropState({ ok: false, reason: reasons.day_full })).toBe("invalid");
+  });
+
+  it("calls a day that needs confirming a warning, not a rejection", () => {
+    // It can still be dropped on; the dialog is what asks.
+    expect(dropState(warned)).toBe("warning");
+  });
+
+  it("gives each state its own word, so colour is never alone", () => {
+    expect(dropHint(ok)).toBe("Drop");
+    expect(dropHint(warned)).toBe("Confirm");
+    expect(dropHint({ ok: false, reason: reasons.day_full })).toBe("Full");
+  });
+
+  it.each(MOVE_REJECT_CODES)("has a cell-sized word for %s", (code) => {
+    const hint = dropHint({ ok: false, reason: reasons[code] });
+    expect(hint.length).toBeGreaterThan(0);
+    // A day cell at 360px fits about eight characters and no more.
+    expect(hint.length).toBeLessThanOrEqual(8);
+  });
+});
+
+describe("the toast sentences", () => {
+  it("names the session and the day it went to", () => {
+    expect(movedMessage("Easy run", DATE)).toBe(
+      "Easy run moved to Thursday 18 March.",
+    );
+  });
+
+  it("names the day a session came back to", () => {
+    expect(undoneMessage("Easy run", NEIGHBOUR)).toBe(
+      "Easy run is back on Wednesday 17 March.",
+    );
+  });
+
+  it("tells the athlete what to do when undo is refused as stale", () => {
+    expect(STALE_UNDO_MESSAGE).toContain("most recent change");
+    expect(STALE_UNDO_MESSAGE.trim()).toMatch(/\.$/);
+  });
+});
+
+describe("planEventMessage", () => {
+  const move = { from: DATE, to: "2027-03-20" };
+
+  it("names both days of a move", () => {
+    expect(
+      planEventMessage({ kind: "move_workout", status: "accepted", move }),
+    ).toBe("Moved from Thursday 18 March to Saturday 20 March.");
+  });
+
+  it("says so when a move has been undone", () => {
+    expect(
+      planEventMessage({ kind: "move_workout", status: "undone", move }),
+    ).toContain("Undone.");
+  });
+
+  it("reads an undo as the day the session went back to", () => {
+    // The undo event's own payload runs the other way round.
+    expect(
+      planEventMessage({
+        kind: "undo_move",
+        status: "accepted",
+        move: { from: "2027-03-20", to: DATE },
+      }),
+    ).toBe("Put back on Thursday 18 March.");
+  });
+
+  it("stays a sentence for a kind it cannot read", () => {
+    expect(
+      planEventMessage({ kind: "coach_proposal", status: "proposed", move: null }),
+    ).toBe("A plan change.");
+  });
+});
+
+describe("undoableIndex", () => {
+  const move = (status = "accepted") => ({ kind: "move_workout", status });
+  const undo = { kind: "undo_move", status: "accepted" };
+
+  it("is the newest move when nothing has been undone", () => {
+    expect(undoableIndex([move(), move()])).toBe(0);
+  });
+
+  it("skips the undo row that sits above the move it reversed", () => {
+    // What the list looks like straight after an undo: the undo is newest,
+    // the move it reversed is marked undone, and the one before is next.
+    expect(undoableIndex([undo, move("undone"), move()])).toBe(2);
+  });
+
+  it("skips an already undone move", () => {
+    expect(undoableIndex([move("undone"), move()])).toBe(1);
+  });
+
+  it("never points at an undo, because there is no redo", () => {
+    expect(undoableIndex([undo, undo])).toBe(-1);
+  });
+
+  it("has nothing to offer for an empty list", () => {
+    expect(undoableIndex([])).toBe(-1);
+  });
+
+  it("ignores a kind it does not know", () => {
+    expect(undoableIndex([{ kind: "coach_proposal", status: "proposed" }])).toBe(-1);
   });
 });

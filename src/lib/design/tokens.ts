@@ -9,6 +9,7 @@ export type TokenKind =
   | "space"
   | "size"
   | "border-width"
+  | "shadow"
   | "font-family"
   | "font-size"
   | "font-weight"
@@ -81,11 +82,25 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       kind: "space",
       tokens: range("--space", [0, "0-5", 1, 2, 3, 4, 5, 6, 8, 10, 12, 16]),
     },
-    { name: "Size", kind: "size", tokens: ["--size-touch-target"] },
+    {
+      name: "Size",
+      kind: "size",
+      tokens: ["--size-touch-target", "--size-dialog-max"],
+    },
+    {
+      name: "Scrim",
+      kind: "color",
+      tokens: ["--color-scrim-dim", "--color-scrim-deep"],
+    },
     {
       name: "Border width",
       kind: "border-width",
       tokens: range("--border-width", [1, 2]),
+    },
+    {
+      name: "Shadow",
+      kind: "shadow",
+      tokens: ["--shadow-soft", "--shadow-deep"],
     },
     {
       name: "Font family",
@@ -128,8 +143,20 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--color-focus-ring",
         "--color-danger",
         "--color-border-default",
+        "--color-scrim",
       ],
     },
+    {
+      name: "Drop state",
+      kind: "color",
+      tokens: [
+        ...range("--color-drop-valid", ["fg", "border"]),
+        "--color-drop-valid",
+        ...range("--color-drop-invalid", ["fg", "border"]),
+        "--color-drop-invalid",
+      ],
+    },
+    { name: "Elevation", kind: "shadow", tokens: ["--shadow-overlay"] },
     { name: "Workout kind", kind: "color", tokens: kindTokens },
     {
       name: "Radius",
@@ -146,7 +173,11 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--space-focus-offset",
       ],
     },
-    { name: "Size", kind: "size", tokens: ["--size-touch-min"] },
+    {
+      name: "Size",
+      kind: "size",
+      tokens: ["--size-touch-min", "--size-dialog-width"],
+    },
     {
       name: "Border width",
       kind: "border-width",
@@ -241,8 +272,21 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--cal-card-border",
         "--cal-header-bg",
         "--cal-weekday-fg",
+        "--cal-drop-valid-bg",
+        "--cal-drop-valid-fg",
+        "--cal-drop-valid-border",
+        "--cal-drop-invalid-bg",
+        "--cal-drop-invalid-fg",
+        "--cal-drop-invalid-border",
+        "--cal-dialog-scrim",
       ],
     },
+    {
+      name: "Calendar elevation",
+      kind: "shadow",
+      tokens: ["--cal-drag-overlay-shadow", "--cal-dialog-shadow"],
+    },
+    { name: "Calendar dialog size", kind: "size", tokens: ["--cal-dialog-width"] },
     {
       name: "Calendar radius",
       kind: "radius",

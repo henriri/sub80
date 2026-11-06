@@ -140,9 +140,30 @@
   --space-16: 4rem;
 
   --size-touch-target: 44px;
+  /* A dialog wide enough for two sentences and seven day columns. */
+  --size-dialog-max: 28rem;
+
+  /*
+   * Scrims. Transparent black rather than a neutral step, because what is
+   * behind a dialog has to stay recognisable: an opaque tint would hide the
+   * calendar the athlete is deciding about. Two steps, since a scrim that
+   * dims a white page is barely visible over a near-black one.
+   */
+  --color-scrim-dim: oklch(0 0 0 / 0.5);
+  --color-scrim-deep: oklch(0 0 0 / 0.7);
 
   --border-width-1: 1px;
   --border-width-2: 2px;
+
+  /*
+   * Elevation. Two steps of the same geometry at different opacities: the
+   * dragged card has to lift off a white surface and off a near-black one,
+   * and a shadow that reads on paper disappears on the dark theme. Named for
+   * what they are rather than numbered, because they differ by the ground
+   * they fall on and not by weight.
+   */
+  --shadow-soft: 0 6px 12px -2px oklch(0 0 0 / 0.18), 0 12px 28px -6px oklch(0 0 0 / 0.14);
+  --shadow-deep: 0 6px 12px -2px oklch(0 0 0 / 0.5), 0 12px 28px -6px oklch(0 0 0 / 0.45);
 
   --font-family-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-family-serif: "Iowan Old Style", Charter, Georgia, serif;
@@ -199,6 +220,23 @@
   --color-accent-hover: var(--palette-accent-700);
   --color-focus-ring: var(--palette-accent-500);
   --color-danger: var(--color-red-600);
+  --shadow-overlay: var(--shadow-soft);
+  --color-scrim: var(--color-scrim-dim);
+
+  /*
+   * Whether a day will take the session being dragged over it. Deliberately
+   * not palette-driven: this is a yes-or-no signal, not branding, and under
+   * `forest` a palette-green "valid" would be the same green as the accent.
+   * The same argument the kind tokens make. Colour is never on its own
+   * either -- the cell shows a word as well. contrast.test.ts holds the text
+   * at 4.5:1 and the border at 3:1.
+   */
+  --color-drop-valid: var(--color-green-100);
+  --color-drop-valid-fg: var(--color-green-900);
+  --color-drop-valid-border: var(--color-green-600);
+  --color-drop-invalid: var(--color-red-100);
+  --color-drop-invalid-fg: var(--color-red-900);
+  --color-drop-invalid-border: var(--color-red-600);
 
   /*
    * Workout kinds. A pale tint with same-hue dark text. These do not follow
@@ -240,6 +278,16 @@
   --color-accent-hover: var(--palette-accent-300);
   --color-focus-ring: var(--palette-accent-400);
   --color-danger: var(--color-red-400);
+  --shadow-overlay: var(--shadow-deep);
+  --color-scrim: var(--color-scrim-deep);
+
+  /* The same six names, inverted: a deep tint with same-hue light text. */
+  --color-drop-valid: var(--color-green-950);
+  --color-drop-valid-fg: var(--color-green-300);
+  --color-drop-valid-border: var(--color-green-400);
+  --color-drop-invalid: var(--color-red-950);
+  --color-drop-invalid-fg: var(--color-red-300);
+  --color-drop-invalid-border: var(--color-red-400);
 
   /* Same twenty names, inverted: a deep tint with same-hue light text. */
   --kind-easy: var(--color-green-950);
@@ -331,6 +379,7 @@
   --line-height-body: var(--line-height-normal);
   --line-height-heading: var(--line-height-tight);
   --size-touch-min: var(--size-touch-target);
+  --size-dialog-width: var(--size-dialog-max);
   --border-width-default: var(--border-width-1);
   --border-width-focus: var(--border-width-2);
   --space-focus-offset: var(--space-0-5);
@@ -387,6 +436,22 @@
   --cal-card-padding-y: var(--space-inset-sm);
   --cal-card-gap: var(--space-stack-sm);
   --cal-card-min-height: var(--size-touch-min);
+
+  /*
+   * Drop feedback, and the lift under a card being dragged. The shadow is
+   * part of this: a state the eye reads as "picked up" must not be carried by
+   * colour alone either.
+   */
+  --cal-drop-valid-bg: var(--color-drop-valid);
+  --cal-drop-valid-fg: var(--color-drop-valid-fg);
+  --cal-drop-valid-border: var(--color-drop-valid-border);
+  --cal-drop-invalid-bg: var(--color-drop-invalid);
+  --cal-drop-invalid-fg: var(--color-drop-invalid-fg);
+  --cal-drop-invalid-border: var(--color-drop-invalid-border);
+  --cal-drag-overlay-shadow: var(--shadow-overlay);
+  --cal-dialog-scrim: var(--color-scrim);
+  --cal-dialog-width: var(--size-dialog-width);
+  --cal-dialog-shadow: var(--shadow-overlay);
 
   --cal-marker-radius: var(--radius-control);
   --cal-marker-size: var(--space-inline-md);

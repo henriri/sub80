@@ -155,14 +155,27 @@ function toItem(workout: StoredWorkout, vdot: number): CalendarItem {
 }
 
 /**
- * Rows by date. Same-day order is `day_slot`, the stored order a move writes,
- * so dragging a session into the second slot of a day keeps it there.
+ * Same-day order: `day_slot`, the stored order a move writes, so dragging a
+ * session into the second slot of a day keeps it there.
  *
  * Key-session-first and then title remain as tie-breaks. They are unreachable
  * while the slots are distinct, which a day of at most two workouts
  * guarantees; they are kept so that data breaking that invariant still renders
  * in a stable order rather than reshuffling between renders.
+ *
+ * Exported because the optimistic reducer re-sorts a day it has just changed,
+ * and a second comparator there could put a moved card in a different place
+ * than the server's own read will.
  */
+export function compareCalendarItems(a: CalendarItem, b: CalendarItem): number {
+  return (
+    a.daySlot - b.daySlot ||
+    Number(b.isKey) - Number(a.isKey) ||
+    a.title.localeCompare(b.title)
+  );
+}
+
+/** Rows by date, each day's items in render order. */
 function itemsByDate(
   workouts: readonly StoredWorkout[],
   vdot: number,
@@ -175,14 +188,7 @@ function itemsByDate(
     byDate.set(workout.planned_date, items);
   }
 
-  for (const items of byDate.values()) {
-    items.sort(
-      (a, b) =>
-        a.daySlot - b.daySlot ||
-        Number(b.isKey) - Number(a.isKey) ||
-        a.title.localeCompare(b.title),
-    );
-  }
+  for (const items of byDate.values()) items.sort(compareCalendarItems);
 
   return byDate;
 }

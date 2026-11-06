@@ -15,6 +15,7 @@ import {
 import { WORKOUT_KINDS, type StoredWorkout } from "@/lib/plan";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
 import { ModePreview, TokenValue } from "./mode-preview";
+import { MoveDemo } from "./move-demo";
 
 export const metadata: Metadata = {
   title: "Design system · sub80",
@@ -115,6 +116,18 @@ const sampleInput = {
   vdot: SAMPLE_VDOT,
 };
 
+/**
+ * The easy run, which the picker and the dialog specimens talk about. Found by
+ * title rather than by index, so reordering the samples above cannot silently
+ * point these at a different session.
+ */
+const easyRun = sampleWorkouts.find((workout) => workout.kind === "easy");
+const sampleSession = {
+  id: easyRun?.id ?? "",
+  title: easyRun?.title ?? "",
+  date: easyRun?.planned_date ?? SAMPLE_DATE,
+};
+
 const sampleWeek = buildWeekView(sampleInput);
 const sampleMonth = buildMonthView(sampleInput);
 const sampleDay = buildDayView(sampleInput);
@@ -156,6 +169,17 @@ function Specimen({ kind, name }: { kind: TokenGroup["kind"]; name: string }) {
       return <span className="h-(--space-2) shrink-0 bg-accent" style={{ width: value }} />;
     case "border-width":
       return <span className="w-(--space-10) shrink-0 bg-accent" style={{ height: value }} />;
+    case "shadow":
+      // On a surface, with a gap round it: a shadow is only legible against
+      // the background it is meant to lift off.
+      return (
+        <span className="inline-flex p-inset-sm">
+          <span
+            className="size-(--space-8) shrink-0 rounded-control bg-surface"
+            style={{ boxShadow: value }}
+          />
+        </span>
+      );
     case "font-family":
       return <span style={{ fontFamily: value }}>Pace 3:47/km</span>;
     case "font-size":
@@ -296,6 +320,13 @@ export default function DesignPage() {
             <h3 className="text-heading-sm">CalendarSkeleton</h3>
             <CalendarSkeleton />
           </div>
+
+          <MoveDemo
+            week={sampleWeek}
+            month={sampleMonth}
+            today={SAMPLE_DATE}
+            sample={sampleSession}
+          />
         </section>
 
         {layers.map(({ layer, title }) => (

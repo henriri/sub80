@@ -1,3 +1,5 @@
+"use client";
+
 import { formatKm, type DayViewModel } from "@/lib/calendar";
 import { CalendarEmpty } from "./CalendarEmpty";
 import { WorkoutCard } from "./WorkoutCard";

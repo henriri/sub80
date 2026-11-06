@@ -9,7 +9,7 @@
  * Framework free, like the rest of src/lib/calendar.
  */
 
-import type { MoveWarning, RejectReason } from "@/lib/plan";
+import type { MoveCheck, MoveWarning, RejectReason } from "@/lib/plan";
 import { formatFullDate, formatKm } from "./format";
 
 /** 'Thursday 18 March 2027' without the year, which a dialog does not need. */
@@ -100,4 +100,84 @@ export function rejectHint(reason: RejectReason): string {
     case "week_cap_exceeded":
       return `${reason.capKm} km`;
   }
+}
+
+/**
+ * How a day cell should read while a session is being dragged over it.
+ *
+ * `warning` is still a day the session can be dropped on -- the dialog asks
+ * afterwards -- so it shares the valid colours and differs only in its word.
+ * Three words, two colours: the word is what carries the meaning.
+ */
+export type DropState = "valid" | "warning" | "invalid";
+
+export function dropState(check: MoveCheck): DropState {
+  if (!check.ok) return "invalid";
+  return check.warnings.length > 0 ? "warning" : "valid";
+}
+
+/**
+ * The word in the day cell. A cell has room for this and nothing more, so the
+ * whole sentence goes to the live region instead.
+ */
+export function dropHint(check: MoveCheck): string {
+  if (!check.ok) return rejectHint(check.reason);
+  return check.warnings.length > 0 ? "Confirm" : "Drop";
+}
+
+/** The toast after a move has been saved. */
+export function movedMessage(title: string, toDate: string): string {
+  return `${title} moved to ${dayName(toDate)}.`;
+}
+
+/** The toast after that move has been put back. */
+export function undoneMessage(title: string, fromDate: string): string {
+  return `${title} is back on ${dayName(fromDate)}.`;
+}
+
+/**
+ * Undo is a stack, so an event that is no longer the newest undoable one is
+ * refused. This says what to do instead rather than only that it failed.
+ */
+export const STALE_UNDO_MESSAGE =
+  "Something else has changed since then. Undo the most recent change instead.";
+
+/**
+ * One row of "Recent changes".
+ *
+ * Structural rather than taking a `PlanEvent`, because that type lives in a
+ * server-only module and this one has no business importing it. The payload
+ * carries no title -- only the workout id -- so a row names the days and not
+ * the session, rather than a second read being done to make a sentence
+ * prettier.
+ */
+export type PlanEventSummary = {
+  kind: string;
+  status: string;
+  move: { from: string; to: string } | null;
+};
+
+export function planEventMessage(event: PlanEventSummary): string {
+  if (event.move === null) return "A plan change.";
+  if (event.kind === "undo_move") return `Put back on ${dayName(event.move.to)}.`;
+
+  const sentence = `Moved from ${dayName(event.move.from)} to ${dayName(event.move.to)}.`;
+  return event.status === "undone" ? `${sentence} Undone.` : sentence;
+}
+
+/**
+ * Which row of a change list may be undone.
+ *
+ * Undo is a stack: the database accepts only the caller's newest move that is
+ * not already undone, skipping undo rows entirely. So exactly one row carries
+ * the button, and it is not always the first -- an undo, or an already undone
+ * move, sits above it. Deriving it here, from the same rule, is what keeps the
+ * interface from offering what the database will refuse.
+ */
+export function undoableIndex(
+  events: readonly { kind: string; status: string }[],
+): number {
+  return events.findIndex(
+    (event) => event.kind === "move_workout" && event.status !== "undone",
+  );
 }
