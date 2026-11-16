@@ -72,6 +72,13 @@ before it writes. The database does not check them: a direct call to
 `move_planned_workout` would bypass both. Day capacity, plan-week bounds and ownership *are*
 enforced in SQL.
 
+There are now **two** TypeScript-only writers of the ceiling.
+`restore_planned_distance` puts a lightened day back to its planned distance, which can
+take a week over 60 km if a run was moved into the headroom the lightening freed, so it is
+checked by `validateRestore` (`src/lib/plan/lighten.ts`) and not in SQL. Lightening itself
+cannot raise a week total and needs no check: `lighten_planned_workout` refuses a distance
+that is not strictly lighter. `set_workout_notes` and `set_workout_status` do not touch load.
+
 That is acceptable while the only caller is the athlete's own session. Add a database-level
 guard — a deferred constraint trigger summing distance per `(user_id, week_index)`, not a
 PL/pgSQL copy of the rule — **before the coach is allowed to write plan changes**. A safety

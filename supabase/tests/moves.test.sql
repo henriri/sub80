@@ -1,4 +1,11 @@
--- public.move_planned_workout and public.undo_plan_event.
+-- public.move_planned_workout and public.undo_plan_event, for moves.
+--
+-- undo_plan_event is generic since 20261116090000: it restores the payload
+-- before snapshot over a fixed column list, and writes an undo_change event
+-- rather than an undo_move. The stack rule it applies is unchanged for moves,
+-- so every assertion below still holds; only the kind it writes is new. The
+-- other four undoable changes, and the undo across kinds, are in
+-- workout-detail.test.sql.
 -- Run with `supabase test db` against the LOCAL stack only.
 -- All data is synthetic and rolled back at the end.
 --
@@ -215,18 +222,18 @@ select is(
 
 select is(
   (select count(*)::int from public.plan_events
-    where kind = 'undo_move'
+    where kind = 'undo_change'
       and reverts_event_id is not null
       and status = 'accepted'),
   1,
-  'undo inserts an undo_move event pointing at the original'
+  'undo inserts an undo_change event pointing at the original'
 );
 
 select is(
   (select e.status
      from public.plan_events as e
      join public.plan_events as u on u.reverts_event_id = e.id
-    where u.kind = 'undo_move'),
+    where u.kind = 'undo_change'),
   'undone',
   'undo marks the original event undone'
 );
@@ -278,7 +285,7 @@ select throws_ok(
 
 select throws_ok(
   $$select public.undo_plan_event((
-      select id from public.plan_events where kind = 'undo_move'
+      select id from public.plan_events where kind = 'undo_change'
        order by seq desc limit 1))$$,
   'P0001', null,
   'an undo cannot itself be undone'
