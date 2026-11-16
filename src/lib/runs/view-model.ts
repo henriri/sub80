@@ -134,3 +134,24 @@ export function buildRunList({
     hasNext: rows.length > RUNS_PER_PAGE,
   };
 }
+
+/**
+ * The page number from the URL, clamped to something real.
+ *
+ * Anything that is not a whole page number -- missing, zero, negative, a word,
+ * a float -- is page 1. Unlike the calendar's view and date, a bad page needs
+ * no redirect: there is exactly one sensible reading of "show me the runs",
+ * and the first page is it.
+ */
+export function parseRunsPage(raw: string | string[] | undefined): number {
+  const value = typeof raw === "string" ? raw : undefined;
+  if (value === undefined || !/^\d+$/.test(value)) return 1;
+
+  const page = Number(value);
+  return page < 1 ? 1 : page;
+}
+
+/** '/runs', or '/runs?page=3'. Page 1 has no query, so the URL stays clean. */
+export function runsHref(page: number): string {
+  return page <= 1 ? "/runs" : `/runs?page=${page}`;
+}

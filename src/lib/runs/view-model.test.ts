@@ -5,6 +5,8 @@ import {
   RUNS_PER_PAGE,
   buildRunList,
   excerpt,
+  parseRunsPage,
+  runsHref,
   toRunRow,
 } from "./view-model";
 
@@ -228,5 +230,40 @@ describe("buildRunList", () => {
 
   it("shows twenty runs to a page", () => {
     expect(RUNS_PER_PAGE).toBe(20);
+  });
+});
+
+describe("parseRunsPage", () => {
+  it("reads a page number", () => {
+    expect(parseRunsPage("3")).toBe(3);
+  });
+
+  it("is page 1 when there is no page at all", () => {
+    expect(parseRunsPage(undefined)).toBe(1);
+  });
+
+  /*
+   * No redirect, unlike the calendar's view and date: there is one sensible
+   * reading of "show me the runs", so a nonsense page is simply the first.
+   */
+  it("is page 1 for anything that is not a whole page number", () => {
+    for (const raw of ["", "0", "-2", "abc", "1.5", "2e3", " 3"]) {
+      expect(parseRunsPage(raw), raw).toBe(1);
+    }
+  });
+
+  it("ignores a repeated parameter rather than picking one", () => {
+    expect(parseRunsPage(["2", "3"])).toBe(1);
+  });
+});
+
+describe("runsHref", () => {
+  it("leaves the first page without a query", () => {
+    expect(runsHref(1)).toBe("/runs");
+    expect(runsHref(0)).toBe("/runs");
+  });
+
+  it("names any later page", () => {
+    expect(runsHref(3)).toBe("/runs?page=3");
   });
 });

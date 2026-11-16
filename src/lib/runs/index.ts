@@ -79,6 +79,8 @@ export {
   RUNS_PER_PAGE,
   buildRunList,
   excerpt,
+  parseRunsPage,
+  runsHref,
   toRunRow,
   type RunListModel,
   type RunRow,
