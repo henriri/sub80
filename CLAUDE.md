@@ -86,6 +86,16 @@ PL/pgSQL copy of the rule — **before the coach is allowed to write plan change
 limit with one definition and one caller is fine; a safety limit with two writers and no
 guarantee is not.
 
+### What CI cannot check
+The `database` job runs the migrations and the pgTAP tests; neither goes through
+PostgREST. So no test anywhere covers how a **resource embed** comes back — and
+`activities.planned_workout_id` is half of a composite foreign key
+(`(user_id, planned_workout_id)` -> `(user_id, id)`), where PostgREST may infer either
+a to-one or a to-many. `storedRunSchema` therefore accepts the embedded session as an
+object *or* as an array of one and normalises it, rather than guessing and having a page
+fail on a row the database answered correctly. Treat any new embed the same way, or
+verify it against a running stack first.
+
 ### Run logging and the undo stack
 `log_run` sets a linked session to `completed`, and `delete_run` can set it back to
 `planned`, both without writing a `plan_events` row. One visible consequence: mark a
@@ -97,6 +107,20 @@ overwrite a fact with a stale plan state. It needs no code, only this note.
 
 Neither function touches distance, so the 60 km ceiling gains no third TypeScript-only
 writer.
+
+## Screens
+- `/` the calendar. `/workouts/[id]` one planned session. `/design` the hidden
+  specimen page.
+- `/runs` the whole logbook, newest first, 20 to a page. `/runs/new` logs one by hand.
+  `/runs/[id]` views, edits and deletes one. Reached from the calendar header and from
+  a session's own page, which also lists the runs logged against it.
+- Rules live in `src/lib/runs` and are the same functions the Server Actions re-run, so
+  the form and the server never disagree about why a run is refused. Copy lives in
+  `src/lib/runs/messages.ts`, apart from the rules, as the move rules keep theirs in
+  `src/lib/calendar`.
+- A **warning** is confirmed, never refused: an odd pace or a second run on one session
+  is the athlete's call. The dialog asks and sends each warning's code; the server
+  re-runs the rules and refuses any warning it was not given a code for.
 
 ## Code conventions
 - TypeScript strict, no `any`. Validate all external input (forms, FIT files, webhooks) with a schema.
