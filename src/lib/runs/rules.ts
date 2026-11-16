@@ -41,6 +41,14 @@ import {
 export const HR_SOURCES = ["strap", "wrist"] as const;
 export type HrSource = (typeof HR_SOURCES)[number];
 
+/**
+ * How an activity reached the database. Only 'manual' is written today; the
+ * other three are the import paths the column exists to keep apart, and they
+ * are listed here so a stored row can be validated against a closed set.
+ */
+export const RUN_SOURCES = ["manual", "fit_upload", "polar", "wahoo"] as const;
+export type RunSource = (typeof RUN_SOURCES)[number];
+
 /** Faster than this is not a run anyone has recorded. 2:00 /km. */
 export const MIN_PACE_S = 120;
 /** Slower than this is a walk, or a stopped watch. 20:00 /km. */
