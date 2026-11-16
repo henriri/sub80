@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { validateRun } from "./rules";
 import type { StoredRun } from "./schemas";
 import {
   NOTES_EXCERPT_LENGTH,
@@ -7,6 +8,7 @@ import {
   excerpt,
   parseRunsPage,
   runsHref,
+  toRawRun,
   toRunRow,
 } from "./view-model";
 
@@ -265,5 +267,86 @@ describe("runsHref", () => {
 
   it("names any later page", () => {
     expect(runsHref(3)).toBe("/runs?page=3");
+  });
+});
+
+describe("toRawRun", () => {
+  it("fills the form from a stored run", () => {
+    expect(
+      toRawRun(
+        run({
+          distance_m: 7500,
+          duration_s: 2550,
+          avg_hr: 148,
+          hr_source: "strap",
+          rpe: 5,
+          notes: "Legs heavy.",
+          planned_workout_id: "00000000-0000-4000-8000-0000000000aa",
+        }),
+      ),
+    ).toEqual({
+      date: "2027-11-20",
+      time: "07:30",
+      distanceKm: "7.5",
+      duration: "42:30",
+      avgHr: "148",
+      hrSource: "strap",
+      rpe: "5",
+      notes: "Legs heavy.",
+      plannedWorkoutId: "00000000-0000-4000-8000-0000000000aa",
+    });
+  });
+
+  it("leaves the time empty when the stored one is a placeholder", () => {
+    const raw = toRawRun(
+      run({ started_at: "2027-11-20T11:00:00Z", start_time_known: false }),
+    );
+
+    expect(raw.time).toBe("");
+    expect(raw.date).toBe("2027-11-20");
+  });
+
+  it("empties, rather than invents, every field that was never filled in", () => {
+    const raw = toRawRun(run());
+
+    expect([raw.avgHr, raw.hrSource, raw.rpe, raw.notes]).toEqual(["", "", "", ""]);
+    expect(raw.plannedWorkoutId).toBeNull();
+  });
+
+  it("writes a whole distance without a decimal point", () => {
+    expect(toRawRun(run({ distance_m: 10_000 })).distanceKm).toBe("10");
+  });
+
+  it("writes an hour-long run as h:mm:ss, which parseDur reads back", () => {
+    expect(toRawRun(run({ duration_s: 5025 })).duration).toBe("1:23:45");
+  });
+
+  /*
+   * The round trip is the point. Opening a run and saving it unchanged must
+   * store the same numbers, so these strings have to parse back to exactly
+   * what they came from -- which is why the duration is printed as 'm:ss'
+   * rather than as bare minutes, where a fraction would be rounded.
+   */
+  it("parses back to the numbers it came from", () => {
+    const cases = [
+      run({ distance_m: 7500, duration_s: 2550 }),
+      run({ distance_m: 10_000, duration_s: 3000 }),
+      run({ distance_m: 21_097, duration_s: 5025 }),
+      run({ distance_m: 100, duration_s: 61 }),
+      run({ distance_m: 42_195, duration_s: 12_345, avg_hr: 151, hr_source: "wrist", rpe: 9 }),
+    ];
+
+    for (const stored of cases) {
+      const check = validateRun({ raw: toRawRun(stored), today: "2027-12-01" });
+
+      expect(check.ok, `${stored.distance_m}m/${stored.duration_s}s`).toBe(true);
+      if (!check.ok) continue;
+
+      expect(check.run.distanceM).toBe(stored.distance_m);
+      expect(check.run.durationS).toBe(stored.duration_s);
+      expect(check.run.avgHr).toBe(stored.avg_hr);
+      expect(check.run.hrSource).toBe(stored.hr_source);
+      expect(check.run.rpe).toBe(stored.rpe);
+    }
   });
 });

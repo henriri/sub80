@@ -9,7 +9,6 @@ import {
   rpeBandsHint,
   rpeChoices,
   rpeLabel,
-  runDeletedMessage,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
@@ -219,7 +218,7 @@ describe("paceVsZoneLine", () => {
   });
 });
 
-describe("the sentences after a run is saved or removed", () => {
+describe("the sentences after a run is saved", () => {
   it("says what was logged, and where", () => {
     expect(runLoggedMessage("2027-11-20", 10_000)).toBe(
       "10.0 km logged on Saturday 20 November.",
@@ -232,22 +231,6 @@ describe("the sentences after a run is saved or removed", () => {
     );
   });
 
-  it("says nothing about a session when the run had none", () => {
-    expect(runDeletedMessage("2027-11-20", 10_000, null)).toBe(
-      "10.0 km on Saturday 20 November deleted.",
-    );
-  });
-
-  /*
-   * The athlete ticked a box asking for this, so the confirmation says the box
-   * did what it said. A silent reset would be a status change they could only
-   * find by going to look.
-   */
-  it("confirms the session was put back when it was", () => {
-    expect(runDeletedMessage("2027-11-20", 10_000, "Threshold 3 × 12′")).toBe(
-      "10.0 km on Saturday 20 November deleted. Threshold 3 × 12′ is back to planned.",
-    );
-  });
 });
 
 describe("the choice groups", () => {

@@ -13,6 +13,7 @@
 
 import { formatKm, formatDayName } from "@/lib/calendar";
 import { fmtPace, fmtTime, zoneLabel, type Ymd, type ZoneKey } from "@/lib/plan";
+import type { ResetWithheld } from "./deleting";
 import { formatPacePerKm } from "./format";
 import { HR_SOURCES, type HrSource, type RunReason, type RunWarning } from "./rules";
 import type { PaceComparison } from "./zone";
@@ -156,20 +157,6 @@ export function runUpdatedMessage(date: Ymd, metres: number): string {
   return `${formatKm(metres)} on ${formatDayName(date)} saved.`;
 }
 
-/**
- * `workoutTitle` is the session put back to planned, when one was. Saying so
- * is the whole point of having asked: the athlete ticked a box and the
- * sentence confirms the box did what it said.
- */
-export function runDeletedMessage(
-  date: Ymd,
-  metres: number,
-  workoutTitle: string | null,
-): string {
-  const run = `${formatKm(metres)} on ${formatDayName(date)} deleted.`;
-  return workoutTitle === null ? run : `${run} ${workoutTitle} is back to planned.`;
-}
-
 /** One option of a choice group: the value, the segment, and what is read out. */
 export type RunChoice = { value: string; label: string; spokenLabel?: string };
 
@@ -209,4 +196,34 @@ export function hrSourceChoices(): RunChoice[] {
     // Capitalised: this is a segment the athlete taps, not a sentence.
     label: source === "strap" ? "Chest strap" : "Wrist",
   }));
+}
+
+/**
+ * Why the dialog is not offering to put the session back, or null when there
+ * is nothing worth saying.
+ *
+ * Only one of the three is worth a sentence. A run with no session, or one
+ * whose session is not marked completed, has nothing to put back and silence
+ * is the honest rendering -- explaining the absence of a checkbox nobody
+ * expected is noise. A session another run still points at is different: the
+ * athlete might reasonably expect the reset, so the dialog says why not.
+ */
+export function resetWithheldMessage(
+  withheld: ResetWithheld,
+  workoutTitle: string | null,
+): string | null {
+  switch (withheld) {
+    case "no_link":
+    case "not_completed":
+      return null;
+    case "other_runs":
+      return workoutTitle === null
+        ? "Another run is still linked to that session, so it keeps its status."
+        : `Another run is still linked to ${workoutTitle}, so it keeps its status.`;
+  }
+}
+
+/** The checkbox itself: what ticking it will do, named. */
+export function resetCheckboxLabel(workoutTitle: string): string {
+  return `Put ${workoutTitle} back to planned`;
 }
