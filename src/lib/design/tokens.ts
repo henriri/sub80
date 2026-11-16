@@ -251,6 +251,30 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
     },
     { name: "Field size", kind: "size", tokens: ["--field-min-height"] },
     {
+      name: "Choice colour",
+      kind: "color",
+      tokens: [
+        "--choice-bg",
+        "--choice-bg-hover",
+        "--choice-bg-selected",
+        "--choice-fg",
+        "--choice-fg-selected",
+        "--choice-border",
+      ],
+    },
+    { name: "Choice radius", kind: "radius", tokens: ["--choice-radius"] },
+    {
+      name: "Choice space",
+      kind: "space",
+      tokens: ["--choice-padding-x", "--choice-padding-y", "--choice-gap"],
+    },
+    { name: "Choice size", kind: "size", tokens: ["--choice-min-size"] },
+    {
+      name: "Choice type",
+      kind: "font-family",
+      tokens: ["--choice-font-family"],
+    },
+    {
       name: "Field type",
       kind: "font-family",
       tokens: ["--field-font-family"],

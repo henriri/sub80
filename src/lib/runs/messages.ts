@@ -13,8 +13,9 @@
 
 import { formatKm, formatDayName } from "@/lib/calendar";
 import { fmtPace, fmtTime, zoneLabel, type Ymd, type ZoneKey } from "@/lib/plan";
+import type { ResetWithheld } from "./deleting";
 import { formatPacePerKm } from "./format";
-import type { HrSource, RunReason, RunWarning } from "./rules";
+import { HR_SOURCES, type HrSource, type RunReason, type RunWarning } from "./rules";
 import type { PaceComparison } from "./zone";
 
 /**
@@ -156,16 +157,73 @@ export function runUpdatedMessage(date: Ymd, metres: number): string {
   return `${formatKm(metres)} on ${formatDayName(date)} saved.`;
 }
 
+/** One option of a choice group: the value, the segment, and what is read out. */
+export type RunChoice = { value: string; label: string; spokenLabel?: string };
+
 /**
- * `workoutTitle` is the session put back to planned, when one was. Saying so
- * is the whole point of having asked: the athlete ticked a box and the
- * sentence confirms the box did what it said.
+ * The ten effort segments.
+ *
+ * The segment shows only the number, because ten segments with a word in each
+ * would not fit a phone. The word still reaches a screen reader through
+ * `spokenLabel`, so "4" is read as "4, moderate" rather than as a bare digit
+ * whose scale nobody explained.
  */
-export function runDeletedMessage(
-  date: Ymd,
-  metres: number,
+export function rpeChoices(): RunChoice[] {
+  return RPE_BANDS.flatMap((band) =>
+    Array.from({ length: band.to - band.from + 1 }, (_, offset) => {
+      const score = band.from + offset;
+      return {
+        value: String(score),
+        label: String(score),
+        spokenLabel: `${score}, ${band.label}`,
+      };
+    }),
+  );
+}
+
+/** '1–3 easy · 4–6 moderate · 7–8 hard · 9–10 maximal', under the segments. */
+export function rpeBandsHint(): string {
+  return RPE_BANDS.map((band) => `${band.from}–${band.to} ${band.label}`).join(" · ");
+}
+
+/**
+ * Where the heart rate came from. Required as soon as a reading is entered,
+ * because the two sources are never mixed or averaged.
+ */
+export function hrSourceChoices(): RunChoice[] {
+  return HR_SOURCES.map((source) => ({
+    value: source,
+    // Capitalised: this is a segment the athlete taps, not a sentence.
+    label: source === "strap" ? "Chest strap" : "Wrist",
+  }));
+}
+
+/**
+ * Why the dialog is not offering to put the session back, or null when there
+ * is nothing worth saying.
+ *
+ * Only one of the three is worth a sentence. A run with no session, or one
+ * whose session is not marked completed, has nothing to put back and silence
+ * is the honest rendering -- explaining the absence of a checkbox nobody
+ * expected is noise. A session another run still points at is different: the
+ * athlete might reasonably expect the reset, so the dialog says why not.
+ */
+export function resetWithheldMessage(
+  withheld: ResetWithheld,
   workoutTitle: string | null,
-): string {
-  const run = `${formatKm(metres)} on ${formatDayName(date)} deleted.`;
-  return workoutTitle === null ? run : `${run} ${workoutTitle} is back to planned.`;
+): string | null {
+  switch (withheld) {
+    case "no_link":
+    case "not_completed":
+      return null;
+    case "other_runs":
+      return workoutTitle === null
+        ? "Another run is still linked to that session, so it keeps its status."
+        : `Another run is still linked to ${workoutTitle}, so it keeps its status.`;
+  }
+}
+
+/** The checkbox itself: what ticking it will do, named. */
+export function resetCheckboxLabel(workoutTitle: string): string {
+  return `Put ${workoutTitle} back to planned`;
 }

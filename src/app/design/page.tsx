@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/Button";
+import { ChoiceGroup } from "@/components/ChoiceGroup";
+import { TextArea } from "@/components/TextArea";
 import { TextField } from "@/components/TextField";
 import { WorkoutList } from "@/components/WorkoutList";
 import { Calendar } from "@/components/calendar/Calendar";
@@ -7,6 +9,17 @@ import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
 import { KindBadge } from "@/components/calendar/KindBadge";
 import { WorkoutCard } from "@/components/calendar/WorkoutCard";
 import type { WorkoutActionsProps } from "@/components/workout/WorkoutActions";
+import { RunCard } from "@/components/runs/RunCard";
+import { LinkedRuns } from "@/components/runs/LinkedRuns";
+import {
+  hrSourceChoices,
+  rpeBandsHint,
+  rpeChoices,
+  toRunRow,
+  type LinkableWorkout,
+  type RawRun,
+  type StoredRun,
+} from "@/lib/runs";
 import {
   buildDayView,
   buildMonthView,
@@ -27,6 +40,7 @@ import {
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
 import { ModePreview, TokenValue } from "./mode-preview";
 import { MoveDemo } from "./move-demo";
+import { RunDemo } from "./run-demo";
 import { WorkoutDemo } from "./workout-demo";
 
 export const metadata: Metadata = {
@@ -120,6 +134,122 @@ const SAMPLE_VDOT = 47;
  * is the same day, so the "today" marking shows up in every view.
  */
 const SAMPLE_DATE = "2027-03-18";
+
+/**
+ * Synthetic runs, shaped like rows of activities. Every one is in the past
+ * relative to SAMPLE_DATE, since a run cannot be dated in the future.
+ *
+ * The two with a zone carry BOTH snapshots, because a zone without the VDOT it
+ * was read at cannot be turned back into a pace window and the row would then
+ * have nothing factual to say.
+ */
+const sampleRuns = [
+  {
+    id: "00000000-0000-4000-8000-00000000aa01",
+    started_at: "2027-03-16T06:30:00Z",
+    start_time_known: true,
+    distance_m: 11_000,
+    duration_s: 2_820,
+    avg_hr: 162,
+    hr_source: "strap",
+    rpe: 7,
+    notes: "Held the pace to the last rep, then it got honest.",
+    planned_pace_zone: "T",
+    vdot_used: 47,
+    source: "manual",
+    planned_workout_id: "00000000-0000-4000-8000-000000000001",
+    planned_workout: {
+      title: "Threshold 3 × 12′ (2′ jog)",
+      planned_date: "2027-03-16",
+      pace_zone: "T",
+      status: "completed",
+    },
+  },
+  {
+    // No start time, no effort, no heart rate: the sparse row.
+    id: "00000000-0000-4000-8000-00000000aa02",
+    started_at: "2027-03-15T11:00:00Z",
+    start_time_known: false,
+    distance_m: 8_500,
+    duration_s: 2_970,
+    avg_hr: null,
+    hr_source: null,
+    rpe: null,
+    notes: null,
+    planned_pace_zone: null,
+    vdot_used: null,
+    source: "manual",
+    planned_workout_id: null,
+    planned_workout: null,
+  },
+  {
+    // Wrist rather than strap, and a long note to cut.
+    id: "00000000-0000-4000-8000-00000000aa03",
+    started_at: "2027-03-14T08:00:00Z",
+    start_time_known: true,
+    distance_m: 21_000,
+    duration_s: 7_380,
+    avg_hr: 148,
+    hr_source: "wrist",
+    rpe: 5,
+    notes:
+      "Long one round the lake. Felt flat for the first half hour and then much better, which is usually what happens when I start too fast on the first kilometre and spend the rest of it paying for it.",
+    planned_pace_zone: "E",
+    vdot_used: 47,
+    source: "manual",
+    planned_workout_id: "00000000-0000-4000-8000-000000000002",
+    planned_workout: {
+      title: "Long run",
+      planned_date: "2027-03-14",
+      pace_zone: "E",
+      status: "completed",
+    },
+  },
+] satisfies StoredRun[];
+
+/** Sessions the picker can offer, with how many runs each already has. */
+const sampleLinkable = [
+  {
+    id: "00000000-0000-4000-8000-000000000001",
+    title: "Threshold 3 × 12′ (2′ jog)",
+    planned_date: "2027-03-16",
+    pace_zone: "T",
+    status: "completed",
+    target_distance_m: 11_000,
+    run_count: 1,
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000003",
+    title: "Easy run + 6 strides",
+    planned_date: "2027-03-18",
+    pace_zone: "E",
+    status: "planned",
+    target_distance_m: 8_500,
+    run_count: 0,
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000004",
+    title: "Easy run",
+    planned_date: "2027-03-17",
+    pace_zone: "E",
+    status: "skipped",
+    target_distance_m: 9_000,
+    run_count: 0,
+  },
+] satisfies LinkableWorkout[];
+
+/** What the form starts with on /design: a run already half typed. */
+const sampleDraft = {
+  date: "2027-03-16",
+  time: "07:30",
+  distanceKm: "11",
+  duration: "47:00",
+  avgHr: "162",
+  hrSource: "strap",
+  rpe: "7",
+  notes: "Held the pace to the last rep.",
+  plannedWorkoutId: "00000000-0000-4000-8000-000000000001",
+} satisfies RawRun;
 
 const sampleInput = {
   date: SAMPLE_DATE,
@@ -394,6 +524,56 @@ export default function DesignPage() {
             <TextField id="design-field-error" label="Code" defaultValue="12" error="Enter the 6-digit code." />
             <TextField id="design-field-disabled" label="Disabled" disabled />
           </div>
+          <div className={card}>
+            <h3 className="text-heading-sm">TextArea</h3>
+            <TextArea
+              id="design-textarea-default"
+              label="How did it feel"
+              hint="Anything worth remembering about the run."
+              rows={3}
+            />
+            <TextArea
+              id="design-textarea-error"
+              label="How did it feel"
+              defaultValue="Too long."
+              error="What you write is at most 2000 characters."
+              rows={3}
+            />
+            <TextArea id="design-textarea-disabled" label="Disabled" rows={2} disabled />
+          </div>
+          <div className={card}>
+            <h3 className="text-heading-sm">ChoiceGroup</h3>
+            <p className="text-small text-secondary">
+              Native radios, so the arrow keys and the grouping come from the
+              browser and the field submits without JavaScript. Each segment is
+              at least 44px.
+            </p>
+            <ChoiceGroup
+              name="design-rpe"
+              legend="How hard was it?"
+              hint={rpeBandsHint()}
+              options={rpeChoices()}
+              defaultValue="4"
+            />
+            <ChoiceGroup
+              name="design-hr-source"
+              legend="Where did the heart rate come from?"
+              options={hrSourceChoices()}
+            />
+            <ChoiceGroup
+              name="design-choice-error"
+              legend="With an error"
+              options={hrSourceChoices()}
+              error="Say where the heart rate came from."
+            />
+            <ChoiceGroup
+              name="design-choice-disabled"
+              legend="Disabled"
+              options={hrSourceChoices()}
+              defaultValue="strap"
+              disabled
+            />
+          </div>
           <div className="flex flex-col gap-stack-md rounded-surface border-(length:--border-width-default) border-default bg-surface p-inset-md">
             <h3 className="text-heading-sm">WorkoutList</h3>
             <WorkoutList items={sampleWorkouts} vdot={SAMPLE_VDOT} />
@@ -456,6 +636,50 @@ export default function DesignPage() {
             facts={sampleFacts}
             vdot={SAMPLE_VDOT}
             actions={sampleActions}
+          />
+
+          <div className={card}>
+            <h3 className="text-heading-sm">RunCard</h3>
+            <p className="text-small text-secondary">
+              The whole card is the link. The heart rate always names its
+              source, because a strap reading and a wrist one are never mixed.
+            </p>
+            <ul className="flex flex-col gap-stack-md">
+              {sampleRuns.map((run) => (
+                <RunCard key={run.id} run={toRunRow(run)} />
+              ))}
+            </ul>
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">LinkedRuns</h3>
+            <LinkedRuns
+              workout={{
+                id: "00000000-0000-4000-8000-000000000001",
+                planned_date: "2027-03-16",
+                target_distance_m: 11_000,
+              }}
+              runs={[sampleRuns[0]!]}
+            />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">LinkedRuns · nothing logged yet</h3>
+            <LinkedRuns
+              workout={{
+                id: "00000000-0000-4000-8000-000000000003",
+                planned_date: "2027-03-18",
+                target_distance_m: 8_500,
+              }}
+              runs={[]}
+            />
+          </div>
+
+          <RunDemo
+            initial={sampleDraft}
+            workouts={sampleLinkable}
+            today={SAMPLE_DATE}
+            vdot={SAMPLE_VDOT}
           />
         </section>
 

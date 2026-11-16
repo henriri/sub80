@@ -6,17 +6,37 @@ export {
 } from "./format";
 export {
   RPE_BANDS,
+  hrSourceChoices,
   hrSourceLabel,
   paceVsZoneLine,
   rpeBandLabel,
+  rpeBandsHint,
+  rpeChoices,
+  resetCheckboxLabel,
+  resetWithheldMessage,
   rpeLabel,
-  runDeletedMessage,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
   runWarningMessage,
   runWarningTitle,
+  type RunChoice,
 } from "./messages";
+export {
+  RESET_WITHHELD_CODES,
+  resetOffer,
+  type ResetOffer,
+  type ResetOfferInput,
+  type ResetWithheld,
+} from "./deleting";
+export { RUN_FIELDS, reasonField, type RunField } from "./fields";
+export {
+  LINK_WINDOW_DAYS,
+  PICKER_WINDOW_DAYS,
+  isLinkFar,
+  linkableOn,
+  logRunHref,
+} from "./linking";
 export {
   isBlank,
   kmToMetres,
@@ -68,6 +88,9 @@ export {
   RUNS_PER_PAGE,
   buildRunList,
   excerpt,
+  parseRunsPage,
+  runsHref,
+  toRawRun,
   toRunRow,
   type RunListModel,
   type RunRow,

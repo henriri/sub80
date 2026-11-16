@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import {
@@ -13,7 +14,6 @@ import {
 import { MAX_NOTES_LENGTH, parisDate } from "@/lib/plan";
 import {
   RUN_WARNING_CODES,
-  runDeletedMessage,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
@@ -249,8 +249,9 @@ export async function removeRun(
   await requireUser();
 
   try {
-    // Read before deleting: the sentence afterwards names the run and the
-    // session that was put back, and neither is readable once it is gone.
+    // Read before deleting, so the session it was linked to can be
+    // revalidated afterwards: once the row is gone there is nothing to read it
+    // from.
     const existing = await readRunDetail(id);
     if (existing === null) return failed(GONE);
 
@@ -258,17 +259,19 @@ export async function removeRun(
     if (!outcome.ok) return failed(outcome.message);
 
     revalidate(null, [existing.planned_workout_id]);
-    return {
-      status: "ok",
-      runId: id,
-      message: runDeletedMessage(
-        parisDate(new Date(existing.started_at)),
-        existing.distance_m,
-        resetWorkout ? (existing.planned_workout?.title ?? null) : null,
-      ),
-      token: crypto.randomUUID(),
-    };
   } catch {
     return failed("Could not delete the run. Try again.");
   }
+
+  /*
+   * OUTSIDE the try, deliberately. redirect() works by throwing, and the catch
+   * above would turn that throw into "Could not delete the run" after the run
+   * had in fact been deleted.
+   *
+   * The run's own page is what the athlete is standing on, and it does not
+   * exist any more, so the list is the only honest place to land. The list
+   * no longer containing the run is the confirmation; a session that was put
+   * back shows its restored status on the calendar and on its own page.
+   */
+  redirect("/runs");
 }

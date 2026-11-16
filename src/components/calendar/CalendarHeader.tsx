@@ -68,6 +68,20 @@ export function CalendarHeader({
             <span aria-hidden="true">→</span>
           </Link>
         </nav>
+
+        {/*
+          The logbook, from the calendar. A separate nav from the one that
+          moves through the plan: these two leave the calendar rather than
+          scroll it, and a screen reader should hear the difference.
+        */}
+        <nav aria-label="Runs" className="flex gap-(--cal-header-gap)">
+          <Link href="/runs/new" className={navLink}>
+            Log a run
+          </Link>
+          <Link href="/runs" className={navLink}>
+            All runs
+          </Link>
+        </nav>
       </div>
 
       <div className="flex flex-col">

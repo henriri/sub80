@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import {
+  PICKER_WINDOW_DAYS,
   RUNS_PER_PAGE,
   linkableWorkoutsSchema,
   storedRunSchema,
@@ -160,12 +161,14 @@ export async function countRunsForWorkout(
   return count ?? 0;
 }
 
-/** How far either side of the run's date a session may be to be offered. */
-export const LINK_WINDOW_DAYS = 3;
-
 /**
- * The sessions the form offers to link to: everything within three days of the
- * run's date, each with how many runs already point at it.
+ * The sessions the form can offer to link to, each with how many runs already
+ * point at it.
+ *
+ * Reads the WIDE window -- ten days either side, not the three the form
+ * offers -- so that moving the date field does not need another round trip.
+ * `linkableOn` narrows it to whatever date is in the field. Neither window is
+ * a rule: `log_run` links a run to any session the athlete owns.
  *
  * The count comes back as an aggregate on the embedded relation rather than a
  * query per row, which is why the select names `activities(count)`.
@@ -173,6 +176,7 @@ export const LINK_WINDOW_DAYS = 3;
 export async function readLinkableWorkouts(
   userId: string,
   date: Ymd,
+  withinDays: number = PICKER_WINDOW_DAYS,
 ): Promise<LinkableWorkout[]> {
   const supabase = await createClient();
 
@@ -180,8 +184,8 @@ export async function readLinkableWorkouts(
     .from("planned_workouts")
     .select("id, title, planned_date, pace_zone, status, target_distance_m, activities(count)")
     .eq("user_id", userId)
-    .gte("planned_date", addDays(date, -LINK_WINDOW_DAYS))
-    .lte("planned_date", addDays(date, LINK_WINDOW_DAYS))
+    .gte("planned_date", addDays(date, -withinDays))
+    .lte("planned_date", addDays(date, withinDays))
     .order("planned_date", { ascending: true })
     .order("day_slot", { ascending: true });
 
@@ -197,4 +201,25 @@ export async function readLinkableWorkouts(
   });
 
   return linkableWorkoutsSchema.parse(rows);
+}
+
+/**
+ * Every run logged against one session, newest first.
+ *
+ * Usually none or one. More than one is legitimate -- the form warns and the
+ * athlete confirms -- so this returns a list rather than a single row and the
+ * session's page shows all of them.
+ */
+export async function readRunsForWorkout(workoutId: string): Promise<StoredRun[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("activities")
+    .select(COLUMNS)
+    .eq("planned_workout_id", workoutId)
+    .order("started_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Could not read the runs on that session: ${error.message}`);
+  }
+  return storedRunsSchema.parse(data);
 }

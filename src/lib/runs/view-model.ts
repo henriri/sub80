@@ -15,6 +15,7 @@ import { parisDate, formatDayLabel, type Ymd } from "@/lib/plan";
 import { formatDuration, formatHr, formatPacePerKm, parisClock } from "./format";
 import { hrSourceLabel, paceVsZoneLine, rpeLabel } from "./messages";
 import { paceSecPerKm } from "./parse";
+import type { RawRun } from "./rules";
 import type { StoredRun } from "./schemas";
 import { paceVsZone } from "./zone";
 
@@ -132,5 +133,53 @@ export function buildRunList({
     page,
     hasPrev: page > 1,
     hasNext: rows.length > RUNS_PER_PAGE,
+  };
+}
+
+/**
+ * The page number from the URL, clamped to something real.
+ *
+ * Anything that is not a whole page number -- missing, zero, negative, a word,
+ * a float -- is page 1. Unlike the calendar's view and date, a bad page needs
+ * no redirect: there is exactly one sensible reading of "show me the runs",
+ * and the first page is it.
+ */
+export function parseRunsPage(raw: string | string[] | undefined): number {
+  const value = typeof raw === "string" ? raw : undefined;
+  if (value === undefined || !/^\d+$/.test(value)) return 1;
+
+  const page = Number(value);
+  return page < 1 ? 1 : page;
+}
+
+/** '/runs', or '/runs?page=3'. Page 1 has no query, so the URL stays clean. */
+export function runsHref(page: number): string {
+  return page <= 1 ? "/runs" : `/runs?page=${page}`;
+}
+
+/**
+ * A stored run as the form's fields, for editing.
+ *
+ * The inverse of what `validateRun` does on the way in, and tested as a round
+ * trip: parsing these strings again has to give back the same numbers, or
+ * opening a run and saving it unchanged would quietly alter it.
+ *
+ * The duration is printed as 'm:ss' or 'h:mm:ss' rather than as bare minutes,
+ * because bare minutes would need a decimal for anything that is not a whole
+ * minute and `parseDur` rounds a decimal to the nearest second.
+ */
+export function toRawRun(run: StoredRun): RawRun {
+  const instant = new Date(run.started_at);
+
+  return {
+    date: parisDate(instant),
+    time: run.start_time_known ? parisClock(instant) : "",
+    distanceKm: String(run.distance_m / 1000),
+    duration: formatDuration(run.duration_s),
+    avgHr: run.avg_hr === null ? "" : String(run.avg_hr),
+    hrSource: run.hr_source ?? "",
+    rpe: run.rpe === null ? "" : String(run.rpe),
+    notes: run.notes ?? "",
+    plannedWorkoutId: run.planned_workout_id,
   };
 }

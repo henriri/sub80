@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import { zoneRange, ZONE_KEYS } from "@/lib/plan";
 import {
   RPE_BANDS,
+  hrSourceChoices,
   hrSourceLabel,
   paceVsZoneLine,
   rpeBandLabel,
+  rpeBandsHint,
+  rpeChoices,
   rpeLabel,
-  runDeletedMessage,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
@@ -216,7 +218,7 @@ describe("paceVsZoneLine", () => {
   });
 });
 
-describe("the sentences after a run is saved or removed", () => {
+describe("the sentences after a run is saved", () => {
   it("says what was logged, and where", () => {
     expect(runLoggedMessage("2027-11-20", 10_000)).toBe(
       "10.0 km logged on Saturday 20 November.",
@@ -229,20 +231,49 @@ describe("the sentences after a run is saved or removed", () => {
     );
   });
 
-  it("says nothing about a session when the run had none", () => {
-    expect(runDeletedMessage("2027-11-20", 10_000, null)).toBe(
-      "10.0 km on Saturday 20 November deleted.",
-    );
+});
+
+describe("the choice groups", () => {
+  it("offers ten effort segments, in order", () => {
+    const choices = rpeChoices();
+
+    expect(choices).toHaveLength(10);
+    expect(choices.map((choice) => choice.value)).toEqual([
+      "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+    ]);
   });
 
   /*
-   * The athlete ticked a box asking for this, so the confirmation says the box
-   * did what it said. A silent reset would be a status change they could only
-   * find by going to look.
+   * The segment shows a bare number because ten words will not fit a phone.
+   * The word has to reach a screen reader anyway, or the scale is a row of
+   * digits nobody explained.
    */
-  it("confirms the session was put back when it was", () => {
-    expect(runDeletedMessage("2027-11-20", 10_000, "Threshold 3 × 12′")).toBe(
-      "10.0 km on Saturday 20 November deleted. Threshold 3 × 12′ is back to planned.",
-    );
+  it("speaks each effort with its word, while showing only the number", () => {
+    const choices = rpeChoices();
+
+    expect(choices[0]).toEqual({ value: "1", label: "1", spokenLabel: "1, easy" });
+    expect(choices[4]).toEqual({ value: "5", label: "5", spokenLabel: "5, moderate" });
+    expect(choices[9]).toEqual({ value: "10", label: "10", spokenLabel: "10, maximal" });
+  });
+
+  it("gives every effort a spoken label", () => {
+    for (const choice of rpeChoices()) {
+      expect(choice.spokenLabel, choice.value).toMatch(/^\d+, \w+$/);
+    }
+  });
+
+  it("sums up the scale in one line", () => {
+    expect(rpeBandsHint()).toBe("1–3 easy · 4–6 moderate · 7–8 hard · 9–10 maximal");
+  });
+
+  it("offers exactly the two heart-rate sources, named in full", () => {
+    expect(hrSourceChoices()).toEqual([
+      { value: "strap", label: "Chest strap" },
+      { value: "wrist", label: "Wrist" },
+    ]);
+  });
+
+  it("keeps the two sources in step with the ones the rules allow", () => {
+    expect(hrSourceChoices().map((choice) => choice.value)).toEqual([...HR_SOURCES]);
   });
 });

@@ -409,6 +409,23 @@
   --field-min-height: var(--size-touch-min);
   --field-font-family: var(--font-family-body);
 
+  /* Choice: one option in a radio group, as a tappable segment. */
+  --choice-bg: var(--color-bg-surface);
+  --choice-bg-hover: var(--color-bg-raised);
+  --choice-bg-selected: var(--color-accent);
+  --choice-fg: var(--color-text-primary);
+  --choice-fg-selected: var(--color-text-on-accent);
+  /* text-secondary, not border-default: an option's outline is the only thing
+     showing there is something to tap, so it needs 3:1 rather than the
+     decorative weight a panel edge gets. Same reasoning as --field-border. */
+  --choice-border: var(--color-text-secondary);
+  --choice-radius: var(--radius-control);
+  --choice-padding-x: var(--space-inset-md);
+  --choice-padding-y: var(--space-inset-sm);
+  --choice-min-size: var(--size-touch-min);
+  --choice-gap: var(--space-inline-sm);
+  --choice-font-family: var(--font-family-body);
+
   /* Calendar: the week, month and day views and the cards inside them. */
   --cal-cell-bg: var(--color-bg-surface);
   --cal-cell-bg-muted: var(--color-bg-canvas);
