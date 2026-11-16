@@ -14,7 +14,12 @@
  * suit one.
  */
 
-import type { LightenReason, StatusReason, WorkoutStatus } from "@/lib/plan";
+import type {
+  LightenReason,
+  StatusAction,
+  StatusReason,
+  WorkoutStatus,
+} from "@/lib/plan";
 import { formatDayName, formatKm } from "./format";
 import { rejectMessage } from "./move-messages";
 
@@ -83,6 +88,23 @@ export function statusWord(status: WorkoutStatus): string {
     case "planned":
       return "planned";
   }
+}
+
+/** The button that asks for a status change, which is a verb, not a status. */
+export function statusActionLabel(action: StatusAction): string {
+  switch (action) {
+    case "done":
+      return "Mark done";
+    case "skipped":
+      return "Mark skipped";
+    case "planned":
+      return "Back to planned";
+  }
+}
+
+/** The button that makes a day lighter, with the distance it would give. */
+export function lightenActionLabel(by: number, toM: number): string {
+  return `${Math.round(by * 100)}% lighter · ${formatKm(toM)}`;
 }
 
 const km = (metres: number | null | undefined): string =>

@@ -18,7 +18,9 @@ import {
   plannedKmFor,
   sumMetres,
   weekTitle,
+  type CalendarViewModel,
 } from "./view-model";
+import { workoutHref } from "./params";
 
 const SAMPLE_VDOT = 47;
 /** Intl separates a date range with thin spaces round an en dash. */
@@ -342,5 +344,46 @@ describe("buildDayView", () => {
 describe("buildCalendarView", () => {
   it.each(["week", "month", "day"] as const)("dispatches on view=%s", (view) => {
     expect(buildCalendarView(view, input("2027-03-18", "2027-03-18")).view).toBe(view);
+  });
+});
+
+/** Every rendered day of any of the three views, so one test covers all. */
+function daysOf(model: CalendarViewModel) {
+  switch (model.view) {
+    case "week":
+      return model.days;
+    case "month":
+      return model.weeks.flat();
+    case "day":
+      return [model.day];
+  }
+}
+
+describe("the link on every item", () => {
+  const DATE = "2027-03-18";
+
+  it.each(["week", "month", "day"] as const)(
+    "points at the workout and back at the %s being viewed",
+    (view) => {
+      const row = workout(DATE);
+      const model = buildCalendarView(view, input(DATE, DATE, [row]));
+
+      const items = daysOf(model).flatMap((day) => day.items);
+      expect(items).toHaveLength(1);
+      // The view the athlete was looking at, so the back link returns there.
+      expect(items[0]?.href).toBe(workoutHref(row.id, { view, date: DATE }));
+    },
+  );
+
+  it("gives every card in a month its own link", () => {
+    const model = buildMonthView(
+      input(DATE, DATE, [workout("2027-03-02"), workout("2027-03-29")]),
+    );
+    const hrefs = daysOf(model).flatMap((day) => day.items.map((item) => item.href));
+
+    expect(hrefs).toHaveLength(2);
+    expect(new Set(hrefs).size).toBe(2);
+    // The month being browsed, not the week each session falls in.
+    for (const href of hrefs) expect(href).toContain("view=month&date=" + DATE);
   });
 });

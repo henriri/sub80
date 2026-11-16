@@ -6,6 +6,7 @@ import {
   changeFeedback,
   undoOffered,
   undoTarget,
+  unseenResult,
   type ChangeFeedback,
 } from "./change-feedback";
 
@@ -129,5 +130,26 @@ describe("holding the countdown", () => {
     const error = changeFeedback(idle, { type: "error", message: "No." });
     expect(changeFeedback(error, { type: "hold", hold: "hover", now: T0 })).toBe(error);
     expect(changeFeedback(idle, { type: "release", hold: "focus", now: T0 })).toBe(idle);
+  });
+});
+
+describe("unseenResult", () => {
+  const a = { token: "t-a" };
+  const b = { token: "t-b" };
+
+  it("finds the one result nothing has reacted to", () => {
+    expect(unseenResult([null, a, null], new Set())).toBe(a);
+  });
+
+  it("ignores a result already shown, whatever position it sits in", () => {
+    // The case this exists for: one form still holds the answer the toast
+    // showed a minute ago while another has just answered.
+    expect(unseenResult([a, b], new Set(["t-a"]))).toBe(b);
+    expect(unseenResult([a, b], new Set(["t-a", "t-b"]))).toBe(null);
+  });
+
+  it("has nothing to show before anything has happened", () => {
+    expect(unseenResult([null, undefined], new Set())).toBe(null);
+    expect(unseenResult([], new Set())).toBe(null);
   });
 });

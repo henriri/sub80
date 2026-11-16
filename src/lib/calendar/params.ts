@@ -69,3 +69,19 @@ export function parseCalendarParams(raw: RawSearchParams, today: Ymd): ParseResu
 export function calendarHref({ view, date }: CalendarParams): string {
   return `/?view=${view}&date=${date}`;
 }
+
+/**
+ * One workout's own page, carrying the calendar it was opened from.
+ *
+ * The view and the date are the ones the athlete was looking at, not the
+ * workout's own: the back link has to return to the month they were browsing,
+ * not to the week the session happens to fall in. The detail page re-parses
+ * them with `parseCalendarParams`, so a hand-edited pair is a redirect to the
+ * default rather than a broken back link.
+ *
+ * The id is a uuid from the database and the other two come from a closed set
+ * or a validated date, so none of the three needs escaping.
+ */
+export function workoutHref(id: string, { view, date }: CalendarParams): string {
+  return `/workouts/${id}?view=${view}&date=${date}`;
+}

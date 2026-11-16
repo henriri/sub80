@@ -103,6 +103,25 @@ export function changeFeedback(
   }
 }
 
+/**
+ * The first result the toast has not reacted to yet.
+ *
+ * A page with four forms has four action states, and each keeps its last
+ * result for as long as the page lives. So "the newest" cannot be read off
+ * their order: after a second form answers, the first still holds an answer
+ * that was already shown. Every result carries a token, and the toast
+ * remembers the ones it has used.
+ *
+ * Two identical refusals in a row are two separate things the athlete did, so
+ * the token is what distinguishes them rather than the message.
+ */
+export function unseenResult<T extends { token: string }>(
+  results: readonly (T | null | undefined)[],
+  seen: ReadonlySet<string>,
+): T | null {
+  return results.find((result) => result != null && !seen.has(result.token)) ?? null;
+}
+
 /** Whether the Undo button should be on screen. */
 export function undoOffered(state: ChangeFeedback, now: number): boolean {
   return state.kind === "changed" && !isExpired(state.countdown, now);

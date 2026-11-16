@@ -1,6 +1,7 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/react";
+import Link from "next/link";
 import { formatKm, type CalendarItem } from "@/lib/calendar";
 import { DRAG_INSTRUCTIONS } from "@/lib/ui/drag-announce";
 import { KindBadge } from "./KindBadge";
@@ -20,6 +21,13 @@ const base = [
   "rounded-(--cal-card-radius) bg-(--cal-card-bg) text-(color:--cal-card-fg)",
   "border-(length:--border-width-default) border-(--cal-card-border)",
 ].join(" ");
+
+/**
+ * The link fills the heading and underlines on hover, so it reads as the way
+ * in without needing a second affordance. `rounded-control` is only there to
+ * keep the focus ring off the text's corners.
+ */
+const title = "inline-block rounded-control hover:underline";
 
 /** A real touch target, not a grip: it has to work with a finger. */
 const control = [
@@ -122,9 +130,16 @@ export function WorkoutCard({ item, size = "compact" }: WorkoutCardProps) {
         )}
       </div>
 
+      {/*
+        The title is the link, and the only one on the card. It is a sibling of
+        the drag handle rather than wrapping it: an interactive element may not
+        be nested inside a link, and a drag handle is interactive.
+      */}
       <h3 className={size === "full" ? "text-heading-sm" : "font-strong text-small"}>
-        {item.title}
-        {item.isKey ? <KeySession /> : null}
+        <Link href={item.href} className={joinClasses(title, focusRing)}>
+          {item.title}
+          {item.isKey ? <KeySession /> : null}
+        </Link>
       </h3>
 
       {item.paceLabel === null ? null : (

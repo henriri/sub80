@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  LIGHTEN_FRACTIONS,
   LIGHTEN_REJECT_CODES,
+  STATUS_ACTIONS,
   STATUS_REJECT_CODES,
   WORKOUT_STATUSES,
   type LightenReason,
@@ -12,6 +14,8 @@ import {
   isUndoKind,
   lightenRejectMessage,
   planEventMessage,
+  lightenActionLabel,
+  statusActionLabel,
   statusRejectMessage,
   statusWord,
   undoableIndex,
@@ -325,5 +329,32 @@ describe("statusRejectMessage", () => {
     expect(statusRejectMessage({ code: "already", status: "planned" })).toContain(
       "already planned",
     );
+  });
+});
+
+describe("the button labels", () => {
+  it("asks for a status change as a verb, not as a status", () => {
+    expect(statusActionLabel("done")).toBe("Mark done");
+    expect(statusActionLabel("skipped")).toBe("Mark skipped");
+    expect(statusActionLabel("planned")).toBe("Back to planned");
+  });
+
+  it("labels every action", () => {
+    for (const action of STATUS_ACTIONS) {
+      expect(statusActionLabel(action).length).toBeGreaterThan(0);
+    }
+  });
+
+  it("says the percentage and the distance it would give", () => {
+    // The number on the button is the number that will be stored, so the
+    // athlete is never told 20% and given a rounding they did not expect.
+    expect(lightenActionLabel(0.2, 11_000)).toBe("20% lighter · 11.0 km");
+    expect(lightenActionLabel(0.4, 8_500)).toBe("40% lighter · 8.5 km");
+  });
+
+  it("labels both fractions", () => {
+    for (const by of LIGHTEN_FRACTIONS) {
+      expect(lightenActionLabel(by, 10_000)).toMatch(/^\d+% lighter/);
+    }
   });
 });
