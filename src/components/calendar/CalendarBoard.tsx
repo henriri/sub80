@@ -16,7 +16,7 @@ import {
 } from "react";
 import {
   moveWorkout,
-  undoLastMove,
+  undoChange,
   type MoveResult,
   type UndoResult,
 } from "@/app/actions";
@@ -43,7 +43,7 @@ import {
   announceDragStart,
   announceDrop,
 } from "@/lib/ui/drag-announce";
-import { idle, moveFeedback } from "@/lib/ui/move-feedback";
+import { idle, changeFeedback } from "@/lib/ui/change-feedback";
 import { DayView } from "./DayView";
 import { MonthView } from "./MonthView";
 import { MoveDialog } from "./MoveDialog";
@@ -56,6 +56,18 @@ type CalendarBoardProps = {
   model: CalendarViewModel;
   /** Today in Europe/Paris, computed on the server. */
   today: Ymd;
+  /**
+   * Sessions on the day either side of the visible range: loaded, not shown.
+   *
+   * They exist so a drop on the first or last visible day can see what it
+   * would end up next to, which is what makes the consecutive-key warning
+   * appear under the finger instead of arriving from the server afterwards.
+   *
+   * They are never rendered and never dragged, so they never move: a drop
+   * target is always a rendered day. Which is why they sit beside the
+   * optimistic model rather than in it.
+   */
+  neighbours?: readonly MoveCandidate[];
   /**
    * The Server Action, overridable.
    *
@@ -151,17 +163,21 @@ const activationConstraints = (event: PointerEvent) =>
 export function CalendarBoard({
   model,
   today,
+  neighbours = [],
   onMove = moveWorkout,
-  onUndo = undoLastMove,
+  onUndo = undoChange,
 }: CalendarBoardProps) {
   const [optimistic, addMove] = useOptimistic(model, applyMove);
-  const [feedback, send] = useReducer(moveFeedback, idle);
+  const [feedback, send] = useReducer(changeFeedback, idle);
   const [dragging, setDragging] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [pending, setPending] = useState<PendingMove | null>(null);
   const [picking, setPicking] = useState<string | null>(null);
 
-  const candidates = useMemo(() => candidatesOf(optimistic), [optimistic]);
+  const candidates = useMemo(
+    () => [...candidatesOf(optimistic), ...neighbours],
+    [optimistic, neighbours],
+  );
 
   const check = useCallback(
     (workoutId: string, toDate: Ymd): MoveCheck => {
@@ -189,12 +205,13 @@ export function CalendarBoard({
 
         if (result.status === "ok") {
           send({
-            type: "moved",
+            type: "changed",
             eventId: result.eventId,
             workoutId: result.workoutId,
-            title: result.title,
-            from: result.from,
             message: movedMessage(result.title, result.to),
+            // Composed now, while the title and the old day are in hand, so
+            // the Undo button does not have to find them again later.
+            undoneMessage: undoneMessage(result.title, result.from),
             now: Date.now(),
           });
           return;
@@ -238,8 +255,8 @@ export function CalendarBoard({
     (eventId: string) => {
       startTransition(async () => {
         const restored =
-          feedback.kind === "moved"
-            ? undoneMessage(feedback.title, feedback.from)
+          feedback.kind === "changed"
+            ? feedback.undoneMessage
             : "That change has been put back.";
 
         const result = await onUndo(eventId);

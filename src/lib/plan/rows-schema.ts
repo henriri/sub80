@@ -59,5 +59,19 @@ export const storedWorkoutsSchema = z.array(storedWorkoutSchema);
 
 export type StoredWorkout = z.infer<typeof storedWorkoutSchema>;
 
+/**
+ * One row read back for the detail view, which shows what a card has no room
+ * for. A separate schema rather than more columns on storedWorkoutSchema: the
+ * calendar reads six weeks of rows at a time and has no use for a note.
+ */
+export const workoutDetailSchema = storedWorkoutSchema.extend({
+  notes: z.string().nullable(),
+  /** The plan's own distance while the day has been made lighter, else null. */
+  original_distance_m: z.int().positive().nullable(),
+  target_duration_s: z.int().positive().nullable(),
+});
+
+export type WorkoutDetail = z.infer<typeof workoutDetailSchema>;
+
 /** numeric(4,1) arrives as a number or a string depending on the client. */
 export const vdotSchema = z.coerce.number().min(25).max(85);

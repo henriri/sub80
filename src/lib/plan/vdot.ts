@@ -165,6 +165,23 @@ export function zoneLabel(key: ZoneKey): string {
   return isTrainingZone(key) ? ZONES[key].name : RACE_LABEL[key];
 }
 
+/**
+ * What a race key is for. The ZONES table has no entry for one, because a
+ * race distance is not a training zone: it has a pace rather than a window,
+ * which is why zoneRange returns that pace plus or minus two seconds.
+ */
+const RACE_USE: Record<"5K" | "10K" | "HM", string> = {
+  "5K": "Race effort over 5 km. Even from the gun, nothing held back.",
+  "10K":
+    "Race effort over 10 km. Hard but controlled, a shade quicker than threshold.",
+  HM: "Goal race pace. It should feel easy early and honest in the last 5 km.",
+};
+
+/** What the zone is for, in one sentence, for a session that targets it. */
+export function zoneUse(key: ZoneKey): string {
+  return isTrainingZone(key) ? ZONES[key].use : RACE_USE[key];
+}
+
 /** '4:48–5:36 /km' for a zone at a given VDOT. */
 export function paceRangeLabel(key: ZoneKey, vdot: number): string {
   const { fast, slow } = zoneRange(key, vdot);

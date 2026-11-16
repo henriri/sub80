@@ -1,5 +1,23 @@
 export {
+  STALE_UNDO_MESSAGE,
+  UNDOABLE_EVENT_KINDS,
+  UNDO_KINDS,
+  isUndoKind,
+  lightenActionLabel,
+  lightenRejectMessage,
+  planEventMessage,
+  statusActionLabel,
+  statusRejectMessage,
+  statusWord,
+  undoableIndex,
+  undoneChangeMessage,
+  type ChangeSnapshot,
+  type PlanEventSummary,
+  type UndoableEventKind,
+} from "./change-messages";
+export {
   formatDateRange,
+  formatDayName,
   formatFullDate,
   formatKm,
   formatKmValue,
@@ -9,19 +27,15 @@ export {
 export { KIND_META, isEventKind, type KindMeta } from "./kinds";
 export { monthGrid, type MonthCell } from "./month-grid";
 export {
-  STALE_UNDO_MESSAGE,
   dropHint,
   dropState,
   movedMessage,
-  planEventMessage,
   rejectHint,
   rejectMessage,
-  undoableIndex,
   undoneMessage,
   warningMessage,
   warningTitle,
   type DropState,
-  type PlanEventSummary,
 } from "./move-messages";
 export { applyMove, applyMoves, type OptimisticMove } from "./move-reducer";
 export {
@@ -30,6 +44,7 @@ export {
   defaultParams,
   isValidYmd,
   parseCalendarParams,
+  workoutHref,
   type CalendarParams,
   type CalendarView,
   type ParseResult,
@@ -37,15 +52,18 @@ export {
 } from "./params";
 export {
   DAYS_IN_WEEK,
+  EDGE_PADDING_DAYS,
   MONTH_GRID_DAYS,
   MONTH_GRID_ROWS,
   addMonths,
   dateSequence,
   daysInMonth,
+  fetchRange,
   monthEnd,
   monthRange,
   monthStart,
   step,
+  visibleEnd,
   visibleRange,
   weekRange,
   type MonthRange,

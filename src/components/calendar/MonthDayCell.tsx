@@ -23,12 +23,31 @@ const cell = [
 ].join(" ");
 
 /**
- * The link that fills the cell. It is a sibling of the markers rather than
- * their parent, because an interactive element may not be nested inside a
- * link, and a drag handle is interactive. Still exactly one link per cell, in
- * the same place in the DOM order, with the same accessible name.
+ * The day number, which is the way to the day view.
+ *
+ * It replaced a link stretched across the whole cell. The cell now holds a
+ * link per session, and two overlapping links -- one of them invisible and
+ * covering the other -- is a trap however the z-indexes are arranged. A date
+ * that is its own target is also easier to explain: the number goes to the
+ * day, the session goes to the session.
  */
-const stretchedLink = ["absolute rounded-(--cal-cell-radius)", focusRing].join(" ");
+const dateLink = [
+  "flex min-h-touch items-center self-start rounded-control",
+  "px-inline-sm text-small hover:underline",
+  focusRing,
+].join(" ");
+
+/**
+ * One session's row: the link that opens it, full width and a real touch
+ * target, with the drag handle beside it.
+ */
+const sessionRow = "flex items-center gap-(--cal-grid-gap)";
+
+const sessionLink = [
+  "flex min-h-touch min-w-0 flex-1 items-center gap-(--cal-grid-gap)",
+  "rounded-control px-inline-sm text-small hover:underline",
+  focusRing,
+].join(" ");
 
 /** One string per state: two arbitrary values of one property would race. */
 function surfaceClasses({ isToday, isEvent, inMonth }: MonthDay) {
@@ -48,15 +67,21 @@ function surfaceClasses({ isToday, isEvent, inMonth }: MonthDay) {
 }
 
 /**
- * A session's marker in the month grid, draggable by itself.
+ * A session in the month grid: the link that opens it, and the handle that
+ * drags it.
  *
- * In a seven-column grid at 360px this cannot be a 44px target, which is why
- * it is an enhancement and not the only way out of a month cell: the cell's
- * own link reaches the day view in one tap, and a card there has the "Move
- * to…" button. `z-10` puts it over the stretched link so a press lands on the
- * marker and not on the navigation underneath.
+ * The link is the 44px target -- it spans the cell, so the width a seven-column
+ * grid leaves is not the constraint. The handle stays smaller than 44px, as it
+ * already did: at 360px a cell is about that wide, so two full-size targets
+ * side by side do not exist, and the handle is the enhancement while the link
+ * is the way in. It is still keyboard reachable and still carries its own
+ * name, and both the week view's card and the day view give the same session a
+ * full-size handle.
+ *
+ * The two are siblings, never nested: an interactive element may not be inside
+ * a link, and a drag handle is interactive.
  */
-function Marker({ item }: { item: CalendarItem }) {
+function Session({ item }: { item: CalendarItem }) {
   const move = useMove();
   const draggable = move !== null && move.canMove(item);
   const { ref, handleRef, isDragging } = useDraggable({
@@ -65,43 +90,41 @@ function Marker({ item }: { item: CalendarItem }) {
     disabled: !draggable,
   });
 
-  // Read-only, the marker is decoration: the cell's link already names every
-  // session on the day, so repeating them would only add noise.
-  if (!draggable) {
-    return (
-      <span aria-hidden="true">
-        <KindBadge kind={item.kind} size="short" />
-      </span>
-    );
-  }
-
   return (
     <span
       ref={ref}
       className={joinClasses(
-        "relative z-10",
+        sessionRow,
         isDragging && "shadow-(--cal-drag-overlay-shadow)",
       )}
     >
-      <button
-        type="button"
-        ref={handleRef}
-        aria-pressed={isDragging}
-        className={joinClasses("block rounded-(--cal-marker-radius)", focusRing)}
-      >
+      <Link href={item.href} className={sessionLink}>
         <span aria-hidden="true">
           <KindBadge kind={item.kind} size="short" />
         </span>
-        <span className="sr-only">Move {item.title}</span>
-      </button>
+        <span className="truncate">{item.title}</span>
+      </Link>
+
+      {draggable ? (
+        <button
+          type="button"
+          ref={handleRef}
+          aria-pressed={isDragging}
+          className={joinClasses("block rounded-(--cal-marker-radius)", focusRing)}
+        >
+          <span aria-hidden="true">⠿</span>
+          <span className="sr-only">Move {item.title}</span>
+        </button>
+      ) : null}
     </span>
   );
 }
 
 /**
- * A day in the month grid: the day number, a marker per session and the day's
+ * A day in the month grid: the day number, a row per session and the day's
  * distance. While a session is being dragged the distance gives way to the
- * drop glyph, because a 44px square has room for one of them and not both.
+ * drop glyph, because the foot of a cell has room for one of them and not
+ * both.
  */
 export function MonthDayCell({ day }: MonthDayCellProps) {
   const move = useMove();
@@ -127,27 +150,21 @@ export function MonthDayCell({ day }: MonthDayCellProps) {
         href={calendarHref({ view: "day", date: day.date })}
         aria-current={day.isToday ? "date" : undefined}
         aria-label={describeDay(day)}
-        className={stretchedLink}
-        style={{ inset: 0 }}
-      />
-
-      <span
-        aria-hidden="true"
         className={joinClasses(
-          "text-small",
+          dateLink,
           day.inMonth
             ? "text-(color:--cal-date-fg)"
             : "text-(color:--cal-date-fg-muted)",
           day.isToday && "font-strong",
         )}
       >
-        {day.dayOfMonth}
-      </span>
+        <span aria-hidden="true">{day.dayOfMonth}</span>
+      </Link>
 
       {day.items.length === 0 ? null : (
-        <span className="flex flex-wrap gap-(--cal-grid-gap)">
+        <span className="flex flex-col gap-(--cal-grid-gap)">
           {day.items.map((item) => (
-            <Marker key={item.id} item={item} />
+            <Session key={item.id} item={item} />
           ))}
         </span>
       )}

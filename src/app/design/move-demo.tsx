@@ -11,18 +11,21 @@ import type { MoveAction, UndoAction } from "@/components/calendar/CalendarBoard
 import {
   applyMove,
   movedMessage,
+  planEventMessage,
   rejectMessage,
   undoableIndex,
+  undoneChangeMessage,
   undoneMessage,
   type CalendarViewModel,
+  type PlanEventSummary,
 } from "@/lib/calendar";
 import { validateMove, type MoveCheck, type MoveWarning, type Ymd } from "@/lib/plan";
 import {
+  changeFeedback,
   idle,
-  moveFeedback,
-  type MoveFeedback,
-  type MoveFeedbackEvent,
-} from "@/lib/ui/move-feedback";
+  type ChangeFeedback,
+  type ChangeFeedbackEvent,
+} from "@/lib/ui/change-feedback";
 
 type MoveDemoProps = {
   week: CalendarViewModel;
@@ -85,20 +88,38 @@ const checks: { label: string; check: MoveCheck }[] = [
 /**
  * What each toast specimen should show, as an event rather than as a state.
  *
- * A `moved` state contains a running countdown, and a countdown needs a clock.
+ * A `changed` state contains a running countdown, and a countdown needs a clock.
  * Reading one at module scope would read it during the prerender, so the state
  * is built from these on mount instead.
  */
-const seeds: { label: string; seed: MoveFeedbackEvent }[] = [
+const seeds: { label: string; seed: ChangeFeedbackEvent }[] = [
   {
     label: "moved · counting down",
     seed: {
-      type: "moved",
+      type: "changed",
       eventId: "event-1",
       workoutId: "workout-1",
-      title: "Easy run + 6 strides",
-      from: "2027-03-18",
       message: movedMessage("Easy run + 6 strides", "2027-03-20"),
+      undoneMessage: undoneMessage("Easy run + 6 strides", "2027-03-18"),
+      now: 0,
+    },
+  },
+  {
+    label: "notes saved · counting down",
+    seed: {
+      type: "changed",
+      eventId: "event-2",
+      workoutId: "workout-1",
+      // The same machine, the same toast, a different kind of change: the
+      // sentences come from the caller and nothing here is about moving.
+      message: planEventMessage({
+        kind: "edit_notes",
+        status: "accepted",
+        move: null,
+        before: { notes: null },
+        after: { notes: "Calves tight on the second rep." },
+      }),
+      undoneMessage: undoneChangeMessage("edit_notes", { notes: null }),
       now: 0,
     },
   },
@@ -124,29 +145,52 @@ const seeds: { label: string; seed: MoveFeedbackEvent }[] = [
 ];
 
 /**
- * A history that has just had an undo in it: the undo is newest, the move it
- * reversed is marked undone, and the one before that is the only row the
- * database would now accept. `undoableIndex` decides which, exactly as the
+ * A history that has just had an undo in it, with a change of every kind: the
+ * undo is newest, the change it reversed is marked undone, and the one below
+ * that is the only row the database would now accept. `undoableIndex` decides which, exactly as the
  * page does, so this specimen cannot drift from the rule it illustrates.
  */
-const history = [
+const history: (PlanEventSummary & { id: string })[] = [
+  {
+    id: "00000000-0000-4000-8000-00000000e005",
+    kind: "undo_change",
+    status: "accepted",
+    move: null,
+    before: { notes: "Calves tight on the second rep." },
+    after: { notes: null },
+    undoneKind: "edit_notes",
+  },
+  {
+    id: "00000000-0000-4000-8000-00000000e004",
+    kind: "edit_notes",
+    status: "undone",
+    move: null,
+    before: { notes: null },
+    after: { notes: "Calves tight on the second rep." },
+  },
   {
     id: "00000000-0000-4000-8000-00000000e003",
-    kind: "undo_move",
+    kind: "lighten_workout",
     status: "accepted",
-    move: { from: "2027-03-21", to: "2027-03-19" },
+    move: null,
+    before: { target_distance_m: 14_000, original_distance_m: null },
+    after: { target_distance_m: 11_000, original_distance_m: 14_000 },
   },
   {
     id: "00000000-0000-4000-8000-00000000e002",
-    kind: "move_workout",
-    status: "undone",
-    move: { from: "2027-03-19", to: "2027-03-21" },
+    kind: "set_status",
+    status: "accepted",
+    move: null,
+    before: { status: "planned" },
+    after: { status: "skipped" },
   },
   {
     id: "00000000-0000-4000-8000-00000000e001",
     kind: "move_workout",
     status: "accepted",
     move: { from: "2027-03-18", to: "2027-03-20" },
+    before: { planned_date: "2027-03-18" },
+    after: { planned_date: "2027-03-20" },
   },
 ];
 
@@ -365,19 +409,19 @@ function daysOf(model: CalendarViewModel) {
  * calendars above show the same thing after a real drop. The other two states
  * have no clock, so they are simply there.
  */
-function ToastSpecimen({ seed }: { seed: MoveFeedbackEvent }) {
-  const [current, setCurrent] = useState<MoveFeedback>(() =>
-    seed.type === "moved" ? idle : moveFeedback(idle, seed),
+function ToastSpecimen({ seed }: { seed: ChangeFeedbackEvent }) {
+  const [current, setCurrent] = useState<ChangeFeedback>(() =>
+    seed.type === "changed" ? idle : changeFeedback(idle, seed),
   );
-  const apply = (event: MoveFeedbackEvent) =>
-    setCurrent((previous) => moveFeedback(previous, event));
+  const apply = (event: ChangeFeedbackEvent) =>
+    setCurrent((previous: ChangeFeedback) => changeFeedback(previous, event));
 
   if (current.kind === "idle") {
     return (
       <button
         type="button"
         onClick={() =>
-          apply(seed.type === "moved" ? { ...seed, now: Date.now() } : seed)
+          apply(seed.type === "changed" ? { ...seed, now: Date.now() } : seed)
         }
         className={button}
       >

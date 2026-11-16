@@ -8,8 +8,10 @@ import { requireUser } from "@/lib/auth/require-user";
 import {
   buildCalendarView,
   calendarHref,
+  fetchRange,
   parseCalendarParams,
   undoableIndex,
+  visibleEnd,
   visibleRange,
 } from "@/lib/calendar";
 import { readRecentPlanEvents } from "@/lib/data/plan-events";
@@ -72,9 +74,12 @@ async function CalendarSection({
   if (!parsed.ok) redirect(calendarHref(parsed.fallback));
 
   const { view, date } = parsed.params;
-  const { from, days } = visibleRange(view, date);
+  // The visible range plus a day either side, so a drop on the first or last
+  // visible day can see the neighbour it would land next to and the
+  // consecutive-key warning appears before the drop rather than after it.
+  const { from, days } = fetchRange(view, date);
 
-  // Four reads, one round trip. Only the visible range of workouts is fetched.
+  // Four reads, one round trip. Only the range the rules need is fetched.
   const [planned, vdot, workouts, events] = await Promise.all([
     countPlannedWorkouts(user.id),
     readVdot(user.id),
@@ -85,21 +90,34 @@ async function CalendarSection({
   if (planned === 0) return <NoPlan />;
 
   // Undo is a stack, so exactly one row may be undone and it is not always
-  // the first: an undo, or an already undone move, can sit above it.
+  // the first: an undo, or an already undone change, can sit above it.
   const undoable = undoableIndex(events);
   const changes = events.map((event, index) => ({
     id: event.id,
     kind: event.kind,
     status: event.status,
     move: event.move,
+    before: event.before,
+    after: event.after,
+    undoneKind: event.undoneKind,
     undoable: index === undoable,
   }));
+
+  // The padding days are move candidates only. `buildCalendarView` reads just
+  // the dates it renders, so they cannot reach a day, a total or the grid; the
+  // board gets them separately, beside the model rather than inside it.
+  const visible = { from: visibleRange(view, date).from, to: visibleEnd(view, date) };
+  const neighbours = workouts.filter(
+    (workout) =>
+      workout.planned_date < visible.from || workout.planned_date > visible.to,
+  );
 
   return (
     <>
       <Calendar
         model={buildCalendarView(view, { date, today, workouts, vdot })}
         today={today}
+        neighbours={neighbours}
         interactive
       />
       <RecentChanges changes={changes} />

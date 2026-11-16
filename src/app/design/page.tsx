@@ -6,16 +6,28 @@ import { Calendar } from "@/components/calendar/Calendar";
 import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
 import { KindBadge } from "@/components/calendar/KindBadge";
 import { WorkoutCard } from "@/components/calendar/WorkoutCard";
+import type { WorkoutActionsProps } from "@/components/workout/WorkoutActions";
 import {
   buildDayView,
   buildMonthView,
   buildWeekView,
+  lightenRejectMessage,
   type CalendarItem,
 } from "@/lib/calendar";
-import { WORKOUT_KINDS, type StoredWorkout } from "@/lib/plan";
+import {
+  LIGHTEN_FRACTIONS,
+  WORKOUT_KINDS,
+  lightenedDistance,
+  offeredFractions,
+  plannedDistance,
+  validateLighten,
+  type StoredWorkout,
+  type WorkoutDetail,
+} from "@/lib/plan";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
 import { ModePreview, TokenValue } from "./mode-preview";
 import { MoveDemo } from "./move-demo";
+import { WorkoutDemo } from "./workout-demo";
 
 export const metadata: Metadata = {
   title: "Design system · sub80",
@@ -127,6 +139,118 @@ const sampleSession = {
   title: easyRun?.title ?? "",
   date: easyRun?.planned_date ?? SAMPLE_DATE,
 };
+
+/**
+ * The detail view's specimens: one row per state the page can be in.
+ *
+ * Built from the same synthetic rows as the calendar, widened with the three
+ * columns only the detail view reads. A past date and a lightened day are
+ * states, not edge cases: each withholds a different set of actions.
+ */
+const sampleDetails = (() => {
+  /**
+   * Written out rather than spread from a calendar sample: the detail view
+   * reads three more columns, and a specimen that is explicit about all of
+   * them is easier to read than one assembled from two halves.
+   */
+  const base = {
+    id: "00000000-0000-4000-8000-000000000001",
+    generated_key: "w22-d1",
+    planned_date: "2027-03-16",
+    kind: "threshold",
+    title: "Threshold 3 × 12′ (2′ jog)",
+    is_key: true,
+    target_distance_m: 14_000,
+    week_index: 22,
+    pace_zone: "T",
+    strides: false,
+    status: "planned",
+    day_slot: 0,
+    notes: null,
+    original_distance_m: null,
+    target_duration_s: null,
+  } satisfies WorkoutDetail;
+
+  const detail = (overrides: Partial<WorkoutDetail> = {}): WorkoutDetail => ({
+    ...base,
+    ...overrides,
+  });
+
+  return {
+    planned: detail(),
+    withNotes: detail({
+      notes: "Calves tight on the second rep. Eased off and they settled.",
+    }),
+    lightened: detail({ target_distance_m: 11_000, original_distance_m: 14_000 }),
+    asLightAsItGoes: detail({
+      target_distance_m: 8_500,
+      original_distance_m: 14_000,
+    }),
+    done: detail({ status: "completed" }),
+    // Plan week 1, which began 2026-10-19: before SAMPLE_DATE, so the lighter
+    // actions are withheld while done and skipped are not.
+    past: detail({ planned_date: "2026-10-21", week_index: 1, status: "planned" }),
+    // A race week session, which has a race pace rather than a training zone
+    // and so takes the zoneUse fallback.
+    race: detail({ pace_zone: "HM", kind: "race", title: "Half marathon" }),
+  };
+})();
+
+const sampleFacts = [
+  { label: "planned", workout: sampleDetails.planned },
+  { label: "with notes", workout: sampleDetails.withNotes },
+  { label: "made lighter", workout: sampleDetails.lightened },
+  { label: "done", workout: sampleDetails.done },
+  { label: "in the past", workout: sampleDetails.past },
+  { label: "a race, so a race pace", workout: sampleDetails.race },
+] as const;
+
+/** What the page computes for the island, repeated here for each state. */
+function actionProps(workout: WorkoutDetail): WorkoutActionsProps {
+  const candidate = {
+    id: workout.id,
+    status: workout.status,
+    planned_date: workout.planned_date,
+    target_distance_m: workout.target_distance_m,
+    original_distance_m: workout.original_distance_m,
+  };
+  const planned = plannedDistance(candidate);
+  const checks = LIGHTEN_FRACTIONS.map((by) =>
+    validateLighten({ workout: candidate, by, today: SAMPLE_DATE }),
+  );
+  const blocking = checks.find(
+    (check) => !check.ok && check.reason.code !== "would_raise",
+  );
+
+  return {
+    workoutId: workout.id,
+    status: workout.status,
+    notes: workout.notes,
+    lighten:
+      planned === null
+        ? []
+        : offeredFractions(candidate).map((by) => ({
+            by,
+            toM: lightenedDistance(planned, by),
+          })),
+    restoreToM: workout.original_distance_m,
+    lightenWithheld:
+      !checks.some((check) => check.ok) && blocking?.ok === false
+        ? lightenRejectMessage(blocking.reason)
+        : null,
+  };
+}
+
+const sampleActions = [
+  { label: "planned", props: actionProps(sampleDetails.planned) },
+  { label: "already at -20%", props: actionProps(sampleDetails.lightened) },
+  {
+    label: "as light as it goes",
+    props: actionProps(sampleDetails.asLightAsItGoes),
+  },
+  { label: "in the past", props: actionProps(sampleDetails.past) },
+  { label: "done", props: actionProps(sampleDetails.done) },
+] as const;
 
 const sampleWeek = buildWeekView(sampleInput);
 const sampleMonth = buildMonthView(sampleInput);
@@ -326,6 +450,12 @@ export default function DesignPage() {
             month={sampleMonth}
             today={SAMPLE_DATE}
             sample={sampleSession}
+          />
+
+          <WorkoutDemo
+            facts={sampleFacts}
+            vdot={SAMPLE_VDOT}
+            actions={sampleActions}
           />
         </section>
 

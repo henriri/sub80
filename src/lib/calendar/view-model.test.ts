@@ -3,6 +3,7 @@ import {
   MAX_WEEK,
   PLAN_START,
   RACE_DATE,
+  addDays,
   buildWeek,
   type StoredWorkout,
   type WorkoutKind,
@@ -18,7 +19,10 @@ import {
   plannedKmFor,
   sumMetres,
   weekTitle,
+  type CalendarViewModel,
 } from "./view-model";
+import { workoutHref } from "./params";
+import { visibleEnd, visibleRange } from "./range";
 
 const SAMPLE_VDOT = 47;
 /** Intl separates a date range with thin spaces round an en dash. */
@@ -342,5 +346,105 @@ describe("buildDayView", () => {
 describe("buildCalendarView", () => {
   it.each(["week", "month", "day"] as const)("dispatches on view=%s", (view) => {
     expect(buildCalendarView(view, input("2027-03-18", "2027-03-18")).view).toBe(view);
+  });
+});
+
+/** Every rendered day of any of the three views, so one test covers all. */
+function daysOf(model: CalendarViewModel) {
+  switch (model.view) {
+    case "week":
+      return model.days;
+    case "month":
+      return model.weeks.flat();
+    case "day":
+      return [model.day];
+  }
+}
+
+describe("the link on every item", () => {
+  const DATE = "2027-03-18";
+
+  it.each(["week", "month", "day"] as const)(
+    "points at the workout and back at the %s being viewed",
+    (view) => {
+      const row = workout(DATE);
+      const model = buildCalendarView(view, input(DATE, DATE, [row]));
+
+      const items = daysOf(model).flatMap((day) => day.items);
+      expect(items).toHaveLength(1);
+      // The view the athlete was looking at, so the back link returns there.
+      expect(items[0]?.href).toBe(workoutHref(row.id, { view, date: DATE }));
+    },
+  );
+
+  it("gives every card in a month its own link", () => {
+    const model = buildMonthView(
+      input(DATE, DATE, [workout("2027-03-02"), workout("2027-03-29")]),
+    );
+    const hrefs = daysOf(model).flatMap((day) => day.items.map((item) => item.href));
+
+    expect(hrefs).toHaveLength(2);
+    expect(new Set(hrefs).size).toBe(2);
+    // The month being browsed, not the week each session falls in.
+    for (const href of hrefs) expect(href).toContain("view=month&date=" + DATE);
+  });
+});
+
+describe("the days loaded either side of the visible range", () => {
+  const DATE = "2027-03-18";
+
+  /**
+   * The same input twice: once with only the rows the view renders, once with
+   * the extra day either side that `fetchRange` loads.
+   */
+  const pair = (view: "week" | "month" | "day") => {
+    const visible = visibleRange(view, DATE);
+    const inside = [workout(visible.from), workout(visibleEnd(view, DATE))];
+    const padding = [
+      workout(addDays(visible.from, -1)),
+      workout(addDays(visibleEnd(view, DATE), 1)),
+    ];
+
+    return {
+      without: buildCalendarView(view, input(DATE, DATE, inside)),
+      with: buildCalendarView(view, input(DATE, DATE, [...padding, ...inside])),
+      padding,
+    };
+  };
+
+  it.each(["week", "month", "day"] as const)(
+    "changes nothing the %s view renders",
+    (view) => {
+      // The whole guarantee in one assertion: the padding days exist as move
+      // candidates and nowhere else. Every day, every item and every total is
+      // the same object shape either way, so a padding row cannot reach the
+      // grid, a day's distance, a week's distance or the month's.
+      const { without, with: padded } = pair(view);
+      expect(padded).toEqual(without);
+    },
+  );
+
+  it("keeps every total identical", () => {
+    // Spelled out as well, because this is the number a 60 km ceiling is
+    // read against and deepEqual passing for the wrong reason would be quiet.
+    for (const view of ["week", "month", "day"] as const) {
+      const { without, with: padded } = pair(view);
+      const totals = (model: CalendarViewModel) =>
+        daysOf(model).map((day) => day.metres);
+
+      expect(totals(padded)).toEqual(totals(without));
+      if (without.view === "week" && padded.view === "week") {
+        expect(padded.metres).toBe(without.metres);
+      }
+    }
+  });
+
+  it("renders none of the padding days", () => {
+    for (const view of ["week", "month", "day"] as const) {
+      const { with: padded, padding } = pair(view);
+      const ids = daysOf(padded).flatMap((day) => day.items.map((item) => item.id));
+
+      for (const row of padding) expect(ids).not.toContain(row.id);
+    }
   });
 });

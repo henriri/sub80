@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { isHeld, secondsLeft } from "@/lib/ui/countdown";
-import { feedbackRole, undoOffered, type MoveFeedback } from "@/lib/ui/move-feedback";
+import {
+  feedbackRole,
+  undoOffered,
+  type ChangeFeedback,
+} from "@/lib/ui/change-feedback";
 import { dialogAction, dialogActionQuiet } from "./dialog-styles";
 import { focusRing, joinClasses } from "./styles";
 
 type CountdownHold = "hover" | "focus";
 
 type UndoToastProps = {
-  state: MoveFeedback;
+  state: ChangeFeedback;
   onUndo: (eventId: string) => void;
   onHold: (hold: CountdownHold) => void;
   onRelease: (hold: CountdownHold) => void;
@@ -55,7 +59,7 @@ function useSecondHand(active: boolean) {
 }
 
 /**
- * What the calendar says after a move, and the shortcut back.
+ * What the app says after a change it has just saved, and the shortcut back.
  *
  * The countdown pauses on hover and on keyboard focus, so reading the sentence
  * or tabbing to the button never costs the time needed to use it. Holding is a
@@ -78,16 +82,16 @@ export function UndoToast({
   onRelease,
   onDismiss,
 }: UndoToastProps) {
-  const counting = state.kind === "moved";
+  const counting = state.kind === "changed";
   const tick = useSecondHand(counting);
 
   if (state.kind === "idle") return null;
 
   const now =
-    tick ?? (state.kind === "moved" ? (state.countdown.runningSince ?? 0) : 0);
-  const offered = state.kind === "moved" && undoOffered(state, now);
-  const seconds = state.kind === "moved" ? secondsLeft(state.countdown, now) : 0;
-  const held = state.kind === "moved" && isHeld(state.countdown);
+    tick ?? (state.kind === "changed" ? (state.countdown.runningSince ?? 0) : 0);
+  const offered = state.kind === "changed" && undoOffered(state, now);
+  const seconds = state.kind === "changed" ? secondsLeft(state.countdown, now) : 0;
+  const held = state.kind === "changed" && isHeld(state.countdown);
 
   return (
     <div
@@ -108,7 +112,7 @@ export function UndoToast({
       </p>
 
       <div className="flex flex-wrap items-center gap-inline-sm">
-        {state.kind === "moved" && offered ? (
+        {state.kind === "changed" && offered ? (
           <button
             type="button"
             onClick={() => onUndo(state.eventId)}

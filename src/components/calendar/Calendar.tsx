@@ -1,5 +1,5 @@
 import type { CalendarViewModel } from "@/lib/calendar";
-import type { Ymd } from "@/lib/plan";
+import type { MoveCandidate, Ymd } from "@/lib/plan";
 import {
   CalendarBoard,
   type MoveAction,
@@ -23,6 +23,8 @@ type CalendarProps = {
    * null rather than through props.
    */
   interactive?: boolean;
+  /** Loaded but not shown: see `CalendarBoard`. */
+  neighbours?: readonly MoveCandidate[];
   /** Only /design sets these: see `CalendarBoard`. */
   onMove?: MoveAction;
   onUndo?: UndoAction;
@@ -45,6 +47,7 @@ export function Calendar({
   today,
   titleLevel,
   interactive,
+  neighbours,
   onMove,
   onUndo,
 }: CalendarProps) {
@@ -63,6 +66,7 @@ export function Calendar({
         <CalendarBoard
           model={model}
           today={today}
+          neighbours={neighbours}
           onMove={onMove}
           onUndo={onUndo}
         />

@@ -179,13 +179,13 @@ export async function moveWorkout(input: unknown): Promise<MoveResult> {
 }
 
 /**
- * Reverses one move, by event id.
+ * Reverses one change of any kind, by event id.
  *
  * It takes the id rather than finding the latest itself, so "undo this" can
  * never undo something the athlete did not see. The database refuses an id
  * that is not the newest undoable event, and that refusal is passed through.
  */
-export async function undoLastMove(eventId: unknown): Promise<UndoResult> {
+export async function undoChange(eventId: unknown): Promise<UndoResult> {
   const parsed = z.uuid().safeParse(eventId);
   if (!parsed.success) {
     return { status: "error", message: "There is nothing to undo." };

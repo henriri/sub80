@@ -1,4 +1,11 @@
--- public.move_planned_workout and public.undo_plan_event.
+-- public.move_planned_workout and public.undo_plan_event, for moves.
+--
+-- undo_plan_event is generic since 20261116090000: it restores the payload
+-- before snapshot over a fixed column list, and writes an undo_change event
+-- rather than an undo_move. The stack rule it applies is unchanged for moves,
+-- so every assertion below still holds; only the kind it writes is new. The
+-- other four undoable changes, and the undo across kinds, are in
+-- workout-detail.test.sql.
 -- Run with `supabase test db` against the LOCAL stack only.
 -- All data is synthetic and rolled back at the end.
 --
@@ -85,14 +92,25 @@ select is(
   'the move is recorded as one accepted user event'
 );
 
+-- The flat keys and the snapshots say the same thing twice, on purpose. The
+-- flat pair is what "Recent changes" reads to name the two days and predates
+-- 20261116090000; before/after are what the generic undo_plan_event restores,
+-- over a fixed column list. Both are asserted here, so the day either drifts
+-- from the other loudly or not at all.
 select is(
   (select payload - 'workout_id' from public.plan_events where kind = 'move_workout'),
   jsonb_build_object(
     'from', '2027-01-04', 'from_week', 12, 'from_slot', 0,
     'to', '2027-01-07', 'to_week', 12, 'to_slot', 0,
-    'overrides', jsonb_build_array('double_day')
+    'overrides', jsonb_build_array('double_day'),
+    'before', jsonb_build_object(
+      'planned_date', '2027-01-04', 'week_index', 12, 'day_slot', 0
+    ),
+    'after', jsonb_build_object(
+      'planned_date', '2027-01-07', 'week_index', 12, 'day_slot', 0
+    )
   ),
-  'the payload carries both states and the overrides'
+  'the payload carries both states, the snapshots and the overrides'
 );
 
 select is(
@@ -215,18 +233,18 @@ select is(
 
 select is(
   (select count(*)::int from public.plan_events
-    where kind = 'undo_move'
+    where kind = 'undo_change'
       and reverts_event_id is not null
       and status = 'accepted'),
   1,
-  'undo inserts an undo_move event pointing at the original'
+  'undo inserts an undo_change event pointing at the original'
 );
 
 select is(
   (select e.status
      from public.plan_events as e
      join public.plan_events as u on u.reverts_event_id = e.id
-    where u.kind = 'undo_move'),
+    where u.kind = 'undo_change'),
   'undone',
   'undo marks the original event undone'
 );
@@ -278,7 +296,7 @@ select throws_ok(
 
 select throws_ok(
   $$select public.undo_plan_event((
-      select id from public.plan_events where kind = 'undo_move'
+      select id from public.plan_events where kind = 'undo_change'
        order by seq desc limit 1))$$,
   'P0001', null,
   'an undo cannot itself be undone'

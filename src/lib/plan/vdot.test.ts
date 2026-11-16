@@ -10,6 +10,7 @@ import {
   vdotFrom,
   vo2,
   zoneLabel,
+  zoneUse,
   zoneRange,
 } from "./vdot";
 
@@ -102,6 +103,17 @@ describe("formatting", () => {
     for (const key of ZONE_KEYS) expect(zoneLabel(key).length).toBeGreaterThan(0);
     expect(zoneLabel("E")).toBe(ZONES.E.name);
     expect(zoneLabel("HM")).toBe("Half-marathon pace");
+  });
+
+  it("says what every zone key is for", () => {
+    // A race key has no ZONES entry, so the fallback has to be real prose
+    // rather than an empty string the detail view would render as a gap.
+    for (const key of ZONE_KEYS) {
+      expect(zoneUse(key).length).toBeGreaterThan(0);
+      expect(zoneUse(key)).toMatch(/.$/);
+    }
+    expect(zoneUse("E")).toBe(ZONES.E.use);
+    expect(zoneUse("HM")).toMatch(/race pace/i);
   });
 
   it("writes a pace range as m:ss–m:ss /km", () => {

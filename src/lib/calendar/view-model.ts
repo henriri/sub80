@@ -27,7 +27,7 @@ import {
 } from "./format";
 import { KIND_META, isEventKind } from "./kinds";
 import { monthGrid, type MonthCell } from "./month-grid";
-import type { CalendarView } from "./params";
+import { workoutHref, type CalendarParams, type CalendarView } from "./params";
 import { monthRange, weekRange } from "./range";
 
 /** One planned session, ready to render. */
@@ -44,6 +44,15 @@ export type CalendarItem = {
   isKey: boolean;
   /** Only a planned workout may be moved. */
   status: WorkoutStatus;
+  /**
+   * This workout's own page, carrying the view and date it was opened from so
+   * the back link returns to the calendar the athlete was looking at.
+   *
+   * Computed here rather than in the card, because the model is the only place
+   * that knows both the view and the date, and because a pure function of the
+   * input is testable where a context read is not.
+   */
+  href: string;
   /** Order within the day: 0 first, 1 second. */
   daySlot: 0 | 1;
 };
@@ -139,7 +148,11 @@ export function sumMetres(items: readonly { metres: number | null }[]): number {
   return items.reduce((total, item) => total + (item.metres ?? 0), 0);
 }
 
-function toItem(workout: StoredWorkout, vdot: number): CalendarItem {
+function toItem(
+  workout: StoredWorkout,
+  vdot: number,
+  back: CalendarParams,
+): CalendarItem {
   return {
     id: workout.id,
     title: workout.title,
@@ -151,6 +164,7 @@ function toItem(workout: StoredWorkout, vdot: number): CalendarItem {
     isKey: workout.is_key,
     status: workout.status,
     daySlot: workout.day_slot,
+    href: workoutHref(workout.id, back),
   };
 }
 
@@ -179,12 +193,13 @@ export function compareCalendarItems(a: CalendarItem, b: CalendarItem): number {
 function itemsByDate(
   workouts: readonly StoredWorkout[],
   vdot: number,
+  back: CalendarParams,
 ): Map<Ymd, CalendarItem[]> {
   const byDate = new Map<Ymd, CalendarItem[]>();
 
   for (const workout of workouts) {
     const items = byDate.get(workout.planned_date) ?? [];
-    items.push(toItem(workout, vdot));
+    items.push(toItem(workout, vdot, back));
     byDate.set(workout.planned_date, items);
   }
 
@@ -225,7 +240,7 @@ export function describeDay(day: CalendarDay): string {
 
 export function buildWeekView({ date, today, workouts, vdot }: ViewInput): WeekViewModel {
   const { start, end, days } = weekRange(date);
-  const byDate = itemsByDate(workouts, vdot);
+  const byDate = itemsByDate(workouts, vdot, { view: "week", date });
   const weekIndex = weekIndexOf(start);
   const inPlan = isPlanWeek(weekIndex);
   const built = days.map((day) => toDay(day, today, byDate.get(day) ?? []));
@@ -250,7 +265,7 @@ export function buildMonthView({
   workouts,
   vdot,
 }: ViewInput): MonthViewModel {
-  const byDate = itemsByDate(workouts, vdot);
+  const byDate = itemsByDate(workouts, vdot, { view: "month", date });
 
   return {
     view: "month",
@@ -269,7 +284,7 @@ export function buildMonthView({
 }
 
 export function buildDayView({ date, today, workouts, vdot }: ViewInput): DayViewModel {
-  const byDate = itemsByDate(workouts, vdot);
+  const byDate = itemsByDate(workouts, vdot, { view: "day", date });
   const weekIndex = weekIndexOf(date);
   const inPlan = isPlanWeek(weekIndex);
 

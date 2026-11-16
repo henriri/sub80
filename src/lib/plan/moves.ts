@@ -28,7 +28,8 @@ export const MAX_RUNS_PER_WEEK = 5;
 /** Sessions a day may hold, which is what day_slot's two values encode. */
 export const MAX_PER_DAY = 2;
 
-const CAP_METRES = WEEKLY_CAP * 1000;
+/** The 60 km ceiling in metres. Exported so the lighter-day rules share it. */
+export const CAP_METRES = WEEKLY_CAP * 1000;
 
 /**
  * What the rules need from a planned workout: a structural subset of

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { calendarHref, defaultParams, isValidYmd, parseCalendarParams } from "./params";
+import {
+  calendarHref,
+  defaultParams,
+  isValidYmd,
+  parseCalendarParams,
+  workoutHref,
+} from "./params";
 
 const TODAY = "2027-03-15";
 
@@ -86,5 +92,32 @@ describe("calendarHref", () => {
       "/?view=day&date=2028-04-16",
     );
     expect(calendarHref(defaultParams(TODAY))).toBe("/?view=week&date=2027-03-15");
+  });
+});
+
+describe("workoutHref", () => {
+  it("carries the calendar the workout was opened from", () => {
+    // The view and date are the athlete's, not the workout's: the back link
+    // has to return to the month they were browsing.
+    expect(
+      workoutHref("00000000-0000-4000-8000-000000000001", {
+        view: "month",
+        date: "2027-03-01",
+      }),
+    ).toBe(
+      "/workouts/00000000-0000-4000-8000-000000000001?view=month&date=2027-03-01",
+    );
+  });
+
+  it("round-trips through parseCalendarParams", () => {
+    // What the detail page actually does with the two parameters.
+    const params = { view: "day", date: "2028-04-16" } as const;
+    const query = workoutHref("00000000-0000-4000-8000-000000000002", params);
+    const raw = Object.fromEntries(
+      new URLSearchParams(query.slice(query.indexOf("?") + 1)),
+    );
+
+    expect(parseCalendarParams(raw, TODAY)).toEqual({ ok: true, params });
+    expect(calendarHref(params)).toBe("/?view=day&date=2028-04-16");
   });
 });

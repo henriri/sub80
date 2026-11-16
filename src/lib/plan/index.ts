@@ -14,6 +14,23 @@ export {
 } from "./dates";
 export { allWeeks, buildWeek, phaseOf, phases, plan } from "./generator";
 export {
+  LIGHTEN_FRACTIONS,
+  LIGHTEN_REJECT_CODES,
+  LIGHTEN_STEP_M,
+  MIN_LIGHT_DISTANCE_M,
+  lightenedDistance,
+  offeredFractions,
+  plannedDistance,
+  validateLighten,
+  validateRestore,
+  type LightenCandidate,
+  type LightenCheck,
+  type LightenFraction,
+  type LightenReason,
+  type WeekMember,
+} from "./lighten";
+export {
+  CAP_METRES,
   MAX_PER_DAY,
   MAX_RUNS_PER_WEEK,
   MOVE_REJECT_CODES,
@@ -29,6 +46,13 @@ export {
   type ValidateMoveInput,
 } from "./moves";
 export {
+  MAX_NOTES_LENGTH,
+  normaliseNotes,
+  notesChanged,
+  notesRemaining,
+  notesTooLong,
+} from "./notes";
+export {
   PLAN_SESSION_COUNT,
   isKeyKind,
   toPlannedRows,
@@ -40,8 +64,20 @@ export {
   storedWorkoutSchema,
   storedWorkoutsSchema,
   vdotSchema,
+  workoutDetailSchema,
   type StoredWorkout,
+  type WorkoutDetail,
 } from "./rows-schema";
+export {
+  STATUS_ACTIONS,
+  STATUS_REJECT_CODES,
+  offeredStatusActions,
+  statusTarget,
+  validateStatus,
+  type StatusAction,
+  type StatusCheck,
+  type StatusReason,
+} from "./status";
 export {
   WORKOUT_KINDS,
   WORKOUT_STATUSES,
@@ -61,5 +97,6 @@ export {
   vdotFrom,
   zoneLabel,
   zoneRange,
+  zoneUse,
   type ZoneKey,
 } from "./vdot";
