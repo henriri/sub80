@@ -18,6 +18,13 @@ regenerate the fixture only when the plan is meant to change.
   a compile error rather than a runtime `null`.
 - **Mixed-type table rows are typed tuples** (`[title, kind, key]`), same data.
 
+## Ported since
+
+- **`parseDur`** is now `src/lib/runs/parse.ts`, with the rest of the input
+  parsing for the run-logging form. It refuses a one-digit seconds field, which
+  the legacy version accepted: `'7:5'` is either 7:05 or 7:50, and guessing
+  wrong moves a 10 km pace by 4.5 s/km.
+
 ## Not ported yet
 
 Still in the legacy file, out of scope for the plan-seed phase. Nothing below
@@ -64,11 +71,6 @@ const VDOT_CURVE = [['2026-10-19',47],['2026-12-10',49],['2027-03-28',52],
 PR attempt (17:25, week 52), the 10k PR attempt (36:45, week 58) and the half
 marathon (80:00). The sessions themselves are in the generated plan already;
 what is missing is the target times and the "resets paces" semantics.
-
-### `parseDur`
-
-Parses `'m:ss'`, `'h:mm:ss'` and bare minutes into seconds. Belongs with the
-activity-logging form, where there is input to parse.
 
 ### `RACE_LABEL` and `RACES`
 
