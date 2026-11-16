@@ -52,15 +52,18 @@ export {
 } from "./params";
 export {
   DAYS_IN_WEEK,
+  EDGE_PADDING_DAYS,
   MONTH_GRID_DAYS,
   MONTH_GRID_ROWS,
   addMonths,
   dateSequence,
   daysInMonth,
+  fetchRange,
   monthEnd,
   monthRange,
   monthStart,
   step,
+  visibleEnd,
   visibleRange,
   weekRange,
   type MonthRange,

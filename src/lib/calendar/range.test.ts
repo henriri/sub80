@@ -1,13 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { PLAN_START, RACE_DATE, dayOfWeek, weekStart } from "@/lib/plan";
 import {
+  PLAN_START,
+  RACE_DATE,
+  addDays,
+  dayOfWeek,
+  weekIndexOf,
+  weekStart,
+} from "@/lib/plan";
+import {
+  EDGE_PADDING_DAYS,
   MONTH_GRID_DAYS,
   addMonths,
   daysInMonth,
   monthEnd,
   monthRange,
   monthStart,
+  fetchRange,
   step,
+  visibleEnd,
   visibleRange,
   weekRange,
 } from "./range";
@@ -160,5 +170,82 @@ describe("step", () => {
 describe("bad input", () => {
   it.each(["", "2027-1-1", "20270101", "not-a-date"])("rejects %j", (date) => {
     expect(() => monthStart(date)).toThrow(RangeError);
+  });
+});
+
+describe("visibleEnd", () => {
+  it("is the last day each view renders", () => {
+    expect(visibleEnd("week", "2027-03-18")).toBe("2027-03-21");
+    expect(visibleEnd("day", "2027-03-18")).toBe("2027-03-18");
+    // 1 March 2027 is itself a Monday, so the grid is 1 March plus 41 days.
+    expect(visibleEnd("month", "2027-03-18")).toBe("2027-04-11");
+  });
+
+  it("agrees with visibleRange for every view", () => {
+    for (const view of ["week", "month", "day"] as const) {
+      const { from, days } = visibleRange(view, "2027-03-18");
+      expect(visibleEnd(view, "2027-03-18")).toBe(addDays(from, days - 1));
+    }
+  });
+});
+
+describe("fetchRange", () => {
+  const DATE = "2027-03-18";
+
+  it("adds a day either side of the week", () => {
+    expect(visibleRange("week", DATE)).toEqual({ from: "2027-03-15", days: 7 });
+    expect(fetchRange("week", DATE)).toEqual({ from: "2027-03-14", days: 9 });
+  });
+
+  it("adds a day either side of the month grid", () => {
+    const visible = visibleRange("month", DATE);
+    const fetched = fetchRange("month", DATE);
+
+    expect(fetched.from).toBe(addDays(visible.from, -EDGE_PADDING_DAYS));
+    expect(fetched.days).toBe(visible.days + EDGE_PADDING_DAYS * 2);
+  });
+
+  it("leaves the day view alone", () => {
+    // One rendered day is also the only drop target, so a drag within it can
+    // only be refused as same_date. There is no neighbour to warn about.
+    expect(fetchRange("day", DATE)).toEqual(visibleRange("day", DATE));
+  });
+
+  it("covers the visible range and exactly two days more", () => {
+    for (const view of ["week", "month"] as const) {
+      const visible = visibleRange(view, DATE);
+      const fetched = fetchRange(view, DATE);
+
+      expect(fetched.from < visible.from).toBe(true);
+      expect(addDays(fetched.from, fetched.days - 1) > visibleEnd(view, DATE)).toBe(
+        true,
+      );
+      expect(fetched.days - visible.days).toBe(2);
+    }
+  });
+
+  it("pads only into weeks the view does not render", () => {
+    // This is what keeps the padding out of every 60 km and five-runs check:
+    // validateMove sums by week_index, and a drop target is always a rendered
+    // day, so a padding day in another week can never be in a destination
+    // week. A week view pads with the previous Sunday and the next Monday; a
+    // month grid is six whole Monday-to-Sunday weeks, so the same holds.
+    for (const view of ["week", "month"] as const) {
+      const visible = visibleRange(view, DATE);
+      const renderedWeeks = new Set(
+        Array.from({ length: visible.days }, (_, offset) =>
+          weekIndexOf(addDays(visible.from, offset)),
+        ),
+      );
+      const fetched = fetchRange(view, DATE);
+      const padding = [
+        fetched.from,
+        addDays(fetched.from, fetched.days - 1),
+      ];
+
+      for (const date of padding) {
+        expect(renderedWeeks.has(weekIndexOf(date)), `${view} ${date}`).toBe(false);
+      }
+    }
   });
 });

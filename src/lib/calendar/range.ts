@@ -114,6 +114,52 @@ export function visibleRange(
   }
 }
 
+/** The last date a view renders, which is where the visible range ends. */
+export function visibleEnd(view: CalendarView, date: Ymd): Ymd {
+  const { from, days } = visibleRange(view, date);
+  return addDays(from, days - 1);
+}
+
+/**
+ * How many days to load either side of the visible range.
+ *
+ * One, so a session dropped on the first or last visible day can see the
+ * neighbour it would end up next to. Without it the consecutive-key warning
+ * arrives from the server *after* the drop, with the card already apparently
+ * landed, instead of appearing under the finger before it.
+ */
+export const EDGE_PADDING_DAYS = 1;
+
+/**
+ * What to FETCH, as against what to render: the visible range plus a day
+ * either side.
+ *
+ * Only for the week and the month. A day view renders one day, which is also
+ * its only drop target, so a drag within it can only ever be refused as
+ * `same_date` -- there is no neighbour to warn about and nothing to load.
+ *
+ * The padding days are move CANDIDATES and nothing else. They cannot reach a
+ * total or the grid, because `buildCalendarView` reads only the dates it
+ * renders. They cannot reach the 60 km or five-runs checks either, and that
+ * is a property of the arithmetic rather than a filter: `validateMove` sums
+ * by `weekIndexOf`, a week view's padding is the previous Sunday and the next
+ * Monday, and a month grid is six whole Monday-to-Sunday weeks -- so in both
+ * views a padding day is always in a week the view does not render, and never
+ * in the destination week of any drop the view can make.
+ */
+export function fetchRange(
+  view: CalendarView,
+  date: Ymd,
+): { from: Ymd; days: number } {
+  const { from, days } = visibleRange(view, date);
+  if (view === "day") return { from, days };
+
+  return {
+    from: addDays(from, -EDGE_PADDING_DAYS),
+    days: days + EDGE_PADDING_DAYS * 2,
+  };
+}
+
 /**
  * Previous (`-1`) or next (`+1`). A month step lands on the first of the month,
  * so paging back and forth cannot drift off the end of a short month.

@@ -3,6 +3,7 @@ import {
   MAX_WEEK,
   PLAN_START,
   RACE_DATE,
+  addDays,
   buildWeek,
   type StoredWorkout,
   type WorkoutKind,
@@ -21,6 +22,7 @@ import {
   type CalendarViewModel,
 } from "./view-model";
 import { workoutHref } from "./params";
+import { visibleEnd, visibleRange } from "./range";
 
 const SAMPLE_VDOT = 47;
 /** Intl separates a date range with thin spaces round an en dash. */
@@ -385,5 +387,64 @@ describe("the link on every item", () => {
     expect(new Set(hrefs).size).toBe(2);
     // The month being browsed, not the week each session falls in.
     for (const href of hrefs) expect(href).toContain("view=month&date=" + DATE);
+  });
+});
+
+describe("the days loaded either side of the visible range", () => {
+  const DATE = "2027-03-18";
+
+  /**
+   * The same input twice: once with only the rows the view renders, once with
+   * the extra day either side that `fetchRange` loads.
+   */
+  const pair = (view: "week" | "month" | "day") => {
+    const visible = visibleRange(view, DATE);
+    const inside = [workout(visible.from), workout(visibleEnd(view, DATE))];
+    const padding = [
+      workout(addDays(visible.from, -1)),
+      workout(addDays(visibleEnd(view, DATE), 1)),
+    ];
+
+    return {
+      without: buildCalendarView(view, input(DATE, DATE, inside)),
+      with: buildCalendarView(view, input(DATE, DATE, [...padding, ...inside])),
+      padding,
+    };
+  };
+
+  it.each(["week", "month", "day"] as const)(
+    "changes nothing the %s view renders",
+    (view) => {
+      // The whole guarantee in one assertion: the padding days exist as move
+      // candidates and nowhere else. Every day, every item and every total is
+      // the same object shape either way, so a padding row cannot reach the
+      // grid, a day's distance, a week's distance or the month's.
+      const { without, with: padded } = pair(view);
+      expect(padded).toEqual(without);
+    },
+  );
+
+  it("keeps every total identical", () => {
+    // Spelled out as well, because this is the number a 60 km ceiling is
+    // read against and deepEqual passing for the wrong reason would be quiet.
+    for (const view of ["week", "month", "day"] as const) {
+      const { without, with: padded } = pair(view);
+      const totals = (model: CalendarViewModel) =>
+        daysOf(model).map((day) => day.metres);
+
+      expect(totals(padded)).toEqual(totals(without));
+      if (without.view === "week" && padded.view === "week") {
+        expect(padded.metres).toBe(without.metres);
+      }
+    }
+  });
+
+  it("renders none of the padding days", () => {
+    for (const view of ["week", "month", "day"] as const) {
+      const { with: padded, padding } = pair(view);
+      const ids = daysOf(padded).flatMap((day) => day.items.map((item) => item.id));
+
+      for (const row of padding) expect(ids).not.toContain(row.id);
+    }
   });
 });

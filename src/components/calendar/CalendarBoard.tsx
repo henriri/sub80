@@ -57,6 +57,18 @@ type CalendarBoardProps = {
   /** Today in Europe/Paris, computed on the server. */
   today: Ymd;
   /**
+   * Sessions on the day either side of the visible range: loaded, not shown.
+   *
+   * They exist so a drop on the first or last visible day can see what it
+   * would end up next to, which is what makes the consecutive-key warning
+   * appear under the finger instead of arriving from the server afterwards.
+   *
+   * They are never rendered and never dragged, so they never move: a drop
+   * target is always a rendered day. Which is why they sit beside the
+   * optimistic model rather than in it.
+   */
+  neighbours?: readonly MoveCandidate[];
+  /**
    * The Server Action, overridable.
    *
    * Only /design passes anything here: a specimen page has no session, so the
@@ -151,6 +163,7 @@ const activationConstraints = (event: PointerEvent) =>
 export function CalendarBoard({
   model,
   today,
+  neighbours = [],
   onMove = moveWorkout,
   onUndo = undoChange,
 }: CalendarBoardProps) {
@@ -161,7 +174,10 @@ export function CalendarBoard({
   const [pending, setPending] = useState<PendingMove | null>(null);
   const [picking, setPicking] = useState<string | null>(null);
 
-  const candidates = useMemo(() => candidatesOf(optimistic), [optimistic]);
+  const candidates = useMemo(
+    () => [...candidatesOf(optimistic), ...neighbours],
+    [optimistic, neighbours],
+  );
 
   const check = useCallback(
     (workoutId: string, toDate: Ymd): MoveCheck => {
