@@ -5,6 +5,7 @@ import {
   PICKER_WINDOW_DAYS,
   isLinkFar,
   linkableOn,
+  logRunHref,
 } from "./linking";
 import type { LinkableWorkout } from "./schemas";
 
@@ -119,5 +120,51 @@ describe("isLinkFar", () => {
     // Out of the read window entirely: the form cannot measure the distance,
     // so it must not claim the link is wrong.
     expect(isLinkFar([on(0)], DATE, "00000000-0000-4000-8000-0000000000ff")).toBe(false);
+  });
+});
+
+describe("logRunHref", () => {
+  it("carries the session, its day and its planned distance", () => {
+    expect(
+      logRunHref({
+        id: "00000000-0000-4000-8000-000000000001",
+        planned_date: "2027-03-18",
+        target_distance_m: 11_000,
+      }),
+    ).toBe(
+      "/runs/new?workout=00000000-0000-4000-8000-000000000001&date=2027-03-18&distance=11",
+    );
+  });
+
+  it("writes a fractional distance in kilometres", () => {
+    const href = logRunHref({
+      id: "00000000-0000-4000-8000-000000000001",
+      planned_date: "2027-03-18",
+      target_distance_m: 8500,
+    });
+
+    expect(href).toContain("distance=8.5");
+  });
+
+  it("leaves the distance out when the session has none", () => {
+    const href = logRunHref({
+      id: "00000000-0000-4000-8000-000000000001",
+      planned_date: "2027-03-18",
+      target_distance_m: null,
+    });
+
+    expect(href).not.toContain("distance");
+    expect(href).toContain("date=2027-03-18");
+  });
+
+  it("escapes what it puts in the query rather than concatenating it", () => {
+    // The id comes from the database, but the encoding must not depend on that.
+    const href = logRunHref({
+      id: "a b",
+      planned_date: "2027-03-18",
+      target_distance_m: null,
+    });
+
+    expect(href).toContain("workout=a+b");
   });
 });

@@ -65,3 +65,29 @@ export function isLinkFar(
 
   return Math.abs(diffDays(date, chosen.planned_date)) > LINK_WINDOW_DAYS;
 }
+
+/**
+ * The "Log this run" link for a planned session.
+ *
+ * Carries the day and the planned distance, so the athlete does not retype
+ * what the plan already knows. Both are a STARTING POINT, not a measurement:
+ * the distance is what the session asked for, and correcting it is the normal
+ * case rather than an exception. /runs/new re-checks each one and falls back to
+ * a default rather than putting nonsense in a field.
+ *
+ * A session in the future keeps its date here; /runs/new clamps it to today,
+ * because a run cannot be logged before it has happened.
+ */
+export function logRunHref(workout: {
+  id: string;
+  planned_date: Ymd;
+  target_distance_m: number | null;
+}): string {
+  const params = new URLSearchParams({ workout: workout.id, date: workout.planned_date });
+
+  if (workout.target_distance_m !== null) {
+    params.set("distance", String(workout.target_distance_m / 1000));
+  }
+
+  return `/runs/new?${params.toString()}`;
+}

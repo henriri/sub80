@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { RecentChanges } from "@/components/calendar/RecentChanges";
+import { LinkedRuns } from "@/components/runs/LinkedRuns";
 import { navLink, panel } from "@/components/calendar/styles";
 import { WorkoutActions } from "@/components/workout/WorkoutActions";
 import { WorkoutFacts } from "@/components/workout/WorkoutFacts";
@@ -13,6 +14,7 @@ import {
   parseCalendarParams,
   undoableIndex,
 } from "@/lib/calendar";
+import { readRunsForWorkout } from "@/lib/data/activities";
 import { readRecentPlanEvents } from "@/lib/data/plan-events";
 import { readVdot, readWorkoutDetail } from "@/lib/data/planned-workouts";
 import {
@@ -95,10 +97,11 @@ async function WorkoutSection({
     redirect(`/workouts/${id}?view=${parsed.fallback.view}&date=${parsed.fallback.date}`);
   }
 
-  const [workout, vdot, events] = await Promise.all([
+  const [workout, vdot, events, runs] = await Promise.all([
     readWorkoutDetail(id),
     readVdot(user.id),
     readRecentPlanEvents(user.id, RECENT_CHANGES),
+    readRunsForWorkout(id),
   ]);
 
   // Row-level security already scoped the read, so a miss is either a deleted
@@ -129,6 +132,15 @@ async function WorkoutSection({
         <h1 className="text-heading-md">{workout.title}</h1>
         <WorkoutFacts workout={workout} vdot={vdot} />
       </header>
+
+      <LinkedRuns
+        workout={{
+          id: workout.id,
+          planned_date: workout.planned_date,
+          target_distance_m: workout.target_distance_m,
+        }}
+        runs={runs}
+      />
 
       <WorkoutActions
         workoutId={workout.id}

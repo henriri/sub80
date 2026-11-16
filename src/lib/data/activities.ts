@@ -202,3 +202,24 @@ export async function readLinkableWorkouts(
 
   return linkableWorkoutsSchema.parse(rows);
 }
+
+/**
+ * Every run logged against one session, newest first.
+ *
+ * Usually none or one. More than one is legitimate -- the form warns and the
+ * athlete confirms -- so this returns a list rather than a single row and the
+ * session's page shows all of them.
+ */
+export async function readRunsForWorkout(workoutId: string): Promise<StoredRun[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("activities")
+    .select(COLUMNS)
+    .eq("planned_workout_id", workoutId)
+    .order("started_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Could not read the runs on that session: ${error.message}`);
+  }
+  return storedRunsSchema.parse(data);
+}
