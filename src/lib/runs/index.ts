@@ -6,9 +6,12 @@ export {
 } from "./format";
 export {
   RPE_BANDS,
+  hrSourceChoices,
   hrSourceLabel,
   paceVsZoneLine,
   rpeBandLabel,
+  rpeBandsHint,
+  rpeChoices,
   rpeLabel,
   runDeletedMessage,
   runLoggedMessage,
@@ -16,6 +19,7 @@ export {
   runUpdatedMessage,
   runWarningMessage,
   runWarningTitle,
+  type RunChoice,
 } from "./messages";
 export {
   isBlank,

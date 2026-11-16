@@ -14,7 +14,7 @@
 import { formatKm, formatDayName } from "@/lib/calendar";
 import { fmtPace, fmtTime, zoneLabel, type Ymd, type ZoneKey } from "@/lib/plan";
 import { formatPacePerKm } from "./format";
-import type { HrSource, RunReason, RunWarning } from "./rules";
+import { HR_SOURCES, type HrSource, type RunReason, type RunWarning } from "./rules";
 import type { PaceComparison } from "./zone";
 
 /**
@@ -168,4 +168,45 @@ export function runDeletedMessage(
 ): string {
   const run = `${formatKm(metres)} on ${formatDayName(date)} deleted.`;
   return workoutTitle === null ? run : `${run} ${workoutTitle} is back to planned.`;
+}
+
+/** One option of a choice group: the value, the segment, and what is read out. */
+export type RunChoice = { value: string; label: string; spokenLabel?: string };
+
+/**
+ * The ten effort segments.
+ *
+ * The segment shows only the number, because ten segments with a word in each
+ * would not fit a phone. The word still reaches a screen reader through
+ * `spokenLabel`, so "4" is read as "4, moderate" rather than as a bare digit
+ * whose scale nobody explained.
+ */
+export function rpeChoices(): RunChoice[] {
+  return RPE_BANDS.flatMap((band) =>
+    Array.from({ length: band.to - band.from + 1 }, (_, offset) => {
+      const score = band.from + offset;
+      return {
+        value: String(score),
+        label: String(score),
+        spokenLabel: `${score}, ${band.label}`,
+      };
+    }),
+  );
+}
+
+/** '1–3 easy · 4–6 moderate · 7–8 hard · 9–10 maximal', under the segments. */
+export function rpeBandsHint(): string {
+  return RPE_BANDS.map((band) => `${band.from}–${band.to} ${band.label}`).join(" · ");
+}
+
+/**
+ * Where the heart rate came from. Required as soon as a reading is entered,
+ * because the two sources are never mixed or averaged.
+ */
+export function hrSourceChoices(): RunChoice[] {
+  return HR_SOURCES.map((source) => ({
+    value: source,
+    // Capitalised: this is a segment the athlete taps, not a sentence.
+    label: source === "strap" ? "Chest strap" : "Wrist",
+  }));
 }

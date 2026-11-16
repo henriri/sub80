@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/Button";
+import { ChoiceGroup } from "@/components/ChoiceGroup";
+import { TextArea } from "@/components/TextArea";
 import { TextField } from "@/components/TextField";
 import { WorkoutList } from "@/components/WorkoutList";
 import { Calendar } from "@/components/calendar/Calendar";
@@ -7,6 +9,11 @@ import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
 import { KindBadge } from "@/components/calendar/KindBadge";
 import { WorkoutCard } from "@/components/calendar/WorkoutCard";
 import type { WorkoutActionsProps } from "@/components/workout/WorkoutActions";
+import {
+  hrSourceChoices,
+  rpeBandsHint,
+  rpeChoices,
+} from "@/lib/runs";
 import {
   buildDayView,
   buildMonthView,
@@ -393,6 +400,56 @@ export default function DesignPage() {
             <TextField id="design-field-default" label="Email" hint="We send a 6-digit code." />
             <TextField id="design-field-error" label="Code" defaultValue="12" error="Enter the 6-digit code." />
             <TextField id="design-field-disabled" label="Disabled" disabled />
+          </div>
+          <div className={card}>
+            <h3 className="text-heading-sm">TextArea</h3>
+            <TextArea
+              id="design-textarea-default"
+              label="How did it feel"
+              hint="Anything worth remembering about the run."
+              rows={3}
+            />
+            <TextArea
+              id="design-textarea-error"
+              label="How did it feel"
+              defaultValue="Too long."
+              error="What you write is at most 2000 characters."
+              rows={3}
+            />
+            <TextArea id="design-textarea-disabled" label="Disabled" rows={2} disabled />
+          </div>
+          <div className={card}>
+            <h3 className="text-heading-sm">ChoiceGroup</h3>
+            <p className="text-small text-secondary">
+              Native radios, so the arrow keys and the grouping come from the
+              browser and the field submits without JavaScript. Each segment is
+              at least 44px.
+            </p>
+            <ChoiceGroup
+              name="design-rpe"
+              legend="How hard was it?"
+              hint={rpeBandsHint()}
+              options={rpeChoices()}
+              defaultValue="4"
+            />
+            <ChoiceGroup
+              name="design-hr-source"
+              legend="Where did the heart rate come from?"
+              options={hrSourceChoices()}
+            />
+            <ChoiceGroup
+              name="design-choice-error"
+              legend="With an error"
+              options={hrSourceChoices()}
+              error="Say where the heart rate came from."
+            />
+            <ChoiceGroup
+              name="design-choice-disabled"
+              legend="Disabled"
+              options={hrSourceChoices()}
+              defaultValue="strap"
+              disabled
+            />
           </div>
           <div className="flex flex-col gap-stack-md rounded-surface border-(length:--border-width-default) border-default bg-surface p-inset-md">
             <h3 className="text-heading-sm">WorkoutList</h3>

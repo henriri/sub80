@@ -54,6 +54,11 @@ const textPairs: Pair[] = [
   // whether the day will take the session, so it has to read.
   { fg: "--cal-drop-valid-fg", bg: "--cal-drop-valid-bg" },
   { fg: "--cal-drop-invalid-fg", bg: "--cal-drop-invalid-bg" },
+  // An option in a radio group, picked and not picked. The number inside it
+  // IS the choice, so it has to read in both states.
+  { fg: "--choice-fg", bg: "--choice-bg" },
+  { fg: "--choice-fg", bg: "--choice-bg-hover" },
+  { fg: "--choice-fg-selected", bg: "--choice-bg-selected" },
 ];
 
 /** The ring round today carries meaning on its own, so it needs 3:1. */
@@ -66,6 +71,8 @@ const nonTextPairs: Pair[] = [
   { fg: "--cal-drop-valid-border", bg: "--cal-cell-bg" },
   { fg: "--cal-drop-invalid-border", bg: "--cal-drop-invalid-bg" },
   { fg: "--cal-drop-invalid-border", bg: "--cal-cell-bg" },
+  // An unpicked option's outline is what shows there is something to tap.
+  { fg: "--choice-border", bg: "--choice-bg" },
 ];
 
 const combinations = modes.theme.flatMap((theme) =>
