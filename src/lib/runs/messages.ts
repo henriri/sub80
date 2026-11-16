@@ -12,7 +12,7 @@
  */
 
 import { formatKm, formatDayName } from "@/lib/calendar";
-import { fmtPace, fmtTime, zoneLabel, type ZoneKey } from "@/lib/plan";
+import { fmtPace, fmtTime, zoneLabel, type Ymd, type ZoneKey } from "@/lib/plan";
 import { formatPacePerKm } from "./format";
 import type { HrSource, RunReason, RunWarning } from "./rules";
 import type { PaceComparison } from "./zone";
@@ -139,4 +139,33 @@ export function paceVsZoneLine(comparison: PaceComparison, zoneKey: ZoneKey): st
     case "slower":
       return `${formatPacePerKm(comparison.pace)}, slower than your ${window}.`;
   }
+}
+
+/**
+ * The sentence shown after a run is saved or removed.
+ *
+ * Named after what happened rather than after the function that did it, and
+ * built from the stored numbers, so the confirmation says the same thing the
+ * list row will say about the same run.
+ */
+export function runLoggedMessage(date: Ymd, metres: number): string {
+  return `${formatKm(metres)} logged on ${formatDayName(date)}.`;
+}
+
+export function runUpdatedMessage(date: Ymd, metres: number): string {
+  return `${formatKm(metres)} on ${formatDayName(date)} saved.`;
+}
+
+/**
+ * `workoutTitle` is the session put back to planned, when one was. Saying so
+ * is the whole point of having asked: the athlete ticked a box and the
+ * sentence confirms the box did what it said.
+ */
+export function runDeletedMessage(
+  date: Ymd,
+  metres: number,
+  workoutTitle: string | null,
+): string {
+  const run = `${formatKm(metres)} on ${formatDayName(date)} deleted.`;
+  return workoutTitle === null ? run : `${run} ${workoutTitle} is back to planned.`;
 }

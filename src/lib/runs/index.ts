@@ -10,7 +10,10 @@ export {
   paceVsZoneLine,
   rpeBandLabel,
   rpeLabel,
+  runDeletedMessage,
+  runLoggedMessage,
   runRejectMessage,
+  runUpdatedMessage,
   runWarningMessage,
   runWarningTitle,
 } from "./messages";
