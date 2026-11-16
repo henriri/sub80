@@ -21,6 +21,13 @@ export {
   runWarningTitle,
   type RunChoice,
 } from "./messages";
+export { RUN_FIELDS, reasonField, type RunField } from "./fields";
+export {
+  LINK_WINDOW_DAYS,
+  PICKER_WINDOW_DAYS,
+  isLinkFar,
+  linkableOn,
+} from "./linking";
 export {
   isBlank,
   kmToMetres,

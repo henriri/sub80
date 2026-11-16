@@ -12,11 +12,27 @@ import { z } from "zod";
 import { ZONE_KEYS } from "@/lib/plan";
 import { HR_SOURCES, MAX_RPE, MAX_HR, MIN_HR, MIN_RPE, RUN_SOURCES } from "./rules";
 
+/**
+ * The embedded session, as either shape PostgREST may send.
+ *
+ * `planned_workout_id` is half of a COMPOSITE foreign key --
+ * `(user_id, planned_workout_id)` -> `(user_id, id)` -- and whether PostgREST
+ * infers that as a to-one and sends an object, or as a to-many and sends an
+ * array of one, is not something this repo can check: CI runs the migrations
+ * and pgTAP, neither of which goes through PostgREST at all. So both shapes
+ * are accepted and normalised to one here, rather than guessing and having the
+ * page fail on a row the database answered perfectly well.
+ */
+const linkedWorkout = z.preprocess(
+  (value) => (Array.isArray(value) ? (value[0] ?? null) : value),
+  z.lazy(() => linkedWorkoutShape.nullable()),
+);
+
 /** numeric(4,1), nullable. Null first, so null is never coerced to 0. */
 const nullableVdot = z.union([z.null(), z.coerce.number().min(25).max(85)]);
 
 /** The session a run points at, embedded by the row read. */
-const linkedWorkoutSchema = z.object({
+const linkedWorkoutShape = z.object({
   title: z.string().min(1),
   planned_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   pace_zone: z.enum(ZONE_KEYS).nullable(),
@@ -41,13 +57,13 @@ export const storedRunSchema = z.object({
   vdot_used: nullableVdot,
   source: z.enum(RUN_SOURCES),
   planned_workout_id: z.uuid().nullable(),
-  planned_workout: linkedWorkoutSchema.nullable(),
+  planned_workout: linkedWorkout,
 });
 
 export const storedRunsSchema = z.array(storedRunSchema);
 
 export type StoredRun = z.infer<typeof storedRunSchema>;
-export type LinkedWorkout = z.infer<typeof linkedWorkoutSchema>;
+export type LinkedWorkout = z.infer<typeof linkedWorkoutShape>;
 
 /** A planned session the form can offer to link to, with its run count. */
 export const linkableWorkoutSchema = z.object({
