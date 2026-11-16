@@ -6,8 +6,11 @@ import {
   storedWorkoutSchema,
   storedWorkoutsSchema,
   vdotSchema,
+  workoutDetailSchema,
   type StoredWorkout,
+  type WorkoutDetail,
 } from "@/lib/plan/rows-schema";
+import type { WorkoutStatus } from "@/lib/plan/types";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -68,6 +71,27 @@ export async function readNextWorkouts(
   return storedWorkoutsSchema.parse(data);
 }
 
+/**
+ * Everything the detail view shows. Its own column list rather than more
+ * columns on COLUMNS: the notes and the original distance are read for one
+ * workout, never for the six weeks of them a month grid asks for.
+ */
+const DETAIL_COLUMNS = `${COLUMNS}, notes, original_distance_m, target_duration_s`;
+
+/** One workout in full by id, or null when it is not the caller's. */
+export async function readWorkoutDetail(id: string): Promise<WorkoutDetail | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("planned_workouts")
+    .select(DETAIL_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`Could not read the planned workout: ${error.message}`);
+  // Rows cross a boundary, so they are validated rather than trusted.
+  return data === null ? null : workoutDetailSchema.parse(data);
+}
+
 /** One workout by id, or null when it is not the caller's. */
 export async function readWorkout(id: string): Promise<StoredWorkout | null> {
   const supabase = await createClient();
@@ -124,7 +148,87 @@ export async function moveWorkoutRow(
   throw new Error(`Could not move the workout: ${error.message}`);
 }
 
-/** Reverses one move. Only the caller's newest undoable one; undo is a stack. */
+/**
+ * The four changes the detail view makes. Each is one transaction in which the
+ * workout is updated and its plan_events row is written, and each returns that
+ * event's id, so the toast can offer an undo for the change just made.
+ *
+ * None of them takes the client's word for what the rules decide. The notes
+ * are trimmed and length-checked, the status must be one of the three, and the
+ * lighter distance is the number the Server Action computed with
+ * `lightenedDistance` from the row it had just read. What the database adds is
+ * the invariants: a planned status and a date that is not past where those
+ * matter, and a lighter day that is strictly lighter -- which is what makes it
+ * safe for that path not to check the weekly ceiling.
+ */
+export async function setWorkoutNotesRow(
+  workoutId: string,
+  notes: string | null,
+): Promise<RpcOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("set_workout_notes", {
+    p_workout_id: workoutId,
+    p_notes: notes,
+  });
+
+  if (!error) return { ok: true, eventId: z.uuid().parse(data) };
+  if (error.code === RAISE_EXCEPTION || error.code === NO_DATA_FOUND) {
+    return { ok: false, message: refusal(error.message) };
+  }
+  throw new Error(`Could not save the notes: ${error.message}`);
+}
+
+export async function setWorkoutStatusRow(
+  workoutId: string,
+  to: WorkoutStatus,
+): Promise<RpcOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("set_workout_status", {
+    p_workout_id: workoutId,
+    p_to: to,
+  });
+
+  if (!error) return { ok: true, eventId: z.uuid().parse(data) };
+  if (error.code === RAISE_EXCEPTION || error.code === NO_DATA_FOUND) {
+    return { ok: false, message: refusal(error.message) };
+  }
+  throw new Error(`Could not change the status: ${error.message}`);
+}
+
+export async function lightenWorkoutRow(
+  workoutId: string,
+  toDistanceM: number,
+): Promise<RpcOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("lighten_planned_workout", {
+    p_workout_id: workoutId,
+    p_to_distance_m: toDistanceM,
+  });
+
+  if (!error) return { ok: true, eventId: z.uuid().parse(data) };
+  if (error.code === RAISE_EXCEPTION || error.code === NO_DATA_FOUND) {
+    return { ok: false, message: refusal(error.message) };
+  }
+  throw new Error(`Could not make the day lighter: ${error.message}`);
+}
+
+export async function restoreDistanceRow(workoutId: string): Promise<RpcOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("restore_planned_distance", {
+    p_workout_id: workoutId,
+  });
+
+  if (!error) return { ok: true, eventId: z.uuid().parse(data) };
+  if (error.code === RAISE_EXCEPTION || error.code === NO_DATA_FOUND) {
+    return { ok: false, message: refusal(error.message) };
+  }
+  throw new Error(`Could not restore the distance: ${error.message}`);
+}
+
+/**
+ * Reverses one change of any kind, by writing the event's `before` snapshot
+ * back. Only the caller's newest undoable one; undo is a stack.
+ */
 export async function undoPlanEventRow(eventId: string): Promise<RpcOutcome> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("undo_plan_event", {

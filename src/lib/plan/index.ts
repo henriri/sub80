@@ -64,7 +64,9 @@ export {
   storedWorkoutSchema,
   storedWorkoutsSchema,
   vdotSchema,
+  workoutDetailSchema,
   type StoredWorkout,
+  type WorkoutDetail,
 } from "./rows-schema";
 export {
   STATUS_ACTIONS,
