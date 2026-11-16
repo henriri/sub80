@@ -1,7 +1,7 @@
 "use client";
 
 import { startTransition, useState } from "react";
-import { undoLastMove } from "@/app/actions";
+import { undoChange } from "@/app/actions";
 import { STALE_UNDO_MESSAGE } from "@/lib/calendar";
 import type { UndoAction } from "./CalendarBoard";
 import { dialogAction, dialogActionQuiet } from "./dialog-styles";
@@ -23,7 +23,7 @@ type UndoRowButtonProps = {
  */
 export function UndoRowButton({
   eventId,
-  onUndo = undoLastMove,
+  onUndo = undoChange,
 }: UndoRowButtonProps) {
   const [error, setError] = useState<string | null>(null);
 

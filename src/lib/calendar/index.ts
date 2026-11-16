@@ -1,5 +1,21 @@
 export {
+  STALE_UNDO_MESSAGE,
+  UNDOABLE_EVENT_KINDS,
+  UNDO_KINDS,
+  isUndoKind,
+  lightenRejectMessage,
+  planEventMessage,
+  statusRejectMessage,
+  statusWord,
+  undoableIndex,
+  undoneChangeMessage,
+  type ChangeSnapshot,
+  type PlanEventSummary,
+  type UndoableEventKind,
+} from "./change-messages";
+export {
   formatDateRange,
+  formatDayName,
   formatFullDate,
   formatKm,
   formatKmValue,
@@ -9,19 +25,15 @@ export {
 export { KIND_META, isEventKind, type KindMeta } from "./kinds";
 export { monthGrid, type MonthCell } from "./month-grid";
 export {
-  STALE_UNDO_MESSAGE,
   dropHint,
   dropState,
   movedMessage,
-  planEventMessage,
   rejectHint,
   rejectMessage,
-  undoableIndex,
   undoneMessage,
   warningMessage,
   warningTitle,
   type DropState,
-  type PlanEventSummary,
 } from "./move-messages";
 export { applyMove, applyMoves, type OptimisticMove } from "./move-reducer";
 export {

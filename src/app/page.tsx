@@ -85,13 +85,16 @@ async function CalendarSection({
   if (planned === 0) return <NoPlan />;
 
   // Undo is a stack, so exactly one row may be undone and it is not always
-  // the first: an undo, or an already undone move, can sit above it.
+  // the first: an undo, or an already undone change, can sit above it.
   const undoable = undoableIndex(events);
   const changes = events.map((event, index) => ({
     id: event.id,
     kind: event.kind,
     status: event.status,
     move: event.move,
+    before: event.before,
+    after: event.after,
+    undoneKind: event.undoneKind,
     undoable: index === undoable,
   }));
 

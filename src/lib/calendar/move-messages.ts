@@ -10,12 +10,7 @@
  */
 
 import type { MoveCheck, MoveWarning, RejectReason } from "@/lib/plan";
-import { formatFullDate, formatKm } from "./format";
-
-/** 'Thursday 18 March 2027' without the year, which a dialog does not need. */
-function dayName(date: string): string {
-  return formatFullDate(date).replace(/ \d{4}$/, "");
-}
+import { formatDayName, formatKm } from "./format";
 
 /**
  * Why a move is not allowed, in one sentence, addressed to the athlete.
@@ -34,11 +29,11 @@ export function rejectMessage(reason: RejectReason): string {
     case "source_in_past":
       return "This session is in the past. What happened has happened.";
     case "destination_in_past":
-      return `${dayName(reason.date)} has passed, so nothing can be planned on it.`;
+      return `${formatDayName(reason.date)} has passed, so nothing can be planned on it.`;
     case "outside_plan":
-      return `${dayName(reason.date)} is outside the plan.`;
+      return `${formatDayName(reason.date)} is outside the plan.`;
     case "day_full":
-      return `${dayName(reason.date)} already has ${reason.max} sessions.`;
+      return `${formatDayName(reason.date)} already has ${reason.max} sessions.`;
     case "week_runs_exceeded":
       return `Week ${reason.weekIndex} would have ${reason.runs} runs, and ${reason.max} is the most in a week.`;
     case "week_cap_exceeded":
@@ -51,12 +46,12 @@ export function warningMessage(warning: MoveWarning): string {
   switch (warning.code) {
     case "double_day":
       return warning.bothKey
-        ? `${dayName(warning.date)} would hold two key sessions: ${warning.other.title} and this one.`
-        : `${dayName(warning.date)} would be a double day, alongside ${warning.other.title}.`;
+        ? `${formatDayName(warning.date)} would hold two key sessions: ${warning.other.title} and this one.`
+        : `${formatDayName(warning.date)} would be a double day, alongside ${warning.other.title}.`;
     case "consecutive_key":
       return warning.side === "before"
-        ? `${warning.neighbour.title} is the day before, on ${dayName(warning.neighbourDate)}, so two key sessions would fall back to back.`
-        : `${warning.neighbour.title} is the day after, on ${dayName(warning.neighbourDate)}, so two key sessions would fall back to back.`;
+        ? `${warning.neighbour.title} is the day before, on ${formatDayName(warning.neighbourDate)}, so two key sessions would fall back to back.`
+        : `${warning.neighbour.title} is the day after, on ${formatDayName(warning.neighbourDate)}, so two key sessions would fall back to back.`;
   }
 }
 
@@ -127,57 +122,10 @@ export function dropHint(check: MoveCheck): string {
 
 /** The toast after a move has been saved. */
 export function movedMessage(title: string, toDate: string): string {
-  return `${title} moved to ${dayName(toDate)}.`;
+  return `${title} moved to ${formatDayName(toDate)}.`;
 }
 
 /** The toast after that move has been put back. */
 export function undoneMessage(title: string, fromDate: string): string {
-  return `${title} is back on ${dayName(fromDate)}.`;
-}
-
-/**
- * Undo is a stack, so an event that is no longer the newest undoable one is
- * refused. This says what to do instead rather than only that it failed.
- */
-export const STALE_UNDO_MESSAGE =
-  "Something else has changed since then. Undo the most recent change instead.";
-
-/**
- * One row of "Recent changes".
- *
- * Structural rather than taking a `PlanEvent`, because that type lives in a
- * server-only module and this one has no business importing it. The payload
- * carries no title -- only the workout id -- so a row names the days and not
- * the session, rather than a second read being done to make a sentence
- * prettier.
- */
-export type PlanEventSummary = {
-  kind: string;
-  status: string;
-  move: { from: string; to: string } | null;
-};
-
-export function planEventMessage(event: PlanEventSummary): string {
-  if (event.move === null) return "A plan change.";
-  if (event.kind === "undo_move") return `Put back on ${dayName(event.move.to)}.`;
-
-  const sentence = `Moved from ${dayName(event.move.from)} to ${dayName(event.move.to)}.`;
-  return event.status === "undone" ? `${sentence} Undone.` : sentence;
-}
-
-/**
- * Which row of a change list may be undone.
- *
- * Undo is a stack: the database accepts only the caller's newest move that is
- * not already undone, skipping undo rows entirely. So exactly one row carries
- * the button, and it is not always the first -- an undo, or an already undone
- * move, sits above it. Deriving it here, from the same rule, is what keeps the
- * interface from offering what the database will refuse.
- */
-export function undoableIndex(
-  events: readonly { kind: string; status: string }[],
-): number {
-  return events.findIndex(
-    (event) => event.kind === "move_workout" && event.status !== "undone",
-  );
+  return `${title} is back on ${formatDayName(fromDate)}.`;
 }

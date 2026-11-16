@@ -23,10 +23,10 @@ type RecentChangesProps = {
  * acceptable: ten minutes later the move is still here and can still be
  * reversed.
  *
- * Undo is a stack, so the button goes on the first row that is a move and is
- * not already undone -- not merely on the first row. That is the same rule
- * `undo_plan_event` applies, so the interface never offers what the database
- * will refuse.
+ * Undo is a stack, so the button goes on the first row that is an accepted
+ * change and is not itself an undo -- not merely on the first row. That is the
+ * same rule `undo_plan_event` applies, so the interface never offers what the
+ * database will refuse.
  */
 export function RecentChanges({ changes, onUndo }: RecentChangesProps) {
   if (changes.length === 0) return null;

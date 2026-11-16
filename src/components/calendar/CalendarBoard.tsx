@@ -16,7 +16,7 @@ import {
 } from "react";
 import {
   moveWorkout,
-  undoLastMove,
+  undoChange,
   type MoveResult,
   type UndoResult,
 } from "@/app/actions";
@@ -43,7 +43,7 @@ import {
   announceDragStart,
   announceDrop,
 } from "@/lib/ui/drag-announce";
-import { idle, moveFeedback } from "@/lib/ui/move-feedback";
+import { idle, changeFeedback } from "@/lib/ui/change-feedback";
 import { DayView } from "./DayView";
 import { MonthView } from "./MonthView";
 import { MoveDialog } from "./MoveDialog";
@@ -152,10 +152,10 @@ export function CalendarBoard({
   model,
   today,
   onMove = moveWorkout,
-  onUndo = undoLastMove,
+  onUndo = undoChange,
 }: CalendarBoardProps) {
   const [optimistic, addMove] = useOptimistic(model, applyMove);
-  const [feedback, send] = useReducer(moveFeedback, idle);
+  const [feedback, send] = useReducer(changeFeedback, idle);
   const [dragging, setDragging] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [pending, setPending] = useState<PendingMove | null>(null);
@@ -189,12 +189,13 @@ export function CalendarBoard({
 
         if (result.status === "ok") {
           send({
-            type: "moved",
+            type: "changed",
             eventId: result.eventId,
             workoutId: result.workoutId,
-            title: result.title,
-            from: result.from,
             message: movedMessage(result.title, result.to),
+            // Composed now, while the title and the old day are in hand, so
+            // the Undo button does not have to find them again later.
+            undoneMessage: undoneMessage(result.title, result.from),
             now: Date.now(),
           });
           return;
@@ -238,8 +239,8 @@ export function CalendarBoard({
     (eventId: string) => {
       startTransition(async () => {
         const restored =
-          feedback.kind === "moved"
-            ? undoneMessage(feedback.title, feedback.from)
+          feedback.kind === "changed"
+            ? feedback.undoneMessage
             : "That change has been put back.";
 
         const result = await onUndo(eventId);

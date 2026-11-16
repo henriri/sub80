@@ -1,13 +1,20 @@
 /**
- * What the calendar is currently telling the athlete about a move: nothing, a
- * countdown with an Undo button, a confirmation that the move was put back, or
- * an error.
+ * What the app is currently telling the athlete about a change it has just
+ * saved: nothing, a countdown with an Undo button, a confirmation that the
+ * change was put back, or an error.
  *
- * One state, not three independent pieces of state. A move that fails while
+ * One state, not three independent pieces of state. A change that fails while
  * the previous toast is still counting down must take the Undo button away:
  * the event it pointed at is still undoable, but offering it next to an error
  * about a different session reads as "undo this error". Making them one union
  * makes that impossible rather than merely unlikely.
+ *
+ * Change, not move: a move was the first undoable action and for a while the
+ * only one, but notes, a status and a lighter day go through exactly this
+ * machine. The sentence for each is composed by the caller and carried here,
+ * including `undoneMessage` -- what to say if the Undo button is pressed --
+ * because only the caller knows what kind of change it just made. This module
+ * decides when the button is offered, never what it says.
  *
  * Pure, and `now` is always an argument, so the whole state machine is
  * testable without a DOM or a timer.
@@ -22,30 +29,28 @@ import {
   type CountdownHold,
 } from "./countdown";
 
-export type MoveFeedback =
+export type ChangeFeedback =
   | { kind: "idle" }
   | {
-      kind: "moved";
+      kind: "changed";
       /** The plan_events row the Undo button will name. */
       eventId: string;
       workoutId: string;
-      /** Kept so undoing can say which session went back, and where to. */
-      title: string;
-      from: string;
       message: string;
+      /** What to say once it has been put back. Composed before it is needed. */
+      undoneMessage: string;
       countdown: Countdown;
     }
   | { kind: "undone"; message: string }
   | { kind: "error"; message: string };
 
-export type MoveFeedbackEvent =
+export type ChangeFeedbackEvent =
   | {
-      type: "moved";
+      type: "changed";
       eventId: string;
       workoutId: string;
-      title: string;
-      from: string;
       message: string;
+      undoneMessage: string;
       now: number;
     }
   | { type: "undone"; message: string }
@@ -54,24 +59,23 @@ export type MoveFeedbackEvent =
   | { type: "release"; hold: CountdownHold; now: number }
   | { type: "dismiss" };
 
-export const idle: MoveFeedback = { kind: "idle" };
+export const idle: ChangeFeedback = { kind: "idle" };
 
-export function moveFeedback(
-  state: MoveFeedback,
-  event: MoveFeedbackEvent,
-): MoveFeedback {
+export function changeFeedback(
+  state: ChangeFeedback,
+  event: ChangeFeedbackEvent,
+): ChangeFeedback {
   switch (event.type) {
-    // A new move replaces whatever was on screen, with its own fresh window.
+    // A new change replaces whatever was on screen, with its own fresh window.
     // The previous event stays undoable from "Recent changes": what expires is
     // the shortcut, not the history.
-    case "moved":
+    case "changed":
       return {
-        kind: "moved",
+        kind: "changed",
         eventId: event.eventId,
         workoutId: event.workoutId,
-        title: event.title,
-        from: event.from,
         message: event.message,
+        undoneMessage: event.undoneMessage,
         countdown: start(event.now),
       };
     case "undone":
@@ -83,14 +87,14 @@ export function moveFeedback(
     // Hovering an error or a confirmation pauses nothing, because neither has
     // a clock. Only a countdown can be held.
     case "hold":
-      return state.kind === "moved"
+      return state.kind === "changed"
         ? {
             ...state,
             countdown: holdCountdown(state.countdown, event.hold, event.now),
           }
         : state;
     case "release":
-      return state.kind === "moved"
+      return state.kind === "changed"
         ? {
             ...state,
             countdown: releaseCountdown(state.countdown, event.hold, event.now),
@@ -100,33 +104,33 @@ export function moveFeedback(
 }
 
 /** Whether the Undo button should be on screen. */
-export function undoOffered(state: MoveFeedback, now: number): boolean {
-  return state.kind === "moved" && !isExpired(state.countdown, now);
+export function undoOffered(state: ChangeFeedback, now: number): boolean {
+  return state.kind === "changed" && !isExpired(state.countdown, now);
 }
 
 /**
  * The event the Undo button would send, or null when there is none.
  *
  * Reading the id out of the state rather than out of a ref is what stops a
- * second move's button undoing the first move: the button is only ever
- * rendered from the state it was built with.
+ * second change's button undoing the first: the button is only ever rendered
+ * from the state it was built with.
  */
-export function undoTarget(state: MoveFeedback, now: number): string | null {
-  return state.kind === "moved" && undoOffered(state, now) ? state.eventId : null;
+export function undoTarget(state: ChangeFeedback, now: number): string | null {
+  return state.kind === "changed" && undoOffered(state, now) ? state.eventId : null;
 }
 
 /**
  * How the live region should announce the state. An error interrupts, because
- * the card the athlete just dropped has snapped back under their hand; the
- * rest is polite.
+ * the card the athlete just dropped has snapped back under their hand, or the
+ * change they asked for did not happen; the rest is polite.
  */
-export function feedbackRole(state: MoveFeedback): "alert" | "status" | null {
+export function feedbackRole(state: ChangeFeedback): "alert" | "status" | null {
   switch (state.kind) {
     case "idle":
       return null;
     case "error":
       return "alert";
-    case "moved":
+    case "changed":
     case "undone":
       return "status";
   }

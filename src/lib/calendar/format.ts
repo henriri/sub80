@@ -51,6 +51,17 @@ export function formatFullDate(date: Ymd): string {
   return fullDateFormatter.format(middayUtc(date)).replace(",", "");
 }
 
+/**
+ * The same date without the year, for a sentence that is about this plan and
+ * so has only one March 18 in it: Thursday 18 March.
+ *
+ * Shared by both message tables rather than private to either, so a move and
+ * a lighter day name a day the same way.
+ */
+export function formatDayName(date: Ymd): string {
+  return formatFullDate(date).replace(/ \d{4}$/, "");
+}
+
 const rangeFormatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: PARIS,
   day: "numeric",
