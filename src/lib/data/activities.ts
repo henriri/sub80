@@ -1,0 +1,200 @@
+import "server-only";
+import { z } from "zod";
+import {
+  RUNS_PER_PAGE,
+  linkableWorkoutsSchema,
+  storedRunSchema,
+  storedRunsSchema,
+  type LinkableWorkout,
+  type ParsedRun,
+  type StoredRun,
+} from "@/lib/runs";
+import { addDays, type Ymd } from "@/lib/plan/dates";
+import { createClient } from "@/lib/supabase/server";
+import { isRefusal, refusal } from "./rpc";
+
+/**
+ * Runs, read and written as the signed-in user. Every call goes through the
+ * cookie-based client, so row-level security applies and no service-role key
+ * is involved.
+ *
+ * The three writes are the database functions, which snapshot the linked
+ * session's zone and the profile's VDOT inside SQL. Nothing here supplies
+ * either: a client that could would defeat the point of the snapshot.
+ */
+
+/** The columns a run needs, plus the session it points at. */
+const COLUMNS = `
+  id, started_at, start_time_known, distance_m, duration_s, avg_hr, hr_source,
+  rpe, notes, planned_pace_zone, vdot_used, source, planned_workout_id,
+  planned_workout:planned_workouts (title, planned_date, pace_zone, status)
+`;
+
+/** The outcome of a run function: the activity's id, or a sentence. */
+export type RunOutcome = { ok: true; id: string } | { ok: false; message: string };
+
+function outcome(
+  data: unknown,
+  error: { code?: string; message: string } | null,
+  fault: string,
+): RunOutcome {
+  if (!error) return { ok: true, id: z.uuid().parse(data) };
+  if (isRefusal(error.code)) return { ok: false, message: refusal(error.message) };
+  throw new Error(`${fault}: ${error.message}`);
+}
+
+/**
+ * The parameters the three functions share. Built from a `ParsedRun`, which is
+ * what `validateRun` returns, so the Server Action cannot pass a number the
+ * rules have not seen.
+ *
+ * `p_date` and `p_time` are sent apart rather than as one instant: the
+ * function composes `started_at` in Europe/Paris, which is where the
+ * daylight-saving arithmetic belongs.
+ */
+function params(run: ParsedRun) {
+  return {
+    p_date: run.date,
+    p_time: run.time,
+    p_distance_m: run.distanceM,
+    p_duration_s: run.durationS,
+    p_avg_hr: run.avgHr,
+    p_hr_source: run.hrSource,
+    p_rpe: run.rpe,
+    p_notes: run.notes,
+    p_planned_workout_id: run.plannedWorkoutId,
+  };
+}
+
+export async function logRunRow(run: ParsedRun): Promise<RunOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("log_run", params(run));
+
+  return outcome(data, error, "Could not log the run");
+}
+
+export async function updateRunRow(id: string, run: ParsedRun): Promise<RunOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("update_run", {
+    p_activity_id: id,
+    ...params(run),
+  });
+
+  return outcome(data, error, "Could not save the run");
+}
+
+/**
+ * `resetWorkout` is the dialog's checkbox. The function refuses it when the
+ * run is not linked or when another run still points at the session, so a
+ * checkbox can never claim something that did not happen.
+ */
+export async function deleteRunRow(
+  id: string,
+  resetWorkout: boolean,
+): Promise<RunOutcome> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("delete_run", {
+    p_activity_id: id,
+    p_reset_workout: resetWorkout,
+  });
+
+  return outcome(data, error, "Could not delete the run");
+}
+
+/**
+ * One page of runs, newest first.
+ *
+ * Reads one row more than a page shows, so "is there a next page" comes out of
+ * this read rather than a second count query; `buildRunList` drops the extra.
+ * The order rides activities_user_started_idx, which is (user_id, started_at
+ * desc) from the initial schema.
+ */
+export async function readRuns(userId: string, page: number): Promise<StoredRun[]> {
+  const supabase = await createClient();
+  const from = (page - 1) * RUNS_PER_PAGE;
+
+  const { data, error } = await supabase
+    .from("activities")
+    .select(COLUMNS)
+    .eq("user_id", userId)
+    .order("started_at", { ascending: false })
+    // Second, so two runs on the same instant come back in a stable order.
+    .order("id", { ascending: true })
+    .range(from, from + RUNS_PER_PAGE);
+
+  if (error) throw new Error(`Could not read the runs: ${error.message}`);
+  // Rows cross a boundary, so they are validated rather than trusted.
+  return storedRunsSchema.parse(data);
+}
+
+/** One run in full by id, or null when it is not the caller's. */
+export async function readRunDetail(id: string): Promise<StoredRun | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("activities")
+    .select(COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`Could not read the run: ${error.message}`);
+  return data === null ? null : storedRunSchema.parse(data);
+}
+
+/** How many runs already point at a session. More than none is a warning. */
+export async function countRunsForWorkout(
+  workoutId: string,
+  exceptRunId?: string,
+): Promise<number> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("activities")
+    .select("id", { count: "exact", head: true })
+    .eq("planned_workout_id", workoutId);
+
+  // When editing, the run being edited is not "another run".
+  if (exceptRunId !== undefined) query = query.neq("id", exceptRunId);
+
+  const { count, error } = await query;
+
+  if (error) throw new Error(`Could not count the runs on that session: ${error.message}`);
+  return count ?? 0;
+}
+
+/** How far either side of the run's date a session may be to be offered. */
+export const LINK_WINDOW_DAYS = 3;
+
+/**
+ * The sessions the form offers to link to: everything within three days of the
+ * run's date, each with how many runs already point at it.
+ *
+ * The count comes back as an aggregate on the embedded relation rather than a
+ * query per row, which is why the select names `activities(count)`.
+ */
+export async function readLinkableWorkouts(
+  userId: string,
+  date: Ymd,
+): Promise<LinkableWorkout[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("planned_workouts")
+    .select("id, title, planned_date, pace_zone, status, target_distance_m, activities(count)")
+    .eq("user_id", userId)
+    .gte("planned_date", addDays(date, -LINK_WINDOW_DAYS))
+    .lte("planned_date", addDays(date, LINK_WINDOW_DAYS))
+    .order("planned_date", { ascending: true })
+    .order("day_slot", { ascending: true });
+
+  if (error) throw new Error(`Could not read the sessions: ${error.message}`);
+
+  // The embedded aggregate arrives as [{ count: n }], or [] when there are
+  // none. Flattened here so the schema and the form see a plain number.
+  const rows = (data ?? []).map((row) => {
+    const { activities, ...rest } = row as typeof row & {
+      activities: { count: number }[] | null;
+    };
+    return { ...rest, run_count: activities?.[0]?.count ?? 0 };
+  });
+
+  return linkableWorkoutsSchema.parse(rows);
+}

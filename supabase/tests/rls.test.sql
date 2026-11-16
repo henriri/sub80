@@ -14,8 +14,10 @@ insert into auth.users (id, email) values
 -- Rows owned by user B.
 insert into public.planned_workouts (id, user_id, planned_date, kind, title, week_index, pace_zone, generated_key) values
   ('b0000000-0000-0000-0000-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04', 'easy', 'B run', 12, 'E', 'w12-d0');
-insert into public.activities (user_id, started_at, distance_m, duration_s, hr_source) values
-  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04 07:00+01', 8000, 2700, 'wrist');
+-- avg_hr and hr_source go together: activities_hr_source_present_check requires
+-- each if and only if the other is there.
+insert into public.activities (user_id, started_at, distance_m, duration_s, avg_hr, hr_source) values
+  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2027-01-04 07:00+01', 8000, 2700, 142, 'wrist');
 insert into public.plan_events (id, user_id, kind, source) values
   ('b0000000-0000-0000-0000-0000000000e1', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'swap_workout', 'coach');
 
@@ -52,16 +54,23 @@ select throws_ok(
 );
 
 select throws_ok(
-  $$insert into public.activities (user_id, planned_workout_id, started_at, distance_m, duration_s, hr_source)
+  -- The heart rate is present so that the row is otherwise valid: a check
+  -- constraint is evaluated with the tuple, before the foreign key's after
+  -- trigger, so an inconsistent pair would raise 23514 here and this
+  -- assertion would never reach the foreign key it is about.
+  $$insert into public.activities (user_id, planned_workout_id, started_at, distance_m, duration_s, avg_hr, hr_source)
     values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'b0000000-0000-0000-0000-000000000001',
-            '2027-01-05 07:00+01', 5000, 1500, 'strap')$$,
+            '2027-01-05 07:00+01', 5000, 1500, 150, 'strap')$$,
   '23503', null,
   'A cannot link an activity to B''s planned workout'
 );
 
 select throws_ok(
-  $$insert into public.activities (user_id, started_at, distance_m, duration_s, hr_source)
-    values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05 07:00+01', 5000, 1500, 'chest')$$,
+  -- Likewise: with the heart rate present, the only constraint this row can
+  -- break is the one naming the two allowed sources, which is what is being
+  -- asserted. Without it the insert would still fail, but for two reasons.
+  $$insert into public.activities (user_id, started_at, distance_m, duration_s, avg_hr, hr_source)
+    values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2027-01-05 07:00+01', 5000, 1500, 150, 'chest')$$,
   '23514', null,
   'hr_source accepts only strap or wrist'
 );

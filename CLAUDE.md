@@ -55,7 +55,8 @@ Before opening a PR, `pnpm lint && pnpm typecheck && pnpm test` must pass.
 - Pace engine is the Daniels/Gilbert VDOT model. Keep it a pure, tested module with no framework imports. A 1:20 half is about VDOT 58.4.
 - Training load: 3 weeks up, 1 down. Running volume is capped at 60 km/week (pubalgia history). This ceiling is a safety limit.
 - Pace-based training, not heart-rate-based. Heart rate is secondary and shown late.
-- Every activity stores `hr_source` (`strap` or `wrist`). Never mix or average the two.
+- An activity stores `hr_source` (`strap` or `wrist`) if and only if it has an `avg_hr`. Never mix or average the two. Enforced in SQL by `activities_hr_source_present_check` and in TypeScript by `validateRun` (`src/lib/runs/rules.ts`), in both directions: a reading with no source is refused, and so is a source with no reading.
+- Logging a run is a **fact**, not a plan change. `log_run`, `update_run` and `delete_run` write no `plan_events` row and are outside the undo stack: there is nothing to propose and nothing to reverse. Only the plan is undoable.
 
 ## Coach architecture
 Plain code measures and validates. The LLM only proposes and explains.
@@ -84,6 +85,18 @@ guard — a deferred constraint trigger summing distance per `(user_id, week_ind
 PL/pgSQL copy of the rule — **before the coach is allowed to write plan changes**. A safety
 limit with one definition and one caller is fine; a safety limit with two writers and no
 guarantee is not.
+
+### Run logging and the undo stack
+`log_run` sets a linked session to `completed`, and `delete_run` can set it back to
+`planned`, both without writing a `plan_events` row. One visible consequence: mark a
+session skipped (which *is* an undoable event), then log a run against it, and the Undo
+offered for that status change will refuse with *"the workout has changed since that
+change"* — `undo_plan_event` checks the row still matches the event's `after` snapshot
+before it writes. That is the safe behaviour, not a bug: the undo would otherwise
+overwrite a fact with a stale plan state. It needs no code, only this note.
+
+Neither function touches distance, so the 60 km ceiling gains no third TypeScript-only
+writer.
 
 ## Code conventions
 - TypeScript strict, no `any`. Validate all external input (forms, FIT files, webhooks) with a schema.
