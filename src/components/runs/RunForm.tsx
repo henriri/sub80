@@ -20,6 +20,7 @@ import {
   isBlank,
   isLinkFar,
   linkableOn,
+  loggingForLine,
   paceVsZone,
   paceVsZoneLine,
   reasonField,
@@ -49,6 +50,16 @@ export type RunFormProps = {
   initial: RawRun;
   /** The wide window of sessions; narrowed here to whatever date is chosen. */
   workouts: readonly LinkableWorkout[];
+  /**
+   * The session this run is being logged against, when it was chosen before the
+   * form opened -- Log run on a session's own page.
+   *
+   * Set, there is no picker: the choice has been made, the form states it, and
+   * the link cannot be changed from here. Unlinking and re-linking live on the
+   * run's own page, which is where a run that was filed against the wrong
+   * session is corrected.
+   */
+  lockedSession?: LinkableWorkout | null;
   /** Today in Europe/Paris, so the rules never read a clock in the browser. */
   today: Ymd;
   /**
@@ -78,6 +89,7 @@ export function RunForm({
   runId,
   initial,
   workouts,
+  lockedSession = null,
   today,
   vdot,
   action,
@@ -104,7 +116,8 @@ export function RunForm({
   const id = useId();
   const field = (name: string) => `${id}-${name}`;
 
-  const chosen = workouts.find((w) => w.id === draft.plannedWorkoutId) ?? null;
+  const chosen =
+    lockedSession ?? workouts.find((w) => w.id === draft.plannedWorkoutId) ?? null;
   const offered = linkableOn(workouts, draft.date);
   const check = validateRun({
     raw: draft,
@@ -361,16 +374,33 @@ export function RunForm({
         </section>
 
         <section className={runPanel}>
-          <WorkoutPicker
-            workouts={offered}
-            value={draft.plannedWorkoutId}
-            onChange={(workoutId) => update({ plannedWorkoutId: workoutId })}
-            farNotice={
-              isLinkFar(workouts, draft.date, draft.plannedWorkoutId)
-                ? `That session is more than ${LINK_WINDOW_DAYS} days from this date. The link is kept; change it below if it is wrong.`
-                : null
-            }
-          />
+          {lockedSession === null ? (
+            <WorkoutPicker
+              workouts={offered}
+              value={draft.plannedWorkoutId}
+              onChange={(workoutId) => update({ plannedWorkoutId: workoutId })}
+              farNotice={
+                isLinkFar(workouts, draft.date, draft.plannedWorkoutId)
+                  ? `That session is more than ${LINK_WINDOW_DAYS} days from this date. The link is kept; change it below if it is wrong.`
+                  : null
+              }
+            />
+          ) : (
+            <>
+              {/*
+                A statement rather than a control. The link still travels as the
+                same hidden field the picker writes, so the server reads one
+                shape whichever way the form was reached.
+              */}
+              <p className="text-small text-secondary">Logging for</p>
+              <p className="font-strong text-body">{loggingForLine(lockedSession)}</p>
+              <input
+                type="hidden"
+                name="plannedWorkoutId"
+                value={lockedSession.id}
+              />
+            </>
+          )}
         </section>
 
         <div className="flex flex-wrap items-center gap-inline-md">

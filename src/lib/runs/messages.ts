@@ -12,7 +12,14 @@
  */
 
 import { formatKm, formatDayName } from "@/lib/calendar";
-import { fmtPace, fmtTime, zoneLabel, type Ymd, type ZoneKey } from "@/lib/plan";
+import {
+  fmtPace,
+  fmtTime,
+  formatDayLabel,
+  zoneLabel,
+  type Ymd,
+  type ZoneKey,
+} from "@/lib/plan";
 import type { ResetWithheld } from "./deleting";
 import { formatPacePerKm } from "./format";
 import { HR_SOURCES, type HrSource, type RunReason, type RunWarning } from "./rules";
@@ -196,6 +203,28 @@ export function hrSourceChoices(): RunChoice[] {
     // Capitalised: this is a segment the athlete taps, not a sentence.
     label: source === "strap" ? "Chest strap" : "Wrist",
   }));
+}
+
+/**
+ * The session this run is being logged against, when it was chosen before the
+ * form was opened.
+ *
+ * A statement, not a control: pressing Log run on a session is the choice, and
+ * the form says which session it heard rather than asking again. 'Thu 18 Mar ·
+ * Easy 8 km', with the distance left off a session that asks for none.
+ */
+export function loggingForLine(session: {
+  title: string;
+  planned_date: Ymd;
+  target_distance_m: number | null;
+}): string {
+  const parts = [
+    formatDayLabel(session.planned_date),
+    session.title,
+    session.target_distance_m === null ? null : formatKm(session.target_distance_m),
+  ].filter((part) => part !== null);
+
+  return parts.join(" · ");
 }
 
 /**

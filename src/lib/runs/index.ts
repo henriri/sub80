@@ -8,6 +8,7 @@ export {
   RPE_BANDS,
   hrSourceChoices,
   hrSourceLabel,
+  loggingForLine,
   paceVsZoneLine,
   rpeBandLabel,
   rpeBandsHint,

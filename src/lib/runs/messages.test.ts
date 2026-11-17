@@ -4,6 +4,7 @@ import {
   RPE_BANDS,
   hrSourceChoices,
   hrSourceLabel,
+  loggingForLine,
   paceVsZoneLine,
   rpeBandLabel,
   rpeBandsHint,
@@ -275,5 +276,29 @@ describe("the choice groups", () => {
 
   it("keeps the two sources in step with the ones the rules allow", () => {
     expect(hrSourceChoices().map((choice) => choice.value)).toEqual([...HR_SOURCES]);
+  });
+});
+
+describe("loggingForLine", () => {
+  const session = {
+    title: "Easy",
+    planned_date: "2027-03-18",
+    target_distance_m: 8_000,
+  };
+
+  it("says the day, the session and the distance it asks for", () => {
+    expect(loggingForLine(session)).toBe("Thu 18 Mar · Easy · 8.0 km");
+  });
+
+  it("leaves the distance off a session that asks for none", () => {
+    expect(loggingForLine({ ...session, target_distance_m: null })).toBe(
+      "Thu 18 Mar · Easy",
+    );
+  });
+
+  it("is a statement, with nothing in it that reads as a question", () => {
+    // The choice was made by pressing Log run on the session. This only says
+    // which session the form heard.
+    expect(loggingForLine(session)).not.toMatch(/\?/);
   });
 });

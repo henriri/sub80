@@ -202,6 +202,26 @@ export function RunDemo({ initial, workouts, today, vdot }: RunDemoProps) {
           submitLabel="Log this run"
         />
       </div>
+
+      <div className={card}>
+        <h3 className="text-heading-sm">RunForm · logging for a chosen session</h3>
+        <p className="text-small text-secondary">
+          Reached with Log run on a session&rsquo;s own page. The session is
+          already chosen, so the picker gives way to a line saying which one the
+          form heard; the day and the planned distance arrive prefilled, as a
+          starting point to correct. Unlinking lives on the run&rsquo;s own page.
+        </p>
+        <RunForm
+          runId={null}
+          initial={initial}
+          workouts={[]}
+          lockedSession={workouts[0] ?? null}
+          today={today}
+          vdot={vdot}
+          action={action}
+          submitLabel="Log this run"
+        />
+      </div>
     </>
   );
 }
