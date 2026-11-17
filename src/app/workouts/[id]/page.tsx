@@ -1,37 +1,34 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
-import { RecentChanges } from "@/components/calendar/RecentChanges";
 import { LinkedRuns } from "@/components/runs/LinkedRuns";
-import { navLink, panel } from "@/components/calendar/styles";
+import { focusRing, navLink, panel } from "@/components/calendar/styles";
 import { WorkoutActions } from "@/components/workout/WorkoutActions";
 import { WorkoutFacts } from "@/components/workout/WorkoutFacts";
 import type { LightenOption } from "@/components/workout/LightenActions";
 import { requireUser } from "@/lib/auth/require-user";
-import {
-  calendarHref,
-  lightenRejectMessage,
-  parseCalendarParams,
-  undoableIndex,
-} from "@/lib/calendar";
+import { calendarHref, parseCalendarParams } from "@/lib/calendar";
 import { readRunsForWorkout } from "@/lib/data/activities";
-import { readRecentPlanEvents } from "@/lib/data/plan-events";
 import { readVdot, readWorkoutDetail } from "@/lib/data/planned-workouts";
 import {
-  LIGHTEN_FRACTIONS,
   lightenedDistance,
   offeredFractions,
   parisDate,
   plannedDistance,
-  validateLighten,
+  sessionActions,
+  type SessionCandidate,
   type WorkoutDetail,
 } from "@/lib/plan";
+import { logRunHref } from "@/lib/runs";
 
-/** How much history the detail page shows. The calendar shows ten. */
-const RECENT_CHANGES = 5;
-
-/** What the lighter-day rules need, read off the row just read. */
-const candidate = (workout: WorkoutDetail) => ({
+/**
+ * What the rules need, read off the row just read.
+ *
+ * `WorkoutDetail` is a superset of `SessionCandidate`, so this is a narrowing
+ * rather than a translation: the rules see the stored values and nothing the
+ * page has decided.
+ */
+const candidate = (workout: WorkoutDetail): SessionCandidate => ({
   id: workout.id,
   status: workout.status,
   planned_date: workout.planned_date,
@@ -57,27 +54,19 @@ function lightenOptions(workout: WorkoutDetail): LightenOption[] {
 }
 
 /**
- * Why the lighter actions are not offered at all, or null when they are.
+ * Log run, in the button's own tokens.
  *
- * Asked of `validateLighten` rather than decided here, so the interface and
- * the server cannot disagree. The two fractions are both tried: a day that
- * refuses one only because it is already lighter than that still has the
- * other, and that is a case for `LightenActions` to explain, not for
- * withholding the whole section.
+ * A link rather than a `Button`: it opens the log form on another page, and the
+ * only honest control for a navigation is an anchor. The tokens are the
+ * button's, so it is the same object to look at.
  */
-function lightenWithheld(workout: WorkoutDetail, today: string): string | null {
-  const checks = LIGHTEN_FRACTIONS.map((by) =>
-    validateLighten({ workout: candidate(workout), by, today }),
-  );
-  if (checks.some((check) => check.ok)) return null;
-
-  // Nothing can be taken off. A day already at its floor, or lightened as far
-  // as it goes, keeps its restore button; a past or finished session does not.
-  const blocking = checks.find(
-    (check) => !check.ok && check.reason.code !== "would_raise",
-  );
-  return blocking?.ok === false ? lightenRejectMessage(blocking.reason) : null;
-}
+const primaryAction = [
+  "inline-flex min-h-(--button-min-height) min-w-touch items-center justify-center",
+  "rounded-(--button-radius) px-(--button-padding-x) py-(--button-padding-y)",
+  "bg-(--button-bg) text-(color:--button-fg) hover:bg-(--button-bg-hover)",
+  "font-(family-name:--button-font-family) font-(--button-font-weight) text-body",
+  focusRing,
+].join(" ");
 
 async function WorkoutSection({
   params,
@@ -97,10 +86,9 @@ async function WorkoutSection({
     redirect(`/workouts/${id}?view=${parsed.fallback.view}&date=${parsed.fallback.date}`);
   }
 
-  const [workout, vdot, events, runs] = await Promise.all([
+  const [workout, vdot, runs] = await Promise.all([
     readWorkoutDetail(id),
     readVdot(user.id),
-    readRecentPlanEvents(user.id, RECENT_CHANGES),
     readRunsForWorkout(id),
   ]);
 
@@ -108,17 +96,16 @@ async function WorkoutSection({
   // row or another user's. Neither is a page.
   if (workout === null) notFound();
 
-  const undoable = undoableIndex(events);
-  const changes = events.map((event, index) => ({
-    id: event.id,
-    kind: event.kind,
-    status: event.status,
-    move: event.move,
-    before: event.before,
-    after: event.after,
-    undoneKind: event.undoneKind,
-    undoable: index === undoable,
-  }));
+  /*
+   * The one decision about what this session offers. Everything below renders
+   * from it: the drag layer and the calendar card read the same function, so
+   * the three cannot disagree about whether a session is finished.
+   *
+   * `today` is passed in rather than read in a render. A run is what makes the
+   * session done, so the runs are an input here and the stored status is not
+   * consulted for that question at all.
+   */
+  const actions = sessionActions(candidate(workout), runs, today);
 
   return (
     <>
@@ -133,32 +120,34 @@ async function WorkoutSection({
         <WorkoutFacts workout={workout} vdot={vdot} />
       </header>
 
-      <LinkedRuns
-        workout={{
-          id: workout.id,
-          planned_date: workout.planned_date,
-          target_distance_m: workout.target_distance_m,
-        }}
-        runs={runs}
-      />
+      <LinkedRuns runs={runs} />
+
+      {/*
+        The primary action whenever the day has come and nothing is logged yet.
+        It replaces both "Mark done" and the old "No run logged" block: there is
+        one way to finish a session, and it is to say what actually happened.
+      */}
+      {actions.canLogRun ? (
+        <div>
+          <Link href={logRunHref(workout)} className={primaryAction}>
+            Log run
+          </Link>
+        </div>
+      ) : null}
 
       <WorkoutActions
         workoutId={workout.id}
-        status={workout.status}
-        notes={workout.notes}
+        actions={actions}
         lighten={lightenOptions(workout)}
         restoreToM={workout.original_distance_m}
-        lightenWithheld={lightenWithheld(workout, today)}
       />
-
-      <RecentChanges changes={changes} />
     </>
   );
 }
 
 /**
  * One planned session in full: what it asks for, what its pace zone means at
- * today's fitness, and the four things the athlete can change about it.
+ * today's fitness, what happened on it, and the changes still open to it.
  *
  * Reads the URL and the session, so it sits inside a Suspense boundary, as the
  * calendar does: with Cache Components on, `searchParams` is a request-time

@@ -2,7 +2,6 @@
 
 import { startTransition, useActionState, useEffect, useReducer, useRef } from "react";
 import {
-  editNotes,
   lightenWorkout,
   restoreDistance,
   setStatus,
@@ -12,11 +11,10 @@ import type { UndoAction } from "@/components/calendar/CalendarBoard";
 import { UndoToast } from "@/components/calendar/UndoToast";
 import { panel } from "@/components/calendar/styles";
 import { STALE_UNDO_MESSAGE } from "@/lib/calendar";
-import type { WorkoutStatus } from "@/lib/plan";
+import type { SessionActions } from "@/lib/plan";
 import { changeFeedback, idle, unseenResult } from "@/lib/ui/change-feedback";
 import { undoChange } from "@/app/actions";
 import { LightenActions, type LightenOption } from "./LightenActions";
-import { NotesForm } from "./NotesForm";
 import { StatusActions } from "./StatusActions";
 
 /** A form action, matching what `useActionState` wants. */
@@ -27,15 +25,12 @@ export type ChangeAction = (
 
 export type WorkoutActionsProps = {
   workoutId: string;
-  status: WorkoutStatus;
-  notes: string | null;
+  /** What this session offers. The only thing that decides what is rendered. */
+  actions: SessionActions;
   lighten: readonly LightenOption[];
   restoreToM: number | null;
-  /** Why the lighter actions are withheld, or null when they are offered. */
-  lightenWithheld: string | null;
   /** Overridable so /design can show all of this without a session. */
-  actions?: {
-    editNotes: ChangeAction;
+  handlers?: {
     setStatus: ChangeAction;
     lightenWorkout: ChangeAction;
     restoreDistance: ChangeAction;
@@ -46,15 +41,23 @@ export type WorkoutActionsProps = {
 const section = "flex flex-col gap-stack-sm";
 
 /**
- * Everything on the detail page that writes, and the one toast that answers
- * for all of it.
+ * Everything on the detail page that changes the PLAN, and the one toast that
+ * answers for all of it.
  *
- * Four forms, four action states, one countdown. The forms are real forms with
- * server actions, so the keyboard works and each submit is a request the server
- * decides; the island exists because a countdown needs a clock and because
- * four separate toasts would talk over each other.
+ * Three forms, three action states, one countdown. The forms are real forms
+ * with server actions, so the keyboard works and each submit is a request the
+ * server decides; the island exists because a countdown needs a clock and
+ * because three separate toasts would talk over each other.
  *
- * The toast is a single state machine rather than four: a refusal must take
+ * What is NOT here: logging a run, editing one, and notes. A run is a fact
+ * rather than a plan change, it writes no `plan_events` row and it cannot be
+ * undone, so it has no business sharing this toast -- and notes now live on the
+ * run, in the log form, where the athlete is already writing about the day.
+ *
+ * Which panels appear comes from `sessionActions` alone. A session with a run
+ * against it offers none of this and renders nothing at all.
+ *
+ * The toast is a single state machine rather than three: a refusal must take
  * away an Undo button that pointed at a different change, which is exactly
  * what `changeFeedback` makes impossible. Each result carries a token and the
  * tokens already shown are remembered, because every action state keeps its
@@ -66,20 +69,16 @@ const section = "flex flex-col gap-stack-sm";
  */
 export function WorkoutActions({
   workoutId,
-  status,
-  notes,
+  actions,
   lighten,
   restoreToM,
-  lightenWithheld,
-  actions,
+  handlers,
 }: WorkoutActionsProps) {
-  const onNotes = actions?.editNotes ?? editNotes;
-  const onStatus = actions?.setStatus ?? setStatus;
-  const onLighten = actions?.lightenWorkout ?? lightenWorkout;
-  const onRestore = actions?.restoreDistance ?? restoreDistance;
-  const onUndo = actions?.undoChange ?? undoChange;
+  const onStatus = handlers?.setStatus ?? setStatus;
+  const onLighten = handlers?.lightenWorkout ?? lightenWorkout;
+  const onRestore = handlers?.restoreDistance ?? restoreDistance;
+  const onUndo = handlers?.undoChange ?? undoChange;
 
-  const [notesResult, notesAction, notesPending] = useActionState(onNotes, null);
   const [statusResult, statusAction, statusPending] = useActionState(onStatus, null);
   const [lightenResult, lightenAction, lightenPending] = useActionState(
     onLighten,
@@ -96,10 +95,7 @@ export function WorkoutActions({
   // Picked inside the effect, not during the render: the set of tokens already
   // shown is state the render has no business reading.
   useEffect(() => {
-    const fresh = unseenResult(
-      [notesResult, statusResult, lightenResult, restoreResult],
-      seen.current,
-    );
+    const fresh = unseenResult([statusResult, lightenResult, restoreResult], seen.current);
     if (fresh === null) return;
     seen.current.add(fresh.token);
 
@@ -116,7 +112,7 @@ export function WorkoutActions({
       undoneMessage: fresh.undoneMessage,
       now: Date.now(),
     });
-  }, [notesResult, statusResult, lightenResult, restoreResult]);
+  }, [statusResult, lightenResult, restoreResult]);
 
   const undo = (eventId: string) => {
     startTransition(async () => {
@@ -137,46 +133,40 @@ export function WorkoutActions({
     });
   };
 
+  const statusShown = actions.canSkip || actions.canBackToPlanned;
+  const lighterShown = actions.canLighten || actions.canRestore;
+
   return (
     <div className="flex flex-col gap-stack-md">
-      <section className={`${panel} ${section}`} aria-labelledby="workout-notes">
-        <h2 id="workout-notes" className="text-heading-sm">
-          Notes
-        </h2>
-        <NotesForm
-          workoutId={workoutId}
-          notes={notes}
-          action={notesAction}
-          pending={notesPending}
-        />
-      </section>
+      {statusShown ? (
+        <section className={`${panel} ${section}`} aria-labelledby="workout-status">
+          <h2 id="workout-status" className="text-heading-sm">
+            Status
+          </h2>
+          <StatusActions
+            workoutId={workoutId}
+            actions={actions}
+            action={statusAction}
+            pending={statusPending}
+          />
+        </section>
+      ) : null}
 
-      <section className={`${panel} ${section}`} aria-labelledby="workout-status">
-        <h2 id="workout-status" className="text-heading-sm">
-          Status
-        </h2>
-        <StatusActions
-          workoutId={workoutId}
-          status={status}
-          action={statusAction}
-          pending={statusPending}
-        />
-      </section>
-
-      <section className={`${panel} ${section}`} aria-labelledby="workout-lighter">
-        <h2 id="workout-lighter" className="text-heading-sm">
-          A lighter day
-        </h2>
-        <LightenActions
-          workoutId={workoutId}
-          options={lighten}
-          restoreToM={restoreToM}
-          withheld={lightenWithheld}
-          lighten={lightenAction}
-          restore={restoreAction}
-          pending={lightenPending || restorePending}
-        />
-      </section>
+      {lighterShown ? (
+        <section className={`${panel} ${section}`} aria-labelledby="workout-lighter">
+          <h2 id="workout-lighter" className="text-heading-sm">
+            A lighter day
+          </h2>
+          <LightenActions
+            workoutId={workoutId}
+            options={lighten}
+            restoreToM={actions.canRestore ? restoreToM : null}
+            lighten={lightenAction}
+            restore={restoreAction}
+            pending={lightenPending || restorePending}
+          />
+        </section>
+      ) : null}
 
       <UndoToast
         state={feedback}

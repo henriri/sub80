@@ -334,7 +334,6 @@ describe("statusRejectMessage", () => {
 
 describe("the button labels", () => {
   it("asks for a status change as a verb, not as a status", () => {
-    expect(statusActionLabel("done")).toBe("Mark done");
     expect(statusActionLabel("skipped")).toBe("Mark skipped");
     expect(statusActionLabel("planned")).toBe("Back to planned");
   });

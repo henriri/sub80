@@ -1,38 +1,45 @@
 import { describe, expect, it } from "vitest";
-import {
-  STATUS_ACTIONS,
-  offeredStatusActions,
-  statusTarget,
-  validateStatus,
-} from "./status";
+import { STATUS_ACTIONS, statusTarget, validateStatus } from "./status";
 import { WORKOUT_STATUSES, type WorkoutStatus } from "./types";
 
-describe("statusTarget", () => {
-  it("maps the athlete's word to the column's", () => {
-    // 'Mark done' is the button; 'completed' is the check constraint.
-    expect(statusTarget("done")).toBe("completed");
-    expect(statusTarget("skipped")).toBe("skipped");
-    expect(statusTarget("planned")).toBe("planned");
+type StatusActionName = (typeof STATUS_ACTIONS)[number];
+
+describe("STATUS_ACTIONS", () => {
+  it("has no 'done', because a run is what completes a session", () => {
+    // `completed` is written by log_run and update_run in SQL and by nothing
+    // else, so there is no action here that asks for it.
+    expect([...STATUS_ACTIONS]).toEqual(["skipped", "planned"]);
+    expect(STATUS_ACTIONS).not.toContain("done");
   });
 
-  it("only ever returns a stored status", () => {
+  it("asks for no status outside the column's three", () => {
     for (const action of STATUS_ACTIONS) {
       expect(WORKOUT_STATUSES).toContain(statusTarget(action));
     }
   });
+
+  it("cannot ask for completed at all", () => {
+    for (const action of STATUS_ACTIONS) {
+      expect(statusTarget(action)).not.toBe("completed");
+    }
+  });
+});
+
+describe("statusTarget", () => {
+  it("maps the athlete's word to the column's", () => {
+    expect(statusTarget("skipped")).toBe("skipped");
+    expect(statusTarget("planned")).toBe("planned");
+  });
 });
 
 describe("validateStatus", () => {
-  it("allows every transition between two different statuses", () => {
-    // The whole 3 x 3 matrix, so no pair is left to assumption. Nothing here
-    // depends on the date: done and skipped are exactly what a past session
+  it("allows every transition that changes the status", () => {
+    // Nothing here depends on the date: skipping is exactly what a past session
     // needs, and a mistake must stay correctable however old it is.
-    const allowed: [WorkoutStatus, (typeof STATUS_ACTIONS)[number], WorkoutStatus][] = [
-      ["planned", "done", "completed"],
+    const allowed: [WorkoutStatus, StatusActionName, WorkoutStatus][] = [
       ["planned", "skipped", "skipped"],
       ["completed", "skipped", "skipped"],
       ["completed", "planned", "planned"],
-      ["skipped", "done", "completed"],
       ["skipped", "planned", "planned"],
     ];
 
@@ -44,9 +51,8 @@ describe("validateStatus", () => {
   it("refuses the status the workout already has", () => {
     // Not tidiness: an accepted change becomes the one undoable event, so a
     // no-op would bury the athlete's previous change under an empty undo.
-    const noop: [WorkoutStatus, (typeof STATUS_ACTIONS)[number]][] = [
+    const noop: [WorkoutStatus, StatusActionName][] = [
       ["planned", "planned"],
-      ["completed", "done"],
       ["skipped", "skipped"],
     ];
 
@@ -71,19 +77,3 @@ describe("validateStatus", () => {
   });
 });
 
-describe("offeredStatusActions", () => {
-  it("offers the two real changes from each status", () => {
-    expect(offeredStatusActions("planned")).toEqual(["done", "skipped"]);
-    expect(offeredStatusActions("completed")).toEqual(["skipped", "planned"]);
-    expect(offeredStatusActions("skipped")).toEqual(["done", "planned"]);
-  });
-
-  it("agrees with validateStatus, so nothing offered can be refused", () => {
-    for (const from of WORKOUT_STATUSES) {
-      const offered = offeredStatusActions(from);
-      for (const action of STATUS_ACTIONS) {
-        expect(validateStatus({ from, action }).ok).toBe(offered.includes(action));
-      }
-    }
-  });
-});

@@ -50,18 +50,12 @@ function answer(kind: string, before: object, after: object): ChangeResult {
   };
 }
 
-const demoActions: NonNullable<WorkoutActionsProps["actions"]> = {
-  editNotes: async (_previous, formData) =>
-    answer(
-      "edit_notes",
-      { notes: null },
-      { notes: String(formData.get("notes") ?? "") || null },
-    ),
+const demoHandlers: NonNullable<WorkoutActionsProps["handlers"]> = {
   setStatus: async (_previous, formData) =>
     answer(
       "set_status",
       { status: "planned" },
-      { status: formData.get("action") === "done" ? "completed" : "skipped" },
+      { status: formData.get("action") === "planned" ? "planned" : "skipped" },
     ),
   lightenWorkout: async (_previous, formData) =>
     answer(
@@ -79,8 +73,8 @@ const demoActions: NonNullable<WorkoutActionsProps["actions"]> = {
 };
 
 /** A refusal, so the error state is on screen and not only imagined. */
-const refusingActions: NonNullable<WorkoutActionsProps["actions"]> = {
-  ...demoActions,
+const refusingHandlers: NonNullable<WorkoutActionsProps["handlers"]> = {
+  ...demoHandlers,
   setStatus: async () => ({
     status: "error",
     message: "This session is already marked done.",
@@ -118,7 +112,7 @@ export function WorkoutDemo({ facts, vdot, actions }: WorkoutDemoProps) {
           </p>
           <WorkoutActions
             {...props}
-            actions={refusing ? refusingActions : demoActions}
+            handlers={refusing ? refusingHandlers : demoHandlers}
           />
         </div>
       ))}

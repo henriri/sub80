@@ -13,8 +13,6 @@ type LightenActionsProps = {
   options: readonly LightenOption[];
   /** The planned distance to put back, or null when the day is not lighter. */
   restoreToM: number | null;
-  /** One sentence instead of buttons, when the day cannot be changed at all. */
-  withheld: string | null;
   lighten: (formData: FormData) => void;
   restore: (formData: FormData) => void;
   pending: boolean;
@@ -32,23 +30,19 @@ type LightenActionsProps = {
  * because restore is the one that checks the 60 km ceiling. The sentence says
  * so rather than leaving a button that would refuse.
  *
- * Withheld entirely for a past day or a session already done or skipped. What
- * happened has happened; `validateLighten` says the same, and this is only the
- * interface agreeing with it in advance.
+ * Not rendered at all for a past day, a session with a run against it, or one
+ * that is skipped. `sessionActions` decides that above this component, so there
+ * is no sentence here explaining an absence: what happened has happened, and
+ * the page simply does not offer to re-plan it.
  */
 export function LightenActions({
   workoutId,
   options,
   restoreToM,
-  withheld,
   lighten,
   restore,
   pending,
 }: LightenActionsProps) {
-  if (withheld !== null) {
-    return <p className="text-small text-secondary">{withheld}</p>;
-  }
-
   return (
     <div className="flex flex-col gap-stack-sm">
       <div className="flex flex-wrap gap-inline-sm">

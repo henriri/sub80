@@ -93,8 +93,6 @@ export function statusWord(status: WorkoutStatus): string {
 /** The button that asks for a status change, which is a verb, not a status. */
 export function statusActionLabel(action: StatusAction): string {
   switch (action) {
-    case "done":
-      return "Mark done";
     case "skipped":
       return "Mark skipped";
     case "planned":

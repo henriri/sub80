@@ -18,6 +18,7 @@ export {
   LIGHTEN_REJECT_CODES,
   LIGHTEN_STEP_M,
   MIN_LIGHT_DISTANCE_M,
+  canLighten,
   lightenedDistance,
   offeredFractions,
   plannedDistance,
@@ -35,6 +36,7 @@ export {
   MAX_RUNS_PER_WEEK,
   MOVE_REJECT_CODES,
   MOVE_WARNING_CODES,
+  isSourceInPast,
   moveReadRange,
   nextFreeSlot,
   validateMove,
@@ -69,9 +71,14 @@ export {
   type WorkoutDetail,
 } from "./rows-schema";
 export {
+  sessionActions,
+  type LinkedRun,
+  type SessionActions,
+  type SessionCandidate,
+} from "./session-actions";
+export {
   STATUS_ACTIONS,
   STATUS_REJECT_CODES,
-  offeredStatusActions,
   statusTarget,
   validateStatus,
   type StatusAction,

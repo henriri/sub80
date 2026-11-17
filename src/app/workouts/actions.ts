@@ -16,17 +16,12 @@ import {
   readNextWorkouts,
   readWorkoutDetail,
   restoreDistanceRow,
-  setWorkoutNotesRow,
   setWorkoutStatusRow,
 } from "@/lib/data/planned-workouts";
 import {
   LIGHTEN_FRACTIONS,
-  MAX_NOTES_LENGTH,
   STATUS_ACTIONS,
   lightenedDistance,
-  normaliseNotes,
-  notesChanged,
-  notesTooLong,
   parisDate,
   plannedDistance,
   statusTarget,
@@ -120,59 +115,6 @@ const candidate = (workout: WorkoutDetail): LightenCandidate => ({
   target_distance_m: workout.target_distance_m,
   original_distance_m: workout.original_distance_m,
 });
-
-const notesInputSchema = z.object({
-  workoutId,
-  // Length is checked after trimming, by `notesTooLong`, so a note is never
-  // refused for trailing whitespace. The generous cap here only stops an
-  // absurd body being parsed at all.
-  notes: z.string().max(MAX_NOTES_LENGTH * 10),
-});
-
-export async function editNotes(
-  _previous: ChangeResult | null,
-  formData: FormData,
-): Promise<ChangeResult> {
-  const parsed = notesInputSchema.safeParse({
-    workoutId: formData.get("workoutId"),
-    notes: formData.get("notes") ?? "",
-  });
-  if (!parsed.success) return failed("Those notes did not make sense.");
-
-  const { workoutId: id, notes } = parsed.data;
-  await requireUser();
-
-  if (notesTooLong(notes)) {
-    return failed(`A note is at most ${MAX_NOTES_LENGTH} characters.`);
-  }
-
-  try {
-    const workout = await readWorkoutDetail(id);
-    if (workout === null) return failed(GONE);
-
-    const next = normaliseNotes(notes);
-    // Re-checked against the row just read, not against what the form was
-    // rendered from: an unchanged save would become the one undoable event
-    // and bury the change beneath it.
-    if (!notesChanged(notes, workout.notes)) {
-      return failed("Those notes are already saved.");
-    }
-
-    const outcome = await setWorkoutNotesRow(id, next);
-    if (!outcome.ok) return failed(outcome.message);
-
-    revalidate(id);
-    return saved(
-      "edit_notes",
-      outcome.eventId,
-      id,
-      { notes: workout.notes },
-      { notes: next },
-    );
-  } catch {
-    return failed("Could not save the notes. Try again.");
-  }
-}
 
 const statusInputSchema = z.object({
   workoutId,

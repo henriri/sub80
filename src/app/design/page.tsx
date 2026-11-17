@@ -24,16 +24,15 @@ import {
   buildDayView,
   buildMonthView,
   buildWeekView,
-  lightenRejectMessage,
   type CalendarItem,
 } from "@/lib/calendar";
 import {
-  LIGHTEN_FRACTIONS,
   WORKOUT_KINDS,
   lightenedDistance,
   offeredFractions,
   plannedDistance,
-  validateLighten,
+  sessionActions,
+  type SessionCandidate,
   type StoredWorkout,
   type WorkoutDetail,
 } from "@/lib/plan";
@@ -317,6 +316,7 @@ const sampleDetails = (() => {
       original_distance_m: 14_000,
     }),
     done: detail({ status: "completed" }),
+    skipped: detail({ status: "skipped", planned_date: "2026-10-21", week_index: 1 }),
     // Plan week 1, which began 2026-10-19: before SAMPLE_DATE, so the lighter
     // actions are withheld while done and skipped are not.
     past: detail({ planned_date: "2026-10-21", week_index: 1, status: "planned" }),
@@ -335,9 +335,17 @@ const sampleFacts = [
   { label: "a race, so a race pace", workout: sampleDetails.race },
 ] as const;
 
-/** What the page computes for the island, repeated here for each state. */
-function actionProps(workout: WorkoutDetail): WorkoutActionsProps {
-  const candidate = {
+/**
+ * What the page computes for the island, repeated here for each state.
+ *
+ * `runs` is the second input that matters: a session with a run against it
+ * offers nothing at all, which is a specimen worth being able to look at.
+ */
+function actionProps(
+  workout: WorkoutDetail,
+  runs: readonly { id: string }[] = [],
+): WorkoutActionsProps {
+  const candidate: SessionCandidate = {
     id: workout.id,
     status: workout.status,
     planned_date: workout.planned_date,
@@ -345,17 +353,10 @@ function actionProps(workout: WorkoutDetail): WorkoutActionsProps {
     original_distance_m: workout.original_distance_m,
   };
   const planned = plannedDistance(candidate);
-  const checks = LIGHTEN_FRACTIONS.map((by) =>
-    validateLighten({ workout: candidate, by, today: SAMPLE_DATE }),
-  );
-  const blocking = checks.find(
-    (check) => !check.ok && check.reason.code !== "would_raise",
-  );
 
   return {
     workoutId: workout.id,
-    status: workout.status,
-    notes: workout.notes,
+    actions: sessionActions(candidate, runs, SAMPLE_DATE),
     lighten:
       planned === null
         ? []
@@ -364,10 +365,6 @@ function actionProps(workout: WorkoutDetail): WorkoutActionsProps {
             toM: lightenedDistance(planned, by),
           })),
     restoreToM: workout.original_distance_m,
-    lightenWithheld:
-      !checks.some((check) => check.ok) && blocking?.ok === false
-        ? lightenRejectMessage(blocking.reason)
-        : null,
   };
 }
 
@@ -379,7 +376,11 @@ const sampleActions = [
     props: actionProps(sampleDetails.asLightAsItGoes),
   },
   { label: "in the past", props: actionProps(sampleDetails.past) },
-  { label: "done", props: actionProps(sampleDetails.done) },
+  { label: "skipped", props: actionProps(sampleDetails.skipped) },
+  {
+    label: "a run is logged against it",
+    props: actionProps(sampleDetails.done, [{ id: sampleRuns[0]!.id }]),
+  },
 ] as const;
 
 const sampleWeek = buildWeekView(sampleInput);
@@ -653,26 +654,22 @@ export default function DesignPage() {
 
           <div className={card}>
             <h3 className="text-heading-sm">LinkedRuns</h3>
-            <LinkedRuns
-              workout={{
-                id: "00000000-0000-4000-8000-000000000001",
-                planned_date: "2027-03-16",
-                target_distance_m: 11_000,
-              }}
-              runs={[sampleRuns[0]!]}
-            />
+            <p className="text-small text-secondary">
+              The run is what makes the session done, so this panel being here
+              IS the completion. Editing the run is the only thing offered from
+              it; with no run it renders nothing at all and the session page
+              offers Log run instead.
+            </p>
+            <LinkedRuns runs={[sampleRuns[0]!]} />
           </div>
 
           <div className={card}>
-            <h3 className="text-heading-sm">LinkedRuns · nothing logged yet</h3>
-            <LinkedRuns
-              workout={{
-                id: "00000000-0000-4000-8000-000000000003",
-                planned_date: "2027-03-18",
-                target_distance_m: 8_500,
-              }}
-              runs={[]}
-            />
+            <h3 className="text-heading-sm">LinkedRuns · two runs on one session</h3>
+            <p className="text-small text-secondary">
+              A legitimate day: the log form warns about a second run and the
+              athlete confirms. Each gets its own summary and its own Edit run.
+            </p>
+            <LinkedRuns runs={sampleRuns.slice(0, 2)} />
           </div>
 
           <RunDemo
