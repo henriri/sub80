@@ -7,6 +7,7 @@ import {
 } from "./lighten";
 import { validateMove, type MoveCandidate } from "./moves";
 import {
+  canMoveSession,
   sessionActions,
   type LinkedRun,
   type SessionActions,
@@ -363,6 +364,45 @@ describe("sessionActions", () => {
       ).toBe(false);
       expect(sessionActions(candidate, [], TODAY).canLighten).toBe(false);
     });
+  });
+});
+
+/*
+ * The drag layer's question, asked of a card that carries no distances. It has
+ * to answer exactly as the whole function does, because a handle that appears
+ * on a session the detail page says cannot move is a lie either way round.
+ */
+describe("canMoveSession", () => {
+  it("answers exactly as sessionActions does, for every case", () => {
+    for (const planned_date of [FUTURE, TODAY, PAST]) {
+      for (const status of WORKOUT_STATUSES) {
+        for (const runs of [[], [run()]]) {
+          const candidate = session({ status, planned_date });
+          expect(
+            canMoveSession(candidate, runs, TODAY),
+            `${status} on ${planned_date}, ${runs.length} runs`,
+          ).toBe(sessionActions(candidate, runs, TODAY).canMove);
+        }
+      }
+    }
+  });
+
+  it("needs only the status and the day, which is all a card has", () => {
+    // No distances: the type is a Pick, so this compiles only while that holds.
+    expect(canMoveSession({ status: "planned", planned_date: FUTURE }, [], TODAY)).toBe(
+      true,
+    );
+    expect(canMoveSession({ status: "planned", planned_date: PAST }, [], TODAY)).toBe(
+      false,
+    );
+  });
+
+  it("refuses a session with a run against it, whatever its status says", () => {
+    for (const status of WORKOUT_STATUSES) {
+      expect(canMoveSession({ status, planned_date: FUTURE }, [run()], TODAY)).toBe(
+        false,
+      );
+    }
   });
 });
 

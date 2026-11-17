@@ -71,6 +71,7 @@ export {
   type WorkoutDetail,
 } from "./rows-schema";
 export {
+  canMoveSession,
   sessionActions,
   type LinkedRun,
   type SessionActions,

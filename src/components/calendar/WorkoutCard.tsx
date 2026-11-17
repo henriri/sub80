@@ -95,10 +95,14 @@ function Controls({
 /**
  * One planned session.
  *
- * Draggable only when the calendar is interactive and the session is still
- * planned: a completed run is history, and `validateMove` refuses to move one,
- * so offering a handle for it would be a lie. Read-only -- on /design, and
- * anywhere the provider is absent -- it renders exactly as it did before.
+ * Draggable only when the calendar is interactive and `sessionActions` says the
+ * session can move: a day that has come is history, a session with a run
+ * against it is finished, and the rules refuse to move either -- so offering a
+ * handle would be a lie. Read-only -- on /design, and anywhere the provider is
+ * absent -- it renders exactly as it did before.
+ *
+ * The handle is a real 44px target. So is "Move to…", which is the route for
+ * anyone who would rather not drag at all.
  */
 export function WorkoutCard({ item, size = "compact" }: WorkoutCardProps) {
   const move = useMove();

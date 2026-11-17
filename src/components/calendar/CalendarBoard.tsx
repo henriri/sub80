@@ -30,6 +30,7 @@ import {
   type CalendarViewModel,
 } from "@/lib/calendar";
 import {
+  canMoveSession,
   validateMove,
   type MoveCandidate,
   type MoveCheck,
@@ -274,14 +275,32 @@ export function CalendarBoard({
     [feedback, onUndo],
   );
 
+  /*
+   * Whether a card may be picked up, asked of the same function the detail page
+   * renders its buttons from -- not of the status here. A session the rules
+   * will not move must not offer a handle: a past planned session used to get
+   * one and then fail every drop it was dragged onto.
+   *
+   * The row comes out of `candidates`, which carries the day and the status a
+   * `CalendarItem` does not. One that has left the screen claims nothing, as
+   * `check` does for the same reason.
+   *
+   * `linkedRuns` is empty because the calendar reads no runs: a session with a
+   * run against it is `completed`, which the status gate already stops, and the
+   * card's own `hasRun` is what will be passed here once it exists.
+   */
   const api = useMemo<MoveApi>(
     () => ({
-      canMove: (item: CalendarItem) => item.status === "planned",
+      canMove: (item: CalendarItem) => {
+        const workout = candidates.find((candidate) => candidate.id === item.id);
+        if (!workout) return false;
+        return canMoveSession(workout, [], today);
+      },
       check,
       dragging,
       pick: setPicking,
     }),
-    [check, dragging],
+    [candidates, check, dragging, today],
   );
 
   const pickingFrom = candidates.find((candidate) => candidate.id === picking);

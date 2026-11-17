@@ -61,6 +61,39 @@ export type SessionActions = {
 };
 
 /**
+ * Whether a session can be picked up at all: dragged, or taken to the
+ * "Move to…" picker.
+ *
+ * Exported as its own predicate because the drag layer asks exactly this, about
+ * a card that carries no distances. `sessionActions` answers it with this
+ * function rather than beside it, so the handle on a card and the buttons on
+ * the detail page cannot come to different conclusions.
+ */
+export function canMoveSession(
+  session: Pick<SessionCandidate, "status" | "planned_date">,
+  linkedRuns: readonly LinkedRun[],
+  today: Ymd,
+): boolean {
+  if (linkedRuns.length > 0) return false;
+  return session.status === "planned" && isAhead(session, today);
+}
+
+/**
+ * Still ahead: not behind today -- which is `validateMove`'s own rule, asked of
+ * it rather than restated -- and not today either.
+ *
+ * A session dated today is not in the past, but it is no longer a plan: the
+ * thing to do with it is log the run, not rearrange it. That makes this
+ * strictly stricter than the server, which is the safe direction.
+ */
+function isAhead(
+  session: Pick<SessionCandidate, "planned_date">,
+  today: Ymd,
+): boolean {
+  return !isSourceInPast(session, today) && session.planned_date !== today;
+}
+
+/**
  * Everything a session offers, in one answer.
  *
  * A linked run closes the session down to its summary and an Edit run link:
@@ -88,22 +121,13 @@ export function sessionActions(
   }
 
   const planned = session.status === "planned";
-
-  /*
-   * Still ahead: not behind today -- which is `validateMove`'s own rule, asked
-   * of it rather than restated -- and not today either. A session dated today
-   * is not in the past, but it is no longer a plan: the thing to do with it is
-   * log the run, not rearrange it. That makes this strictly stricter than the
-   * server, which is the safe direction.
-   */
-  const ahead =
-    !isSourceInPast(session, today) && session.planned_date !== today;
+  const ahead = isAhead(session, today);
 
   return {
     done: false,
     // Nothing to log before the day has come, and everything to log from it on.
     canLogRun: !ahead,
-    canMove: planned && ahead,
+    canMove: canMoveSession(session, linkedRuns, today),
     canLighten: planned && ahead && canLighten(session, today),
     canRestore: planned && ahead && session.original_distance_m !== null,
     // Only a session still planned can be skipped. One already skipped, or
