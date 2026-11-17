@@ -3,10 +3,11 @@ import { z } from "zod";
 import {
   PICKER_WINDOW_DAYS,
   RUNS_PER_PAGE,
-  linkableWorkoutSchema,
+  chosenWorkoutSchema,
   linkableWorkoutsSchema,
   storedRunSchema,
   storedRunsSchema,
+  type ChosenWorkout,
   type LinkableWorkout,
   type ParsedRun,
   type StoredRun,
@@ -222,16 +223,18 @@ function withRunCount(row: object) {
  */
 export async function readLinkableWorkout(
   workoutId: string,
-): Promise<LinkableWorkout | null> {
+): Promise<ChosenWorkout | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("planned_workouts")
-    .select(LINKABLE_COLUMNS)
+    // Its own note too, which the picker's rows do not carry: it is prefilled
+    // into the run's notes field, and it is one row rather than a window.
+    .select(`${LINKABLE_COLUMNS}, notes`)
     .eq("id", workoutId)
     .maybeSingle();
 
   if (error) throw new Error(`Could not read the session: ${error.message}`);
-  return data === null ? null : linkableWorkoutSchema.parse(withRunCount(data));
+  return data === null ? null : chosenWorkoutSchema.parse(withRunCount(data));
 }
 
 /**

@@ -98,9 +98,20 @@ async function NewRunSection({
 
       <h1 className="text-heading-md">Log a run</h1>
 
+      {/*
+        The session's own note starts the run's note, when there is one. Notes
+        live on the run now -- there is no notes editor on a session any more --
+        and what the athlete wrote while planning the day belongs in front of
+        them while they say how it actually went. It is a starting point, like
+        the distance: editing or clearing it is the normal case.
+      */}
       <RunForm
         runId={null}
-        initial={{ ...initial, plannedWorkoutId: locked?.id ?? null }}
+        initial={{
+          ...initial,
+          plannedWorkoutId: locked?.id ?? null,
+          notes: locked?.notes ?? initial.notes,
+        }}
         workouts={workouts}
         lockedSession={locked}
         today={today}

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { storedRunSchema } from "./schemas";
+import {
+  chosenWorkoutSchema,
+  linkableWorkoutSchema,
+  storedRunSchema,
+} from "./schemas";
 
 const row = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -71,5 +75,40 @@ describe("storedRunSchema", () => {
     expect(() =>
       storedRunSchema.parse({ ...row, avg_hr: 150, hr_source: "optical" }),
     ).toThrow();
+  });
+});
+
+describe("chosenWorkoutSchema", () => {
+  const row = {
+    id: "00000000-0000-4000-8000-000000000001",
+    title: "Easy",
+    planned_date: "2027-03-18",
+    pace_zone: "E",
+    status: "planned",
+    target_distance_m: 8_000,
+    run_count: 0,
+    notes: "Calves were tight on Tuesday. Keep it honest.",
+  };
+
+  it("carries the session's own note, which the picker's rows do not", () => {
+    expect(chosenWorkoutSchema.parse(row).notes).toBe(row.notes);
+  });
+
+  it("accepts a session with no note", () => {
+    expect(chosenWorkoutSchema.parse({ ...row, notes: null }).notes).toBeNull();
+  });
+
+  it("is otherwise a linkable session, so the form takes it as one", () => {
+    // Same shape the picker reads, so `lockedSession` needs no second type.
+    const chosen = chosenWorkoutSchema.parse(row);
+    expect(linkableWorkoutSchema.parse(chosen)).toEqual({
+      id: chosen.id,
+      title: chosen.title,
+      planned_date: chosen.planned_date,
+      pace_zone: chosen.pace_zone,
+      status: chosen.status,
+      target_distance_m: chosen.target_distance_m,
+      run_count: chosen.run_count,
+    });
   });
 });

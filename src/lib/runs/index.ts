@@ -76,10 +76,12 @@ export {
   type ValidateRunInput,
 } from "./rules";
 export {
+  chosenWorkoutSchema,
   linkableWorkoutSchema,
   linkableWorkoutsSchema,
   storedRunSchema,
   storedRunsSchema,
+  type ChosenWorkout,
   type LinkableWorkout,
   type LinkedWorkout,
   type StoredRun,
