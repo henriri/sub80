@@ -149,6 +149,31 @@ would still accept it.
   is the athlete's call. The dialog asks and sends each warning's code; the server
   re-runs the rules and refuses any warning it was not given a code for.
 
+## PWA
+Installable on Android Chrome: `src/app/manifest.ts`, `display: "standalone"`, the icons in
+`public/icons`, and `viewportFit: "cover"` with the safe-area insets reserved once on `<body>`.
+
+**No service worker, and no offline caching.** Not an omission — a decision. Every page is one
+athlete's health data behind auth, and a cache that serves a stale week, or a response from
+another session, is a worse failure than no offline support at all. **Offline or push needs a
+design decision before any code**: what may be cached, how it is scoped to a user, and how it is
+invalidated when the plan changes.
+
+What that costs: Chrome will not *promote* the install, because the automatic prompt still wants
+a `fetch()` handler. Installing from the ⋮ menu does not, and has not since Chrome 108 on
+mobile, so the athlete installs once by hand. For one user that is the right trade.
+
+- A manifest cannot read a CSS variable, so its colours are literal hex in
+  `src/lib/design/manifest-theme.ts`, derived from `--color-bg-canvas` through `resolveToken`
+  and `srgbHex` and locked by a test that re-runs the derivation. Never type a colour in there.
+- `theme_color` is **light only**, because `<html>` is pinned to `defaultModes`. Add the dark
+  media variant when a theme switcher exists — until then it would darken the status bar over a
+  light page on a phone set to dark mode.
+- The icons are a **placeholder** from `tools/icons/generate.mts`, run by hand with the outputs
+  committed. The Figma pass replaces them.
+- The app is private: `src/app/robots.ts` disallows everything and the layout sets
+  `robots: { index: false, follow: false }`.
+
 ## Code conventions
 - TypeScript strict, no `any`. Validate all external input (forms, FIT files, webhooks) with a schema.
 - Server components by default. Client components only for interaction.

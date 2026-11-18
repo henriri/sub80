@@ -83,6 +83,12 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       tokens: range("--space", [0, "0-5", 1, 2, 3, 4, 5, 6, 8, 10, 12, 16]),
     },
     {
+      // What the device keeps for itself. Not on the scale: it decides them.
+      name: "Safe area",
+      kind: "space",
+      tokens: range("--space-safe-area", ["bottom", "left", "right"]),
+    },
+    {
       name: "Size",
       kind: "size",
       tokens: ["--size-touch-target", "--size-dialog-max"],
@@ -182,6 +188,7 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         ...range("--space-stack", ["sm", "md", "lg"]),
         ...range("--space-inline", ["xs", "sm", "md"]),
         "--space-focus-offset",
+        ...range("--space-safe", ["bottom", "left", "right"]),
       ],
     },
     {
