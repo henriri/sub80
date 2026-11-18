@@ -7,13 +7,17 @@ import {
   linkableWorkoutsSchema,
   storedRunSchema,
   storedRunsSchema,
+  yearRunRowsSchema,
   type ChosenWorkout,
   type LinkableWorkout,
   type ParsedRun,
   type StoredRun,
+  type YearRunRow,
 } from "@/lib/runs";
+import { runWindow } from "@/lib/calendar/year";
 import { addDays, type Ymd } from "@/lib/plan/dates";
 import { createClient } from "@/lib/supabase/server";
+import { POSTGREST_MAX_ROWS, assertAllRows } from "./limits";
 import { isRefusal, refusal } from "./rpc";
 
 /**
@@ -128,6 +132,43 @@ export async function readRuns(userId: string, page: number): Promise<StoredRun[
   if (error) throw new Error(`Could not read the runs: ${error.message}`);
   // Rows cross a boundary, so they are validated rather than trusted.
   return storedRunsSchema.parse(data);
+}
+
+/**
+ * A year's runs, as two numbers a month: the instant and the distance.
+ *
+ * Every run, linked to a session or not -- `planned_workout_id` is not even
+ * read. An unlinked run is still a run that happened, and whether the plan
+ * claims it is a different question from how far the athlete ran in March.
+ *
+ * The window is WIDER than the year, by a day either side: `started_at` is an
+ * instant and a Paris year is not a UTC year, so 00:30 on 1 January in Paris
+ * is 31 December in UTC. `monthTotals` buckets by Paris date and discards the
+ * slack, which keeps the boundary arithmetic in a tested function rather than
+ * in this query string.
+ */
+export async function readYearRuns(
+  userId: string,
+  year: number,
+): Promise<YearRunRow[]> {
+  const { from, to } = runWindow(year);
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("activities")
+    .select("started_at, distance_m")
+    .eq("user_id", userId)
+    .gte("started_at", from)
+    .lt("started_at", to)
+    .order("started_at", { ascending: true })
+    .limit(POSTGREST_MAX_ROWS);
+
+  if (error) throw new Error(`Could not read the year's runs: ${error.message}`);
+
+  // A year is some 300 runs, so the limit means something has gone wrong --
+  // and a truncated year reads as a year the athlete ran less in than they did.
+  assertAllRows(data.length, `The runs for ${year}`);
+  // Rows cross a boundary, so they are validated rather than trusted.
+  return yearRunRowsSchema.parse(data);
 }
 
 /** One run in full by id, or null when it is not the caller's. */

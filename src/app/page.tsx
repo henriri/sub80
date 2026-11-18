@@ -6,16 +6,21 @@ import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
 import { requireUser } from "@/lib/auth/require-user";
 import {
   buildCalendarView,
+  buildYearView,
   calendarHref,
+  clampYear,
   fetchRange,
   parseCalendarParams,
   visibleEnd,
   visibleRange,
+  yearOf,
 } from "@/lib/calendar";
+import { readYearRuns } from "@/lib/data/activities";
 import {
   countPlannedWorkouts,
   readNextWorkouts,
   readVdot,
+  readYearPlanned,
 } from "@/lib/data/planned-workouts";
 import { parisDate } from "@/lib/plan";
 import { signOut } from "./actions";
@@ -68,6 +73,36 @@ async function CalendarSection({
   if (!parsed.ok) redirect(calendarHref(parsed.fallback));
 
   const { view, date } = parsed.params;
+
+  /*
+   * The year is its own path: it is built from two columns of totals rather
+   * than from sessions, so it reads a date and a distance per row and adds
+   * them up here. No session, no pace, no VDOT.
+   */
+  if (view === "year") {
+    const year = clampYear(yearOf(date));
+    // A year the plan never reaches has no twelve months to show, so the URL
+    // goes to the nearest one it does rather than rendering an empty grid.
+    if (year !== yearOf(date)) {
+      redirect(calendarHref({ view, date: `${year}-01-01` }));
+    }
+
+    const [planned, sessions, runs] = await Promise.all([
+      countPlannedWorkouts(user.id),
+      readYearPlanned(user.id, year),
+      readYearRuns(user.id, year),
+    ]);
+
+    if (planned === 0) return <NoPlan />;
+
+    return (
+      <Calendar
+        model={buildYearView({ date, today, planned: sessions, runs })}
+        today={today}
+      />
+    );
+  }
+
   // The visible range plus a day either side, so a drop on the first or last
   // visible day can see the neighbour it would land next to and the
   // consecutive-key warning appears before the drop rather than after it.

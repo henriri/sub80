@@ -14,12 +14,14 @@ export {
   type PlanEventSummary,
   type UndoableEventKind,
 } from "./change-messages";
+export { niceAxis, type Axis } from "./axis";
 export {
   formatDateRange,
   formatDayName,
   formatFullDate,
   formatKm,
   formatKmValue,
+  formatMonthName,
   formatMonthTitle,
   formatWeekdayShort,
 } from "./format";
@@ -62,12 +64,29 @@ export {
   monthRange,
   monthStart,
   step,
+  stepTarget,
   visibleEnd,
   visibleRange,
   weekRange,
   type MonthRange,
   type WeekRange,
 } from "./range";
+export {
+  MONTHS_IN_YEAR,
+  PLAN_YEARS,
+  canStepYear,
+  clampYear,
+  focusNumbers,
+  monthTotals,
+  runWindow,
+  yearOf,
+  yearRange,
+  type FocusNumbers,
+  type MonthTotal,
+  type PlannedMonthRow,
+  type RunMonthRow,
+  type YearRange,
+} from "./year";
 export {
   OUTSIDE_PLAN,
   buildCalendarView,
@@ -87,6 +106,15 @@ export {
   type DayViewModel,
   type MonthDay,
   type MonthViewModel,
+  type SessionView,
+  type SessionViewModel,
   type ViewInput,
   type WeekViewModel,
 } from "./view-model";
+export {
+  buildYearView,
+  type YearFocus,
+  type YearMonth,
+  type YearViewInput,
+  type YearViewModel,
+} from "./year-view";

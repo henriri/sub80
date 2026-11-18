@@ -12,15 +12,18 @@ import {
   MONTH_GRID_DAYS,
   addMonths,
   daysInMonth,
+  daysInYear,
   monthEnd,
   monthRange,
   monthStart,
   fetchRange,
   step,
+  stepTarget,
   visibleEnd,
   visibleRange,
   weekRange,
 } from "./range";
+import { PLAN_YEARS } from "./year";
 
 describe("weekRange", () => {
   it("runs Monday to Sunday whatever day it is given", () => {
@@ -140,6 +143,18 @@ describe("visibleRange", () => {
       from: "2027-03-18",
       days: 1,
     });
+    expect(visibleRange("year", "2027-03-18")).toEqual({
+      from: "2027-01-01",
+      days: 365,
+    });
+  });
+
+  it("counts a leap year's extra day", () => {
+    expect(daysInYear("2028-04-16")).toBe(366);
+    expect(visibleRange("year", "2028-04-16")).toEqual({
+      from: "2028-01-01",
+      days: 366,
+    });
   });
 });
 
@@ -164,6 +179,36 @@ describe("step", () => {
     for (let i = 0; i < 12; i++) date = step("month", date, 1);
     for (let i = 0; i < 12; i++) date = step("month", date, -1);
     expect(date).toBe("2027-01-01");
+  });
+
+  it("lands on 1 January, so paging a year cannot drift either", () => {
+    expect(step("year", "2027-03-18", 1)).toBe("2028-01-01");
+    expect(step("year", "2027-03-18", -1)).toBe("2026-01-01");
+    // A leap day has nowhere to drift to: the step does not keep the day.
+    expect(step("year", "2028-02-29", -1)).toBe("2027-01-01");
+  });
+});
+
+describe("stepTarget", () => {
+  it("stops at the first year the plan reaches", () => {
+    const first = `${PLAN_YEARS.first}-01-01`;
+    expect(stepTarget("year", first, -1)).toBeNull();
+    expect(stepTarget("year", first, 1)).toBe(`${PLAN_YEARS.first + 1}-01-01`);
+  });
+
+  it("stops at the last year the plan reaches", () => {
+    const last = `${PLAN_YEARS.last}-06-01`;
+    expect(stepTarget("year", last, 1)).toBeNull();
+    expect(stepTarget("year", last, -1)).toBe(`${PLAN_YEARS.last - 1}-01-01`);
+  });
+
+  it("leaves the other three views unbounded", () => {
+    // Browsing to the week before the plan starts shows an empty week, which
+    // is a true answer. Only a year has twelve months that would be nothing.
+    for (const view of ["week", "month", "day"] as const) {
+      expect(stepTarget(view, PLAN_START, -1)).toBe(step(view, PLAN_START, -1));
+      expect(stepTarget(view, RACE_DATE, 1)).toBe(step(view, RACE_DATE, 1));
+    }
   });
 });
 

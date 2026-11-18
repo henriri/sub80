@@ -68,10 +68,12 @@ export {
   storedWorkoutsWithRunsSchema,
   vdotSchema,
   workoutDetailSchema,
+  yearPlannedRowsSchema,
   type StoredWorkout,
   type StoredWorkoutWithRuns,
   type WorkoutDetail,
   type WorkoutRun,
+  type YearPlannedRow,
 } from "./rows-schema";
 export {
   canMoveSession,

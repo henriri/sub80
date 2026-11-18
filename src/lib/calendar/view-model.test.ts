@@ -22,7 +22,7 @@ import {
   plannedKmFor,
   sumMetres,
   weekTitle,
-  type CalendarViewModel,
+  type SessionViewModel,
 } from "./view-model";
 import { workoutHref } from "./params";
 import { visibleEnd, visibleRange } from "./range";
@@ -355,7 +355,7 @@ describe("buildCalendarView", () => {
 });
 
 /** Every rendered day of any of the three views, so one test covers all. */
-function daysOf(model: CalendarViewModel) {
+function daysOf(model: SessionViewModel) {
   switch (model.view) {
     case "week":
       return model.days;
@@ -434,7 +434,7 @@ describe("the days loaded either side of the visible range", () => {
     // read against and deepEqual passing for the wrong reason would be quiet.
     for (const view of ["week", "month", "day"] as const) {
       const { without, with: padded } = pair(view);
-      const totals = (model: CalendarViewModel) =>
+      const totals = (model: SessionViewModel) =>
         daysOf(model).map((day) => day.metres);
 
       expect(totals(padded)).toEqual(totals(without));

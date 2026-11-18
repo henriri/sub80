@@ -87,10 +87,12 @@ export {
   linkableWorkoutsSchema,
   storedRunSchema,
   storedRunsSchema,
+  yearRunRowsSchema,
   type ChosenWorkout,
   type LinkableWorkout,
   type LinkedWorkout,
   type StoredRun,
+  type YearRunRow,
 } from "./schemas";
 export {
   NOTES_EXCERPT_LENGTH,

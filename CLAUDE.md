@@ -50,7 +50,12 @@ Before opening a PR, `pnpm lint && pnpm typecheck && pnpm test` must pass.
 
 - Tailwind only knows tokens: the default palette, radii, fonts, type scale and spacing are removed in `src/app/globals.css`. Use semantic utilities (`bg-surface`, `text-secondary`, `rounded-control`, `p-inset-md`, `gap-stack-md`, `font-heading`, `text-body`). Use component tokens through the variable syntax (`bg-(--button-bg)`).
 - Components may not contain literal colours, radii, font families or spacing values. Use tokens only. The `sub80/no-literal-design-values` lint rule (`tools/eslint`) enforces this in `src/components` and `src/app`, so do not disable it. Components have no CSS files of their own.
-- Text and background pairs meet WCAG AA (4.5:1) in every theme and palette.
+- Text and background pairs meet WCAG AA (4.5:1) in every theme and palette. A mark that
+  carries meaning on its own — a ring, an outline, a bar in a chart — meets 3:1, and nothing
+  is ever distinguished by colour alone. One deliberate exception, written in the CSS and in
+  `contrast.test.ts`: the year chart's **planned** bar is quiet and fails 3:1 on purpose, so
+  its border carries the meaning and is held at 3:1 against both the surface and the fill. A
+  gridline is a ruler, not a meaning, and is held to no ratio.
 - A hidden `/design` page shows every token and component in every mode. Add new components there.
 - Token names mirror Figma variables one to one: `color/neutral/100` in Figma is `--color-neutral-100` in CSS. Do not rename a token without saying so in the PR.
 
@@ -133,8 +138,8 @@ its countdown runs out stands, even though the event is still there and the data
 would still accept it.
 
 ## Screens
-- `/` the calendar. `/workouts/[id]` one planned session. `/design` the hidden
-  specimen page.
+- `/` the calendar, in four views: `?view=week|month|day|year`. `/workouts/[id]` one
+  planned session. `/design` the hidden specimen page.
 - `/runs` the whole logbook, newest first, 20 to a page. `/runs/new` logs one by hand.
   `/runs/[id]` views, edits and deletes one. Reached from the calendar header and from
   a session's own page, which also lists the runs logged against it.
@@ -152,6 +157,39 @@ would still accept it.
 - A **warning** is confirmed, never refused: an odd pace or a second run on one session
   is the athlete's call. The dialog asks and sends each warning's code; the server
   re-runs the rules and refuses any warning it was not given a code for.
+
+### The Year view
+The season: kilometres logged this year, twelve months of logged against planned, and the
+month in progress. Built from two narrow reads and added up in TypeScript — no RPC, no
+migration, no chart library. `src/lib/calendar/year.ts` holds the arithmetic,
+`year-view.ts` the model, and `YearChart`, `BigNumber` and `FocusCard` render it.
+**Unskinned**: correct and token-only, with the visual design still to come from Figma.
+
+Two definitions, which every number on that screen depends on:
+
+- **Logged** is `activities.distance_m` for **every** run in the month, linked to a session
+  or not. An unlinked run is still a run that happened; whether the plan claims it is a
+  different question.
+- **Planned** is `planned_workouts.target_distance_m` for **every** session in the month,
+  **whatever its status**. A skipped session stays in the planned total, so the shortfall
+  shows up as the gap it is. A rest day's null counts as 0. The distance read is the plan as
+  it stands: a day made lighter counts as the lighter number, not as the original with a gap
+  the athlete never created, so `original_distance_m` is not read here.
+
+Both sides are bucketed by their **Europe/Paris** date — a session by `planned_date`, a run by
+`parisDate(started_at)`, the same conversion the logbook uses. The runs read therefore asks
+for a UTC window a day wider than the year and `monthTotals` discards the slack: 00:30 on
+1 January in Paris is 31 December in UTC, and a year sliced in UTC files it in the wrong month.
+
+Navigation is limited to the calendar years the plan overlaps, derived from `PLAN_START` and
+`RACE_DATE` by `PLAN_YEARS`. A year outside them is a redirect to the nearest one, and the
+button at either end is a disabled control rather than a missing one.
+
+Both year reads pass the PostgREST row limit explicitly and `assertAllRows`
+(`src/lib/data/limits.ts`) **throws** when one comes back full. PostgREST truncates silently,
+and a truncated year is the worst failure this screen has: it reads as a year in which the
+athlete ran less than they did, with nothing on the page looking wrong. Any new read that
+could grow does the same.
 
 ## PWA
 Installable on Android Chrome: `src/app/manifest.ts`, `display: "standalone"`, the icons in

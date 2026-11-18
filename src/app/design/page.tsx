@@ -4,9 +4,12 @@ import { ChoiceGroup } from "@/components/ChoiceGroup";
 import { TextArea } from "@/components/TextArea";
 import { TextField } from "@/components/TextField";
 import { WorkoutList } from "@/components/WorkoutList";
+import { BigNumber } from "@/components/calendar/BigNumber";
 import { Calendar } from "@/components/calendar/Calendar";
 import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
 import { DoneBadge } from "@/components/calendar/DoneBadge";
+import { FocusCard } from "@/components/calendar/FocusCard";
+import { YearChart } from "@/components/calendar/YearChart";
 import { KindBadge } from "@/components/calendar/KindBadge";
 import { WorkoutCard } from "@/components/calendar/WorkoutCard";
 import type { WorkoutActionsProps } from "@/components/workout/WorkoutActions";
@@ -25,7 +28,10 @@ import {
   buildDayView,
   buildMonthView,
   buildWeekView,
+  buildYearView,
+  focusNumbers,
   type CalendarItem,
+  type YearFocus,
 } from "@/lib/calendar";
 import {
   WORKOUT_KINDS,
@@ -412,6 +418,58 @@ const sampleItems: readonly CalendarItem[] = sampleWeek.days.flatMap(
   (day) => day.items,
 );
 
+/**
+ * A year of synthetic totals: one session and one run a month, growing, with
+ * March over its plan and a couple of months still empty.
+ *
+ * Shaped like the rows the year read returns, not like sessions: the year view
+ * adds up two numbers a month and knows nothing else about them.
+ */
+const sampleYearPlanned = [
+  { planned_date: "2027-01-11", target_distance_m: 180_000 },
+  { planned_date: "2027-02-08", target_distance_m: 200_000 },
+  { planned_date: "2027-03-08", target_distance_m: 210_000 },
+  // A rest month in the plan: null is a rest day, which counts as 0.
+  { planned_date: "2027-04-05", target_distance_m: null },
+  { planned_date: "2027-05-10", target_distance_m: 230_000 },
+  { planned_date: "2027-06-07", target_distance_m: 240_000 },
+];
+
+const sampleYearRuns = [
+  { started_at: "2027-01-12T09:00:00Z", distance_m: 164_000 },
+  { started_at: "2027-02-09T09:00:00Z", distance_m: 198_000 },
+  // Over its plan, which is what the chart has to be able to draw.
+  { started_at: "2027-03-09T09:00:00Z", distance_m: 232_000 },
+  { started_at: "2027-04-06T09:00:00Z", distance_m: 90_000 },
+];
+
+const sampleYear = buildYearView({
+  date: SAMPLE_DATE,
+  today: SAMPLE_DATE,
+  planned: sampleYearPlanned,
+  runs: sampleYearRuns,
+});
+
+/** A year the athlete has not reached: no plan, no runs, no axis. */
+const sampleEmptyYear = buildYearView({
+  date: "2028-06-01",
+  today: SAMPLE_DATE,
+  planned: [],
+  runs: [],
+});
+
+/** The month in focus, run past its plan: 0 to go, over 100%, bar clamped. */
+const sampleOverFocus: YearFocus = {
+  monthName: "March",
+  ...focusNumbers(232_000, 210_000),
+};
+
+/** Nothing planned this month, so there is no percentage to state. */
+const sampleUnplannedFocus: YearFocus = {
+  monthName: "April",
+  ...focusNumbers(90_000, 0),
+};
+
 /** A bordered surface, as the component cards on this page use. */
 const card = [
   "flex flex-col gap-stack-md rounded-surface bg-surface p-inset-md",
@@ -515,6 +573,9 @@ function Sample() {
       </p>
       <div className="rounded-surface bg-raised p-inset-sm text-small">Raised surface</div>
       <WorkoutList items={sampleWorkouts.slice(0, 1)} vdot={SAMPLE_VDOT} />
+      {/* The chart in every theme and palette: the two series and the current
+          month's accent have to stay apart in all four. */}
+      <YearChart year={sampleYear} headingLevel={3} />
       <KindBadges size="label" />
       <KindBadges size="short" />
       <div className="flex flex-wrap items-center gap-inline-md">
@@ -677,6 +738,73 @@ export default function DesignPage() {
           <div className={card}>
             <h3 className="text-heading-sm">Calendar · day</h3>
             <Calendar model={sampleDay} today={SAMPLE_DATE} titleLevel={4} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">Calendar · year</h3>
+            <p className="text-small text-secondary">
+              Unskinned: correct numbers, names, contrast and hit areas, with
+              the visual design still to come. Twelve columns with no gaps
+              between them, each one a link into that month — about 25px wide
+              and the full height of the plot at 390px.
+            </p>
+            <Calendar model={sampleYear} today={SAMPLE_DATE} titleLevel={4} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">Calendar · year, nothing in it</h3>
+            <p className="text-small text-secondary">
+              A year the athlete has not reached. No bars and no scale: a
+              0-to-10 axis with nothing on it would look like data. The
+              previous button is live and the next one is a disabled control,
+              because 2028 is the last year the plan runs through.
+            </p>
+            <Calendar model={sampleEmptyYear} today={SAMPLE_DATE} titleLevel={4} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">BigNumber</h3>
+            <p className="text-small text-secondary">
+              One measurement and the line that gives it a scale. Not a card:
+              it is the answer to the heading above it.
+            </p>
+            <BigNumber
+              eyebrow="The big picture"
+              value={sampleYear.loggedKm}
+              unit="km"
+              caption={`of ${sampleYear.plannedKm} km planned`}
+            />
+            <BigNumber eyebrow="The big picture" value={0} unit="km" caption="of 0 km planned" />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">YearChart</h3>
+            <p className="text-small text-secondary">
+              Logged against planned on one axis. The planned bar is quiet on
+              purpose and fails 3:1 against the surface, so its outline carries
+              the meaning instead; the series are named in words as well as
+              filled. March is over its plan here, and July onwards has neither
+              a plan nor a run, so those months draw no bar at all.
+            </p>
+            <YearChart year={sampleYear} headingLevel={4} />
+            <YearChart year={sampleEmptyYear} headingLevel={4} />
+          </div>
+
+          <div className={card}>
+            <h3 className="text-heading-sm">FocusCard</h3>
+            <p className="text-small text-secondary">
+              &ldquo;Of planned&rdquo;, never &ldquo;of goal&rdquo;: a month has
+              no goal, only a plan that asked for a distance. Run past the plan
+              there is nothing left to go, the percentage still says 110% and
+              the bar stops at the end of its track. With nothing planned there
+              is no percentage and no bar — a fraction of zero is a question
+              with no answer.
+            </p>
+            {sampleYear.focus === null ? null : (
+              <FocusCard focus={sampleYear.focus} headingLevel={4} />
+            )}
+            <FocusCard focus={sampleOverFocus} headingLevel={4} />
+            <FocusCard focus={sampleUnplannedFocus} headingLevel={4} />
           </div>
 
           <div className={card}>

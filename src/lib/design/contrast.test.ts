@@ -60,6 +60,8 @@ const textPairs: Pair[] = [
   { fg: "--cal-done-fg", bg: "--cal-done-bg" },
   { fg: "--cal-card-fg", bg: "--cal-done-bg" },
   { fg: "--cal-done-badge-fg", bg: "--cal-done-badge-bg" },
+  // The year chart's axis labels: numbers on the card the plot sits on.
+  { fg: "--chart-axis-fg", bg: "--color-bg-surface" },
   // An option in a radio group, picked and not picked. The number inside it
   // IS the choice, so it has to read in both states.
   { fg: "--choice-fg", bg: "--choice-bg" },
@@ -86,6 +88,20 @@ const nonTextPairs: Pair[] = [
   { fg: "--cal-done-badge-bg", bg: "--cal-cell-bg" },
   // An unpicked option's outline is what shows there is something to tap.
   { fg: "--choice-border", bg: "--choice-bg" },
+  /*
+   * The year chart. A bar IS the measurement, so it has to stand on its own
+   * against the card behind it, and the progress fill against its track.
+   *
+   * --chart-planned-bg is not in this list: a quiet bar for what was asked is
+   * the right weight and it does not reach 3:1 on purpose, so its border
+   * carries the meaning instead -- against the card AND against its own fill,
+   * since an outline nobody can see inside a pale bar is not an outline.
+   */
+  { fg: "--chart-logged-bg", bg: "--color-bg-surface" },
+  { fg: "--chart-current-accent", bg: "--color-bg-surface" },
+  { fg: "--chart-planned-border", bg: "--color-bg-surface" },
+  { fg: "--chart-planned-border", bg: "--chart-planned-bg" },
+  { fg: "--chart-progress-fill", bg: "--chart-progress-track" },
 ];
 
 const combinations = modes.theme.flatMap((theme) =>

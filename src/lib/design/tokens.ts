@@ -91,7 +91,14 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
     {
       name: "Size",
       kind: "size",
-      tokens: ["--size-touch-target", "--size-dialog-max"],
+      tokens: [
+        "--size-touch-target",
+        "--size-dialog-max",
+        // A plot's own geometry: the chart decides these, not the scale.
+        "--size-chart-plot",
+        "--size-chart-axis",
+        "--size-chart-bar-min",
+      ],
     },
     {
       name: "Scrim",
@@ -173,6 +180,18 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
         "--color-done-mark-fg",
       ],
     },
+    {
+      name: "Chart",
+      kind: "color",
+      tokens: [
+        "--color-chart-logged",
+        "--color-chart-planned",
+        "--color-chart-planned-border",
+        "--color-chart-current",
+        "--color-chart-gridline",
+        "--color-chart-axis",
+      ],
+    },
     { name: "Elevation", kind: "shadow", tokens: ["--shadow-overlay"] },
     { name: "Workout kind", kind: "color", tokens: kindTokens },
     {
@@ -194,7 +213,13 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
     {
       name: "Size",
       kind: "size",
-      tokens: ["--size-touch-min", "--size-dialog-width"],
+      tokens: [
+        "--size-touch-min",
+        "--size-dialog-width",
+        "--size-chart-height",
+        "--size-chart-gutter",
+        "--size-chart-floor",
+      ],
     },
     {
       name: "Border width",
@@ -373,6 +398,35 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       name: "Calendar font size",
       kind: "font-size",
       tokens: ["--cal-marker-font-size"],
+    },
+    {
+      name: "Chart colour",
+      kind: "color",
+      tokens: [
+        "--chart-logged-bg",
+        "--chart-planned-bg",
+        "--chart-planned-border",
+        "--chart-current-accent",
+        "--chart-gridline",
+        "--chart-axis-fg",
+        "--chart-progress-track",
+        "--chart-progress-fill",
+      ],
+    },
+    {
+      name: "Chart size",
+      kind: "size",
+      tokens: ["--chart-plot-height", "--chart-axis-width", "--chart-bar-min-height"],
+    },
+    {
+      name: "Chart space",
+      kind: "space",
+      tokens: ["--chart-progress-height", "--chart-swatch-size"],
+    },
+    {
+      name: "Chart border width",
+      kind: "border-width",
+      tokens: ["--chart-current-width"],
     },
   ],
 };
