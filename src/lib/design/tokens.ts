@@ -418,7 +418,16 @@ export const tokens: Record<TokenLayer, readonly TokenGroup[]> = {
       kind: "size",
       tokens: ["--chart-plot-height", "--chart-axis-width", "--chart-bar-min-height"],
     },
-    { name: "Chart space", kind: "space", tokens: ["--chart-progress-height"] },
+    {
+      name: "Chart space",
+      kind: "space",
+      tokens: ["--chart-progress-height", "--chart-swatch-size"],
+    },
+    {
+      name: "Chart border width",
+      kind: "border-width",
+      tokens: ["--chart-current-width"],
+    },
   ],
 };
 

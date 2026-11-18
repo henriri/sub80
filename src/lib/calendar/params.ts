@@ -1,5 +1,5 @@
 /**
- * The calendar's URL state: `?view=week|month|day` and `?date=YYYY-MM-DD`.
+ * The calendar's URL state: `?view=week|month|day|year` and `?date=YYYY-MM-DD`.
  *
  * Both are optional. A missing view is a week, a missing date is today, and
  * anything else present but unreadable is a redirect back to the default, so a
@@ -9,7 +9,7 @@
 import { z } from "zod";
 import type { Ymd } from "@/lib/plan";
 
-export const CALENDAR_VIEWS = ["week", "month", "day"] as const;
+export const CALENDAR_VIEWS = ["week", "month", "day", "year"] as const;
 
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];
 

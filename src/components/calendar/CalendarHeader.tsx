@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { calendarHref, step, type CalendarView } from "@/lib/calendar";
+import { calendarHref, stepTarget, type CalendarView } from "@/lib/calendar";
 import type { Ymd } from "@/lib/plan";
 import { ViewSwitcher } from "./ViewSwitcher";
-import { navLink } from "./styles";
+import { joinClasses, navLink } from "./styles";
 
 type CalendarHeaderProps = {
   view: CalendarView;
@@ -23,9 +23,56 @@ const unit: Record<CalendarView, string> = {
   week: "week",
   month: "month",
   day: "day",
+  year: "year",
 };
 
 const headings = { 1: "h1", 2: "h2", 3: "h3", 4: "h4" } as const;
+
+/**
+ * Previous or next.
+ *
+ * A step with nowhere to go is a disabled control rather than a missing one:
+ * the year view stops at the years the plan runs through, and a button that
+ * vanished at the edge would move the two beside it under the thumb that was
+ * reaching for them. `aria-disabled` with no href keeps it out of the tab
+ * order while leaving it where it was.
+ */
+function StepLink({
+  view,
+  date,
+  delta,
+  children,
+}: {
+  view: CalendarView;
+  date: Ymd;
+  delta: -1 | 1;
+  children: string;
+}) {
+  const target = stepTarget(view, date, delta);
+  const label = `${delta < 0 ? "Previous" : "Next"} ${unit[view]}`;
+
+  if (target === null) {
+    return (
+      <span
+        aria-disabled="true"
+        aria-label={label}
+        className={joinClasses(navLink, "text-secondary")}
+      >
+        <span aria-hidden="true">{children}</span>
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={calendarHref({ view, date: target })}
+      aria-label={label}
+      className={navLink}
+    >
+      <span aria-hidden="true">{children}</span>
+    </Link>
+  );
+}
 
 export function CalendarHeader({
   view,
@@ -46,13 +93,9 @@ export function CalendarHeader({
           aria-label="Move through the calendar"
           className="flex gap-(--cal-header-gap)"
         >
-          <Link
-            href={calendarHref({ view, date: step(view, date, -1) })}
-            aria-label={`Previous ${unit[view]}`}
-            className={navLink}
-          >
-            <span aria-hidden="true">←</span>
-          </Link>
+          <StepLink view={view} date={date} delta={-1}>
+            ←
+          </StepLink>
           <Link
             href={calendarHref({ view, date: today })}
             aria-label={`Today, in the ${unit[view]} view`}
@@ -60,13 +103,9 @@ export function CalendarHeader({
           >
             Today
           </Link>
-          <Link
-            href={calendarHref({ view, date: step(view, date, 1) })}
-            aria-label={`Next ${unit[view]}`}
-            className={navLink}
-          >
-            <span aria-hidden="true">→</span>
-          </Link>
+          <StepLink view={view} date={date} delta={1}>
+            →
+          </StepLink>
         </nav>
 
         {/*

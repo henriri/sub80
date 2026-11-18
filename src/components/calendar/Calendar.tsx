@@ -9,6 +9,7 @@ import { CalendarHeader } from "./CalendarHeader";
 import { DayView } from "./DayView";
 import { MonthView } from "./MonthView";
 import { WeekView } from "./WeekView";
+import { YearView } from "./YearView";
 
 type CalendarProps = {
   model: CalendarViewModel;
@@ -37,6 +38,7 @@ function subtitleOf(model: CalendarViewModel): string | null {
     case "day":
       return model.subtitle;
     case "month":
+    case "year":
       return null;
   }
 }
@@ -62,7 +64,13 @@ export function Calendar({
         titleLevel={titleLevel}
       />
 
-      {interactive ? (
+      {/*
+        The year is never the board's: there is nothing on it to drag, so it
+        renders the same whether or not the page asked for interaction.
+      */}
+      {model.view === "year" ? (
+        <YearView year={model} titleLevel={titleLevel} />
+      ) : interactive ? (
         <CalendarBoard
           model={model}
           today={today}

@@ -595,6 +595,8 @@
   --chart-current-accent: var(--color-chart-current);
   --chart-gridline: var(--color-chart-gridline);
   --chart-axis-fg: var(--color-chart-axis);
+  --chart-current-width: var(--border-width-focus);
+  --chart-swatch-size: var(--space-inline-md);
   --chart-plot-height: var(--size-chart-height);
   --chart-axis-width: var(--size-chart-gutter);
   --chart-bar-min-height: var(--size-chart-floor);

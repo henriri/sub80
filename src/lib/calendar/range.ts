@@ -5,8 +5,9 @@
  * and a daylight-saving change cannot shift a day.
  */
 
-import { addDays, dayOfWeek, type Ymd } from "@/lib/plan";
+import { addDays, diffDays, dayOfWeek, type Ymd } from "@/lib/plan";
 import type { CalendarView } from "./params";
+import { canStepYear } from "./year";
 
 export const DAYS_IN_WEEK = 7;
 /**
@@ -99,6 +100,16 @@ export function monthRange(date: Ymd): MonthRange {
   };
 }
 
+export function yearStart(date: Ymd): Ymd {
+  return `${parts(date).year}-01-01`;
+}
+
+/** 365 or 366. Taken from the next January, so a leap year needs no rule. */
+export function daysInYear(date: Ymd): number {
+  const start = yearStart(date);
+  return diffDays(start, `${parts(start).year + 1}-01-01`);
+}
+
 /** What to fetch: a first date and a day count, straight into readNextWorkouts. */
 export function visibleRange(
   view: CalendarView,
@@ -111,6 +122,8 @@ export function visibleRange(
       return { from: monthRange(date).gridStart, days: MONTH_GRID_DAYS };
     case "day":
       return { from: date, days: 1 };
+    case "year":
+      return { from: yearStart(date), days: daysInYear(date) };
   }
 }
 
@@ -152,7 +165,9 @@ export function fetchRange(
   date: Ymd,
 ): { from: Ymd; days: number } {
   const { from, days } = visibleRange(view, date);
-  if (view === "day") return { from, days };
+  // Neither the day nor the year has a drag to pad for: the day is its own
+  // only drop target, and the year renders totals rather than sessions.
+  if (view === "day" || view === "year") return { from, days };
 
   return {
     from: addDays(from, -EDGE_PADDING_DAYS),
@@ -162,7 +177,8 @@ export function fetchRange(
 
 /**
  * Previous (`-1`) or next (`+1`). A month step lands on the first of the month,
- * so paging back and forth cannot drift off the end of a short month.
+ * so paging back and forth cannot drift off the end of a short month, and a
+ * year step lands on 1 January for the same reason.
  */
 export function step(view: CalendarView, date: Ymd, delta: number): Ymd {
   switch (view) {
@@ -172,5 +188,25 @@ export function step(view: CalendarView, date: Ymd, delta: number): Ymd {
       return addMonths(monthStart(date), delta);
     case "day":
       return addDays(date, delta);
+    case "year":
+      return `${parts(date).year + delta}-01-01`;
   }
+}
+
+/**
+ * Where previous or next goes, or null when there is nowhere to go.
+ *
+ * Only the year is bounded. A week, a month and a day stay unbounded on
+ * purpose -- browsing to the week before the plan starts shows an empty week,
+ * which is a true answer -- but a year the plan never reaches has no twelve
+ * months to add up, so the buttons at either end are disabled rather than
+ * leading somewhere blank.
+ */
+export function stepTarget(
+  view: CalendarView,
+  date: Ymd,
+  delta: number,
+): Ymd | null {
+  if (view === "year" && !canStepYear(parts(date).year, delta)) return null;
+  return step(view, date, delta);
 }

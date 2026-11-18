@@ -6,6 +6,7 @@ import {
   parseCalendarParams,
   workoutHref,
 } from "./params";
+import { PLAN_YEARS, clampYear, yearOf } from "./year";
 
 const TODAY = "2027-03-15";
 
@@ -58,9 +59,36 @@ describe("parseCalendarParams", () => {
     });
   });
 
-  it.each(["week", "month", "day"] as const)("reads view=%s", (view) => {
+  it.each(["week", "month", "day", "year"] as const)("reads view=%s", (view) => {
     const result = parseCalendarParams({ view, date: "2027-10-31" }, TODAY);
     expect(result).toEqual({ ok: true, params: { view, date: "2027-10-31" } });
+  });
+
+  it("falls back to today's year for view=year with no date", () => {
+    expect(parseCalendarParams({ view: "year" }, TODAY)).toEqual({
+      ok: true,
+      params: { view: "year", date: TODAY },
+    });
+    expect(clampYear(yearOf(TODAY))).toBe(yearOf(TODAY));
+  });
+
+  it("falls back to the default for view=year with an unreadable date", () => {
+    expect(parseCalendarParams({ view: "year", date: "2027-02-30" }, TODAY)).toEqual({
+      ok: false,
+      fallback: defaultParams(TODAY),
+    });
+  });
+
+  it("leaves a year outside the plan to the route to clamp", () => {
+    // A real date, so this is not the parser's business: the year view's own
+    // route reads it, finds it outside the plan and redirects to the nearest
+    // year the plan reaches.
+    const result = parseCalendarParams({ view: "year", date: "2031-06-01" }, TODAY);
+    expect(result).toEqual({
+      ok: true,
+      params: { view: "year", date: "2031-06-01" },
+    });
+    expect(clampYear(yearOf("2031-06-01"))).toBe(PLAN_YEARS.last);
   });
 
   it("ignores parameters it does not own", () => {
@@ -69,7 +97,7 @@ describe("parseCalendarParams", () => {
   });
 
   it.each([
-    ["an unknown view", { view: "year" }],
+    ["an unknown view", { view: "season" }],
     ["an empty view", { view: "" }],
     ["a view in the wrong case", { view: "Week" }],
     ["a repeated view", { view: ["week", "month"] }],

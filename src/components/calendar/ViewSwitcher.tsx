@@ -9,9 +9,10 @@ const labels: Record<CalendarView, string> = {
   week: "Week",
   month: "Month",
   day: "Day",
+  year: "Year",
 };
 
-/** Three links, so switching view keeps the date and needs no JavaScript. */
+/** Four links, so switching view keeps the date and needs no JavaScript. */
 export function ViewSwitcher({ view, date }: ViewSwitcherProps) {
   return (
     <nav aria-label="Calendar view" className="flex gap-(--cal-header-gap)">

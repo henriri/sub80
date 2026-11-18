@@ -27,7 +27,7 @@ import {
   rejectMessage,
   undoneMessage,
   type CalendarItem,
-  type CalendarViewModel,
+  type SessionViewModel,
 } from "@/lib/calendar";
 import {
   canMoveSession,
@@ -54,7 +54,7 @@ import { WeekView } from "./WeekView";
 import { MoveContext, type MoveApi } from "./move-context";
 
 type CalendarBoardProps = {
-  model: CalendarViewModel;
+  model: SessionViewModel;
   /** Today in Europe/Paris, computed on the server. */
   today: Ymd;
   /**
@@ -106,7 +106,7 @@ type PendingMove = {
 };
 
 /** Every day in a model, whichever view it is. */
-function daysOf(model: CalendarViewModel) {
+function daysOf(model: SessionViewModel) {
   switch (model.view) {
     case "week":
       return model.days;
@@ -125,7 +125,7 @@ function daysOf(model: CalendarViewModel) {
  * still have the session on its old day, so a second drag would be checked
  * against a calendar nobody is looking at.
  */
-function candidatesOf(model: CalendarViewModel): MoveCandidate[] {
+function candidatesOf(model: SessionViewModel): MoveCandidate[] {
   return daysOf(model).flatMap((day) =>
     day.items.map((item) => ({
       id: item.id,

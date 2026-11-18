@@ -30,6 +30,7 @@ import { KIND_META, isEventKind } from "./kinds";
 import { monthGrid, type MonthCell } from "./month-grid";
 import { workoutHref, type CalendarParams, type CalendarView } from "./params";
 import { monthRange, weekRange } from "./range";
+import type { YearViewModel } from "./year-view";
 
 /** One planned session, ready to render. */
 export type CalendarItem = {
@@ -130,7 +131,18 @@ export type DayViewModel = {
   day: CalendarDay;
 };
 
-export type CalendarViewModel = WeekViewModel | MonthViewModel | DayViewModel;
+/**
+ * The year is in the union, so one `Calendar` renders any tab -- but it is not
+ * in `buildCalendarView` below, because it is built from twelve totals rather
+ * than from sessions and has no use for a `ViewInput`. `buildYearView` is its
+ * own entry point and the parameter type here says so.
+ */
+export type SessionViewModel = WeekViewModel | MonthViewModel | DayViewModel;
+
+export type CalendarViewModel = SessionViewModel | YearViewModel;
+
+/** Every view except the year, which `buildCalendarView` cannot build. */
+export type SessionView = Exclude<CalendarView, "year">;
 
 export type ViewInput = {
   date: Ymd;
@@ -336,9 +348,9 @@ export function buildDayView({ date, today, workouts, vdot }: ViewInput): DayVie
 }
 
 export function buildCalendarView(
-  view: CalendarView,
+  view: SessionView,
   input: ViewInput,
-): CalendarViewModel {
+): SessionViewModel {
   switch (view) {
     case "week":
       return buildWeekView(input);

@@ -6,7 +6,7 @@ import {
   buildMonthView,
   buildWeekView,
   type CalendarDay,
-  type CalendarViewModel,
+  type SessionViewModel,
 } from "./view-model";
 
 const SAMPLE_VDOT = 47;
@@ -55,7 +55,7 @@ const input = (date: string, workouts: StoredWorkoutWithRuns[]) => ({
 });
 
 /** Every day in a model, whichever view it is. */
-function daysOf(model: CalendarViewModel): CalendarDay[] {
+function daysOf(model: SessionViewModel): CalendarDay[] {
   switch (model.view) {
     case "week":
       return model.days;
@@ -66,10 +66,10 @@ function daysOf(model: CalendarViewModel): CalendarDay[] {
   }
 }
 
-const dayAt = (model: CalendarViewModel, date: string) =>
+const dayAt = (model: SessionViewModel, date: string) =>
   daysOf(model).find((d) => d.date === date);
 
-const idsOn = (model: CalendarViewModel, date: string) =>
+const idsOn = (model: SessionViewModel, date: string) =>
   dayAt(model, date)?.items.map((item) => item.id) ?? [];
 
 describe("applyMove · week view", () => {

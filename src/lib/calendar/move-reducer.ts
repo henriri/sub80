@@ -29,7 +29,7 @@ import {
   sumMetres,
   type CalendarDay,
   type CalendarItem,
-  type CalendarViewModel,
+  type SessionViewModel,
   type MonthDay,
 } from "./view-model";
 
@@ -102,9 +102,9 @@ function chunk(days: readonly MonthDay[]): MonthDay[][] {
 
 /** The model with one move applied, or the same object when nothing changed. */
 export function applyMove(
-  model: CalendarViewModel,
+  model: SessionViewModel,
   move: OptimisticMove,
-): CalendarViewModel {
+): SessionViewModel {
   switch (model.view) {
     case "week": {
       const days = movedDays(model.days, move);
@@ -127,8 +127,8 @@ export function applyMove(
 
 /** Every pending move, oldest first. */
 export function applyMoves(
-  model: CalendarViewModel,
+  model: SessionViewModel,
   moves: readonly OptimisticMove[],
-): CalendarViewModel {
+): SessionViewModel {
   return moves.reduce(applyMove, model);
 }

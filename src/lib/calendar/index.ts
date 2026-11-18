@@ -64,6 +64,7 @@ export {
   monthRange,
   monthStart,
   step,
+  stepTarget,
   visibleEnd,
   visibleRange,
   weekRange,
@@ -105,6 +106,15 @@ export {
   type DayViewModel,
   type MonthDay,
   type MonthViewModel,
+  type SessionView,
+  type SessionViewModel,
   type ViewInput,
   type WeekViewModel,
 } from "./view-model";
+export {
+  buildYearView,
+  type YearFocus,
+  type YearMonth,
+  type YearViewInput,
+  type YearViewModel,
+} from "./year-view";

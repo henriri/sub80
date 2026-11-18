@@ -14,7 +14,7 @@ import {
   rejectMessage,
   undoneChangeMessage,
   undoneMessage,
-  type CalendarViewModel,
+  type SessionViewModel,
 } from "@/lib/calendar";
 import { validateMove, type MoveCheck, type MoveWarning, type Ymd } from "@/lib/plan";
 import {
@@ -25,8 +25,8 @@ import {
 } from "@/lib/ui/change-feedback";
 
 type MoveDemoProps = {
-  week: CalendarViewModel;
-  month: CalendarViewModel;
+  week: SessionViewModel;
+  month: SessionViewModel;
   today: Ymd;
   /** The session the picker and the dialog specimens talk about. */
   sample: { id: string; title: string; date: Ymd };
@@ -154,7 +154,7 @@ function LiveCalendar({
   initial,
   today,
 }: {
-  initial: CalendarViewModel;
+  initial: SessionViewModel;
   today: Ymd;
 }) {
   const [model, setModel] = useState(initial);
@@ -318,7 +318,7 @@ export function MoveDemo({ week, month, today, sample }: MoveDemoProps) {
 }
 
 /** Every day in a model, whichever view it is. */
-function daysOf(model: CalendarViewModel) {
+function daysOf(model: SessionViewModel) {
   switch (model.view) {
     case "week":
       return model.days;
