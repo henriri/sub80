@@ -139,6 +139,24 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
+  /*
+   * What the device keeps for itself: the gesture bar, a rounded corner, a
+   * cutout. Primitives because `env()` is a raw value, like `44px` below, and
+   * because the four insets are the only spacing in the file that is not on
+   * the scale -- the device decides them, not the design.
+   *
+   * Each falls back to 0, which is what every one of them reports in a browser
+   * tab and what the bottom reports on a phone with hardware keys. The app only
+   * sees a non-zero inset once it is installed and launched standalone with
+   * `viewport-fit=cover`.
+   *
+   * There is no top inset on purpose: a `standalone` app keeps the status bar
+   * above the web content, so the top is already clear.
+   */
+  --space-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --space-safe-area-left: env(safe-area-inset-left, 0px);
+  --space-safe-area-right: env(safe-area-inset-right, 0px);
+
   --size-touch-target: 44px;
   /* A dialog wide enough for two sentences and seven day columns. */
   --size-dialog-max: 28rem;
@@ -404,6 +422,14 @@
   --border-width-default: var(--border-width-1);
   --border-width-focus: var(--border-width-2);
   --space-focus-offset: var(--space-0-5);
+  /*
+   * The gutter the device keeps. Mode-independent: a gesture bar is the same
+   * width whatever the theme or the density, because it is the phone's, not
+   * ours. Applied once on the body, so no page has to know about it.
+   */
+  --space-safe-bottom: var(--space-safe-area-bottom);
+  --space-safe-left: var(--space-safe-area-left);
+  --space-safe-right: var(--space-safe-area-right);
 }
 
 /* 3. Component --------------------------------------------------------- */
