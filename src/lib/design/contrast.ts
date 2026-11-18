@@ -7,6 +7,11 @@
  * oklch -> OKLab -> linear sRGB -> relative luminance -> ratio. Linear sRGB is
  * exactly what WCAG's luminance formula wants, so there is no round trip
  * through gamma-encoded channels.
+ *
+ * `srgbHex` is the one step off that path: a web app manifest has no cascade
+ * and no `var()`, so the one place a token has to become a literal hex is the
+ * manifest. It takes the same `LinearRgb` as `luminance` and finishes the chain
+ * the other way, through the gamma encode to `#rrggbb`.
  */
 
 /** The five root attributes, as values. */
@@ -129,6 +134,37 @@ export function isInGamut({ r, g, b }: LinearRgb): boolean {
 /** WCAG relative luminance, straight off the linear channels. */
 export const luminance = ({ r, g, b }: LinearRgb) =>
   0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+/**
+ * One linear channel, gamma-encoded to the 0-255 sRGB byte.
+ *
+ * The sRGB transfer function, which is a straight line near black and a power
+ * curve above it. Clamped, because a token may sit a little outside the gamut:
+ * `isInGamut` is what reports that, and a hex has to be a hex regardless.
+ */
+function encode(channel: number): number {
+  const clamped = Math.min(1, Math.max(0, channel));
+  const encoded =
+    clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * clamped ** (1 / 2.4) - 0.055;
+  return Math.round(encoded * 255);
+}
+
+/**
+ * Linear sRGB as `#rrggbb`.
+ *
+ * For the web app manifest, which cannot read a CSS variable and whose colour
+ * members are documented for named, hex and `rgb()` values -- `oklch()` in a
+ * manifest is not something this repo can verify, so the token is converted
+ * rather than copied. Always six digits and lower case, so a test can compare
+ * strings without normalising them.
+ */
+export function srgbHex(color: LinearRgb): string {
+  const channels = [color.r, color.g, color.b]
+    .map((channel) => encode(channel).toString(16).padStart(2, "0"))
+    .join("");
+
+  return `#${channels}`;
+}
 
 /** WCAG contrast ratio, 1 to 21. Rounded down to 2 decimals, never up. */
 export function contrastRatio(foreground: string, background: string): number {
