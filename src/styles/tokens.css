@@ -239,6 +239,20 @@
   --color-drop-invalid-border: var(--color-red-600);
 
   /*
+   * A session that happened: a run is logged against it. Not palette-driven,
+   * for the same reason as the drop state -- this is a fact about a day, not
+   * branding, and under `forest` a palette green would be the accent green.
+   * Colour is never the only cue: the card carries a check and the word DONE,
+   * and the month marker is filled rather than outlined. contrast.test.ts
+   * holds the text at 4.5:1 and the badge and border at 3:1.
+   */
+  --color-done: var(--color-green-100);
+  --color-done-fg: var(--color-green-900);
+  --color-done-border: var(--color-green-600);
+  --color-done-mark: var(--color-green-700);
+  --color-done-mark-fg: var(--color-neutral-0);
+
+  /*
    * Workout kinds. A pale tint with same-hue dark text. These do not follow
    * the palette: a kind is categorical identity, not branding, so `easy` is
    * green under both palettes. contrast.test.ts holds every pair at 4.5:1.
@@ -288,6 +302,13 @@
   --color-drop-invalid: var(--color-red-950);
   --color-drop-invalid-fg: var(--color-red-300);
   --color-drop-invalid-border: var(--color-red-400);
+
+  /* The same five names, inverted: a deep tint with same-hue light text. */
+  --color-done: var(--color-green-950);
+  --color-done-fg: var(--color-green-300);
+  --color-done-border: var(--color-green-400);
+  --color-done-mark: var(--color-green-300);
+  --color-done-mark-fg: var(--color-green-950);
 
   /* Same twenty names, inverted: a deep tint with same-hue light text. */
   --kind-easy: var(--color-green-950);
@@ -474,6 +495,12 @@
   --cal-marker-size: var(--space-inline-md);
   --cal-marker-font: var(--font-family-code);
   --cal-marker-font-size: var(--font-size-small);
+
+  --cal-done-bg: var(--color-done);
+  --cal-done-fg: var(--color-done-fg);
+  --cal-done-border: var(--color-done-border);
+  --cal-done-badge-bg: var(--color-done-mark);
+  --cal-done-badge-fg: var(--color-done-mark-fg);
 
   --cal-header-bg: var(--color-bg-canvas);
   --cal-header-gap: var(--space-inline-sm);

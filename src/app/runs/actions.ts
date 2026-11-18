@@ -14,9 +14,13 @@ import {
 import { MAX_NOTES_LENGTH, parisDate } from "@/lib/plan";
 import {
   RUN_WARNING_CODES,
+  refusesStatsEdit,
+  resetsLinkedSession,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
+  statsLockedMessage,
+  toStoredStats,
   validateRun,
   type RawRun,
   type RunWarning,
@@ -201,6 +205,20 @@ export async function editRun(
     const result = await check(raw, id.data);
     if (!result.ok) return failed(runRejectMessage(result.reason));
 
+    /*
+     * An imported run's measurements are the device's record of what happened.
+     * Refused here, against the row just read, by the same function the form
+     * renders those fields read-only with -- and `update_run` checks it again
+     * inside the transaction, so this is the sentence rather than the guarantee.
+     *
+     * Field by field, not a flat refusal: the form re-sends everything on every
+     * submit, so changing only the note posts the distance back unchanged and
+     * has to succeed.
+     */
+    if (refusesStatsEdit(existing.source, result.run, toStoredStats(existing))) {
+      return failed(statsLockedMessage(existing.source));
+    }
+
     const unconfirmed = result.warnings.filter(
       (warning) => !confirmed.includes(warning.code),
     );
@@ -227,25 +245,21 @@ export async function editRun(
   }
 }
 
-const removeSchema = z.object({
-  runId,
-  // The dialog's checkbox. A checkbox submits nothing at all when it is not
-  // ticked, whatever its value attribute says, so anything non-empty is a tick
-  // and an absent field is not.
-  resetWorkout: z.string().max(20).transform((value) => value !== ""),
-});
+/**
+ * Only the run. Whether the session goes back to planned is NOT submitted:
+ * a session is completed if and only if a run is linked to it, so the answer
+ * follows from facts read here and there is nothing for a form to say about it.
+ */
+const removeSchema = z.object({ runId });
 
 export async function removeRun(
   _previous: RunResult | null,
   formData: FormData,
 ): Promise<RunResult> {
-  const parsed = removeSchema.safeParse({
-    runId: formData.get("runId"),
-    resetWorkout: formData.get("resetWorkout") ?? "",
-  });
+  const parsed = removeSchema.safeParse({ runId: formData.get("runId") });
   if (!parsed.success) return failed("That deletion did not make sense.");
 
-  const { runId: id, resetWorkout } = parsed.data;
+  const { runId: id } = parsed.data;
   await requireUser();
 
   try {
@@ -254,6 +268,22 @@ export async function removeRun(
     // from.
     const existing = await readRunDetail(id);
     if (existing === null) return failed(GONE);
+
+    /*
+     * Deleting the only run on a session puts that session back to planned,
+     * because a session with no run against it is not done. Decided here,
+     * against rows read now, by the same function the dialog words its sentence
+     * with -- and `delete_run` RAISES on a reset it cannot honour, so the two
+     * have to agree.
+     */
+    const otherRuns =
+      existing.planned_workout_id === null
+        ? 0
+        : await countRunsForWorkout(existing.planned_workout_id, id);
+    const resetWorkout = resetsLinkedSession({
+      linked: existing.planned_workout_id !== null,
+      otherRuns,
+    });
 
     const outcome = await deleteRunRow(id, resetWorkout);
     if (!outcome.ok) return failed(outcome.message);

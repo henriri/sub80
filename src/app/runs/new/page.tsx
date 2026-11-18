@@ -4,7 +4,10 @@ import { navLink } from "@/components/calendar/styles";
 import { RunForm } from "@/components/runs/RunForm";
 import { requireUser } from "@/lib/auth/require-user";
 import { isValidYmd } from "@/lib/calendar";
-import { readLinkableWorkouts } from "@/lib/data/activities";
+import {
+  readLinkableWorkout,
+  readLinkableWorkouts,
+} from "@/lib/data/activities";
 import { readVdot } from "@/lib/data/planned-workouts";
 import { parisDate } from "@/lib/plan";
 import { parseKm, type RawRun } from "@/lib/runs";
@@ -58,11 +61,31 @@ async function NewRunSection({
   const today = parisDate(new Date());
   const initial = initialDraft(raw, today);
 
-  // The wide window, so moving the date field does not need another round
-  // trip; the form narrows it to three days either side of whatever is chosen.
+  /*
+   * Two entries into one form.
+   *
+   * From a session -- Log run on its own page -- the session is already chosen,
+   * so it is read by id and shown as a line rather than offered as a picker.
+   * Read by id and not out of the date window, because the session the athlete
+   * pressed must be the one the form logs against however far its day is from
+   * the date in the field.
+   *
+   * From the calendar header or /runs there is no session yet, so the wide
+   * window is read instead and the form narrows it to three days either side of
+   * whatever date is chosen -- which is what lets the date be moved without
+   * another round trip.
+   *
+   * A hand-edited id that resolves to nothing falls back to the picker rather
+   * than to an error: there is still a run to log.
+   */
+  const locked =
+    initial.plannedWorkoutId === null
+      ? null
+      : await readLinkableWorkout(initial.plannedWorkoutId);
+
   const [vdot, workouts] = await Promise.all([
     readVdot(user.id),
-    readLinkableWorkouts(user.id, initial.date),
+    locked === null ? readLinkableWorkouts(user.id, initial.date) : [],
   ]);
 
   return (
@@ -75,10 +98,22 @@ async function NewRunSection({
 
       <h1 className="text-heading-md">Log a run</h1>
 
+      {/*
+        The session's own note starts the run's note, when there is one. Notes
+        live on the run now -- there is no notes editor on a session any more --
+        and what the athlete wrote while planning the day belongs in front of
+        them while they say how it actually went. It is a starting point, like
+        the distance: editing or clearing it is the normal case.
+      */}
       <RunForm
         runId={null}
-        initial={initial}
+        initial={{
+          ...initial,
+          plannedWorkoutId: locked?.id ?? null,
+          notes: locked?.notes ?? initial.notes,
+        }}
         workouts={workouts}
+        lockedSession={locked}
         today={today}
         vdot={vdot}
         action={logRun}

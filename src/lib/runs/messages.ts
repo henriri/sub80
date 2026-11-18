@@ -12,10 +12,22 @@
  */
 
 import { formatKm, formatDayName } from "@/lib/calendar";
-import { fmtPace, fmtTime, zoneLabel, type Ymd, type ZoneKey } from "@/lib/plan";
-import type { ResetWithheld } from "./deleting";
+import {
+  fmtPace,
+  fmtTime,
+  formatDayLabel,
+  zoneLabel,
+  type Ymd,
+  type ZoneKey,
+} from "@/lib/plan";
 import { formatPacePerKm } from "./format";
-import { HR_SOURCES, type HrSource, type RunReason, type RunWarning } from "./rules";
+import {
+  HR_SOURCES,
+  type HrSource,
+  type RunReason,
+  type RunSource,
+  type RunWarning,
+} from "./rules";
 import type { PaceComparison } from "./zone";
 
 /**
@@ -199,31 +211,66 @@ export function hrSourceChoices(): RunChoice[] {
 }
 
 /**
- * Why the dialog is not offering to put the session back, or null when there
- * is nothing worth saying.
+ * The session this run is being logged against, when it was chosen before the
+ * form was opened.
  *
- * Only one of the three is worth a sentence. A run with no session, or one
- * whose session is not marked completed, has nothing to put back and silence
- * is the honest rendering -- explaining the absence of a checkbox nobody
- * expected is noise. A session another run still points at is different: the
- * athlete might reasonably expect the reset, so the dialog says why not.
+ * A statement, not a control: pressing Log run on a session is the choice, and
+ * the form says which session it heard rather than asking again. 'Thu 18 Mar ·
+ * Easy 8 km', with the distance left off a session that asks for none.
  */
-export function resetWithheldMessage(
-  withheld: ResetWithheld,
-  workoutTitle: string | null,
-): string | null {
-  switch (withheld) {
-    case "no_link":
-    case "not_completed":
-      return null;
-    case "other_runs":
-      return workoutTitle === null
-        ? "Another run is still linked to that session, so it keeps its status."
-        : `Another run is still linked to ${workoutTitle}, so it keeps its status.`;
+export function loggingForLine(session: {
+  title: string;
+  planned_date: Ymd;
+  target_distance_m: number | null;
+}): string {
+  const parts = [
+    formatDayLabel(session.planned_date),
+    session.title,
+    session.target_distance_m === null ? null : formatKm(session.target_distance_m),
+  ].filter((part) => part !== null);
+
+  return parts.join(" · ");
+}
+
+/**
+ * Why an imported run's measurements cannot be typed over.
+ *
+ * Names the source, because that is the whole answer: the file is the record,
+ * and the way to correct it is to fix it where it came from. Says what IS still
+ * editable in the same breath, so the sentence is not only a refusal.
+ */
+export function statsLockedMessage(source: RunSource): string {
+  const where = sourceName(source);
+  return `This run came from ${where}, so its distance, time and heart rate are what was recorded. The effort, the notes and the session it belongs to are still yours to change.`;
+}
+
+/** A source in words, for a sentence rather than for a column. */
+function sourceName(source: RunSource): string {
+  switch (source) {
+    case "manual":
+      return "your own entry";
+    case "fit_upload":
+      return "a FIT file";
+    case "polar":
+      return "Polar";
+    case "wahoo":
+      return "Wahoo";
   }
 }
 
-/** The checkbox itself: what ticking it will do, named. */
-export function resetCheckboxLabel(workoutTitle: string): string {
-  return `Put ${workoutTitle} back to planned`;
+/**
+ * What deleting this run will do, stated rather than asked.
+ *
+ * Putting the session back is not a decision the athlete makes: a session is
+ * completed if and only if a run is linked to it, so deleting the last run has
+ * to put its session back. The dialog says so, and there is no checkbox to
+ * disagree with.
+ *
+ * A session another run still points at keeps its status, which needs no
+ * sentence of its own: it is still done, and the run being deleted was never
+ * what made it so.
+ */
+export function deleteRunConsequence(resetsSession: boolean): string {
+  const undo = "This cannot be undone: a run is a fact, not a plan change.";
+  return resetsSession ? `The session goes back to planned. ${undo}` : undo;
 }

@@ -50,18 +50,12 @@ function answer(kind: string, before: object, after: object): ChangeResult {
   };
 }
 
-const demoActions: NonNullable<WorkoutActionsProps["actions"]> = {
-  editNotes: async (_previous, formData) =>
-    answer(
-      "edit_notes",
-      { notes: null },
-      { notes: String(formData.get("notes") ?? "") || null },
-    ),
+const demoHandlers: NonNullable<WorkoutActionsProps["handlers"]> = {
   setStatus: async (_previous, formData) =>
     answer(
       "set_status",
       { status: "planned" },
-      { status: formData.get("action") === "done" ? "completed" : "skipped" },
+      { status: formData.get("action") === "planned" ? "planned" : "skipped" },
     ),
   lightenWorkout: async (_previous, formData) =>
     answer(
@@ -79,8 +73,8 @@ const demoActions: NonNullable<WorkoutActionsProps["actions"]> = {
 };
 
 /** A refusal, so the error state is on screen and not only imagined. */
-const refusingActions: NonNullable<WorkoutActionsProps["actions"]> = {
-  ...demoActions,
+const refusingHandlers: NonNullable<WorkoutActionsProps["handlers"]> = {
+  ...demoHandlers,
   setStatus: async () => ({
     status: "error",
     message: "This session is already marked done.",
@@ -112,13 +106,13 @@ export function WorkoutDemo({ facts, vdot, actions }: WorkoutDemoProps) {
         <div key={label} className={card}>
           <h3 className="text-heading-sm">Workout actions · {label}</h3>
           <p className="text-small text-secondary">
-            Every form answers the way the real one does. The toast counts down,
-            pauses on hover and on focus, and its Undo expires while the row in
-            &ldquo;Recent changes&rdquo; does not.
+            Every form answers the way the real one does. The toast counts down
+            and pauses on hover and on focus. It is the only route to an undo, so
+            a change not reversed before it expires stands.
           </p>
           <WorkoutActions
             {...props}
-            actions={refusing ? refusingActions : demoActions}
+            handlers={refusing ? refusingHandlers : demoHandlers}
           />
         </div>
       ))}

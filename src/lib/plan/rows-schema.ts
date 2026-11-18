@@ -73,5 +73,58 @@ export const workoutDetailSchema = storedWorkoutSchema.extend({
 
 export type WorkoutDetail = z.infer<typeof workoutDetailSchema>;
 
+/**
+ * A run logged against a session, as the calendar embeds it.
+ *
+ * Only what a card shows. The snapshots, the note and the source belong to the
+ * run's own pages; the calendar is reading six weeks of sessions at a time and
+ * a card has room for the numbers and nothing else.
+ */
+export const workoutRunSchema = z.object({
+  id: z.uuid(),
+  /** An ISO instant. The Paris calendar date is derived, never stored. */
+  started_at: z.string().min(1),
+  distance_m: z.int().nonnegative(),
+  duration_s: z.int().positive(),
+  avg_hr: z.int().nullable(),
+  /** Null exactly when `avg_hr` is: the two are never apart, nor mixed. */
+  hr_source: z.enum(["strap", "wrist"]).nullable(),
+  rpe: z.int().min(1).max(10).nullable(),
+});
+
+export type WorkoutRun = z.infer<typeof workoutRunSchema>;
+
+/**
+ * The runs on a session, however PostgREST decided to send them.
+ *
+ * `activities.planned_workout_id` is half of a COMPOSITE foreign key --
+ * `(user_id, planned_workout_id)` -> `(user_id, id)` -- and whether PostgREST
+ * infers that as a to-many and sends an array or as a to-one and sends a single
+ * object is not something this repo can check: the `database` CI job runs the
+ * migrations and pgTAP, neither of which goes through PostgREST at all. So both
+ * shapes are accepted and normalised to one, exactly as `storedRunSchema` does
+ * for the embed in the other direction, rather than guessing and having the
+ * calendar fail on a row the database answered perfectly well.
+ */
+const embeddedRuns = z.preprocess((value) => {
+  if (value === null || value === undefined) return [];
+  return Array.isArray(value) ? value : [value];
+}, z.array(workoutRunSchema));
+
+/**
+ * One row read back for the calendar, with what actually happened on it.
+ *
+ * A session is completed if and only if a run is linked to it, so the calendar
+ * cannot say whether a day is done without reading the runs: the status column
+ * is a consequence, not the fact.
+ */
+export const storedWorkoutWithRunsSchema = storedWorkoutSchema.extend({
+  runs: embeddedRuns,
+});
+
+export const storedWorkoutsWithRunsSchema = z.array(storedWorkoutWithRunsSchema);
+
+export type StoredWorkoutWithRuns = z.infer<typeof storedWorkoutWithRunsSchema>;
+
 /** numeric(4,1) arrives as a number or a string depending on the client. */
 export const vdotSchema = z.coerce.number().min(25).max(85);

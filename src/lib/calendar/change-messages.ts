@@ -59,7 +59,7 @@ export type ChangeSnapshot = {
 };
 
 /**
- * One row of "Recent changes", and the input to the toast's sentence.
+ * The input to the toast's sentence for a change that has just been saved.
  *
  * Structural rather than taking a `PlanEvent`, because that type lives in a
  * server-only module and this one has no business importing it. No payload
@@ -93,8 +93,6 @@ export function statusWord(status: WorkoutStatus): string {
 /** The button that asks for a status change, which is a verb, not a status. */
 export function statusActionLabel(action: StatusAction): string {
   switch (action) {
-    case "done":
-      return "Mark done";
     case "skipped":
       return "Mark skipped";
     case "planned":
@@ -191,9 +189,10 @@ function undoSentence(event: PlanEventSummary): string {
 }
 
 /**
- * One row of "Recent changes", and the sentence the toast shows for a change
- * that has just been saved. One table for both, so what the toast says and
- * what the history says can never disagree.
+ * The sentence the toast shows for a change that has just been saved.
+ *
+ * One table for every kind of change, so the same event is worded the same way
+ * whichever action saved it.
  */
 export function planEventMessage(event: PlanEventSummary): string {
   if (isUndoKind(event.kind)) return undoSentence(event);
@@ -222,24 +221,6 @@ export function undoneChangeMessage(
     after: restored,
     undoneKind: kind,
   });
-}
-
-/**
- * Which row of a change list may be undone.
- *
- * Undo is a stack: the database accepts only the caller's newest accepted
- * change that is not itself an undo. So exactly one row carries the button,
- * and it is not always the first -- an undo, or an already undone change,
- * sits above it. Deriving it here, from the same rule `undo_plan_event`
- * applies, is what keeps the interface from offering what the database will
- * refuse.
- */
-export function undoableIndex(
-  events: readonly { kind: string; status: string }[],
-): number {
-  return events.findIndex(
-    (event) => !isUndoKind(event.kind) && event.status === "accepted",
-  );
 }
 
 /**

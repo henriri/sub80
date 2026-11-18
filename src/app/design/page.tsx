@@ -6,6 +6,7 @@ import { TextField } from "@/components/TextField";
 import { WorkoutList } from "@/components/WorkoutList";
 import { Calendar } from "@/components/calendar/Calendar";
 import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
+import { DoneBadge } from "@/components/calendar/DoneBadge";
 import { KindBadge } from "@/components/calendar/KindBadge";
 import { WorkoutCard } from "@/components/calendar/WorkoutCard";
 import type { WorkoutActionsProps } from "@/components/workout/WorkoutActions";
@@ -24,17 +25,16 @@ import {
   buildDayView,
   buildMonthView,
   buildWeekView,
-  lightenRejectMessage,
   type CalendarItem,
 } from "@/lib/calendar";
 import {
-  LIGHTEN_FRACTIONS,
   WORKOUT_KINDS,
   lightenedDistance,
   offeredFractions,
   plannedDistance,
-  validateLighten,
-  type StoredWorkout,
+  sessionActions,
+  type SessionCandidate,
+  type StoredWorkoutWithRuns,
   type WorkoutDetail,
 } from "@/lib/plan";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
@@ -63,6 +63,7 @@ const sampleWorkouts = [
     strides: false,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     id: "00000000-0000-4000-8000-000000000002",
@@ -77,6 +78,7 @@ const sampleWorkouts = [
     strides: true,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     id: "00000000-0000-4000-8000-000000000003",
@@ -92,6 +94,7 @@ const sampleWorkouts = [
     strides: false,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     id: "00000000-0000-4000-8000-000000000004",
@@ -106,11 +109,16 @@ const sampleWorkouts = [
     strides: false,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     // A double day, sharing 2027-03-19 with the time trial above. Slot 1, so
     // it renders second in the week view and gives the month cell its second
     // marker: the two-per-day case needs a specimen like any other state.
+    //
+    // It is also the DONE one: a run is logged against it, which is what makes
+    // a session done, so its status reads completed and the day it shares with
+    // the time trial is one of two done. Both states on one cell is the point.
     id: "00000000-0000-4000-8000-000000000005",
     generated_key: null,
     planned_date: "2027-03-19",
@@ -121,10 +129,23 @@ const sampleWorkouts = [
     week_index: 22,
     pace_zone: "E",
     strides: false,
-    status: "planned",
+    status: "completed",
     day_slot: 1,
+    runs: [
+      {
+        id: "00000000-0000-4000-8000-00000000000a",
+        started_at: "2027-03-19T17:40:00Z",
+        // A little over the 5 km asked for, which is the normal case and what
+        // the "5.4 / 5.0 km" line on the card exists to show.
+        distance_m: 5400,
+        duration_s: 1680,
+        avg_hr: 139,
+        hr_source: "strap",
+        rpe: 3,
+      },
+    ],
   },
-] satisfies StoredWorkout[];
+] satisfies StoredWorkoutWithRuns[];
 
 /** The VDOT the sample paces are derived from: the plan's starting point. */
 const SAMPLE_VDOT = 47;
@@ -317,6 +338,7 @@ const sampleDetails = (() => {
       original_distance_m: 14_000,
     }),
     done: detail({ status: "completed" }),
+    skipped: detail({ status: "skipped", planned_date: "2026-10-21", week_index: 1 }),
     // Plan week 1, which began 2026-10-19: before SAMPLE_DATE, so the lighter
     // actions are withheld while done and skipped are not.
     past: detail({ planned_date: "2026-10-21", week_index: 1, status: "planned" }),
@@ -335,9 +357,17 @@ const sampleFacts = [
   { label: "a race, so a race pace", workout: sampleDetails.race },
 ] as const;
 
-/** What the page computes for the island, repeated here for each state. */
-function actionProps(workout: WorkoutDetail): WorkoutActionsProps {
-  const candidate = {
+/**
+ * What the page computes for the island, repeated here for each state.
+ *
+ * `runs` is the second input that matters: a session with a run against it
+ * offers nothing at all, which is a specimen worth being able to look at.
+ */
+function actionProps(
+  workout: WorkoutDetail,
+  runs: readonly { id: string }[] = [],
+): WorkoutActionsProps {
+  const candidate: SessionCandidate = {
     id: workout.id,
     status: workout.status,
     planned_date: workout.planned_date,
@@ -345,17 +375,10 @@ function actionProps(workout: WorkoutDetail): WorkoutActionsProps {
     original_distance_m: workout.original_distance_m,
   };
   const planned = plannedDistance(candidate);
-  const checks = LIGHTEN_FRACTIONS.map((by) =>
-    validateLighten({ workout: candidate, by, today: SAMPLE_DATE }),
-  );
-  const blocking = checks.find(
-    (check) => !check.ok && check.reason.code !== "would_raise",
-  );
 
   return {
     workoutId: workout.id,
-    status: workout.status,
-    notes: workout.notes,
+    actions: sessionActions(candidate, runs, SAMPLE_DATE),
     lighten:
       planned === null
         ? []
@@ -364,10 +387,6 @@ function actionProps(workout: WorkoutDetail): WorkoutActionsProps {
             toM: lightenedDistance(planned, by),
           })),
     restoreToM: workout.original_distance_m,
-    lightenWithheld:
-      !checks.some((check) => check.ok) && blocking?.ok === false
-        ? lightenRejectMessage(blocking.reason)
-        : null,
   };
 }
 
@@ -379,7 +398,11 @@ const sampleActions = [
     props: actionProps(sampleDetails.asLightAsItGoes),
   },
   { label: "in the past", props: actionProps(sampleDetails.past) },
-  { label: "done", props: actionProps(sampleDetails.done) },
+  { label: "skipped", props: actionProps(sampleDetails.skipped) },
+  {
+    label: "a run is logged against it",
+    props: actionProps(sampleDetails.done, [{ id: sampleRuns[0]!.id }]),
+  },
 ] as const;
 
 const sampleWeek = buildWeekView(sampleInput);
@@ -494,9 +517,20 @@ function Sample() {
       <WorkoutList items={sampleWorkouts.slice(0, 1)} vdot={SAMPLE_VDOT} />
       <KindBadges size="label" />
       <KindBadges size="short" />
+      <div className="flex flex-wrap items-center gap-inline-md">
+        <DoneBadge />
+        <DoneBadge size="short" kindLabel="Easy" />
+      </div>
+      {/* The planned card and the done one, so both tints are in the matrix. */}
       {sampleItems.slice(0, 1).map((item) => (
         <WorkoutCard key={item.id} item={item} />
       ))}
+      {sampleItems
+        .filter((item) => item.runs.length > 0)
+        .slice(0, 1)
+        .map((item) => (
+          <WorkoutCard key={`done-${item.id}`} item={item} />
+        ))}
     </>
   );
 }
@@ -590,7 +624,32 @@ export default function DesignPage() {
           </div>
 
           <div className={card}>
+            <h3 className="text-heading-sm">DoneBadge</h3>
+            <p className="text-small text-secondary">
+              A session that happened. Filled, where a planned marker is a pale
+              tint, and carrying a check and the word: the cue is never the
+              colour on its own. In a month cell the short marker takes the kind
+              marker&rsquo;s place — at seven columns on a phone there is room
+              for one glyph — and speaks the kind it replaced.
+            </p>
+            <div className="flex flex-wrap items-center gap-inline-md">
+              <DoneBadge />
+              <DoneBadge size="short" kindLabel="Easy" />
+              {/* Beside the planned marker it replaces, to see the pair. */}
+              <KindBadge kind="easy" size="short" />
+            </div>
+          </div>
+
+          <div className={card}>
             <h3 className="text-heading-sm">WorkoutCard</h3>
+            <p className="text-small text-secondary">
+              The last of these is done: a run is logged against it, which is
+              what makes a session done. It takes the check badge, the done tint
+              and the distance actually run over the distance asked for. In the
+              day view the run&rsquo;s own numbers become the content and the
+              plan&rsquo;s target drops to one small line beneath. No verdict is
+              passed on the difference between the two.
+            </p>
             <p className="text-small text-secondary">Compact, as in a week column.</p>
             <div className="flex flex-col gap-stack-sm">
               {sampleItems.map((item) => (
@@ -653,26 +712,22 @@ export default function DesignPage() {
 
           <div className={card}>
             <h3 className="text-heading-sm">LinkedRuns</h3>
-            <LinkedRuns
-              workout={{
-                id: "00000000-0000-4000-8000-000000000001",
-                planned_date: "2027-03-16",
-                target_distance_m: 11_000,
-              }}
-              runs={[sampleRuns[0]!]}
-            />
+            <p className="text-small text-secondary">
+              The run is what makes the session done, so this panel being here
+              IS the completion. Editing the run is the only thing offered from
+              it; with no run it renders nothing at all and the session page
+              offers Log run instead.
+            </p>
+            <LinkedRuns runs={[sampleRuns[0]!]} />
           </div>
 
           <div className={card}>
-            <h3 className="text-heading-sm">LinkedRuns · nothing logged yet</h3>
-            <LinkedRuns
-              workout={{
-                id: "00000000-0000-4000-8000-000000000003",
-                planned_date: "2027-03-18",
-                target_distance_m: 8_500,
-              }}
-              runs={[]}
-            />
+            <h3 className="text-heading-sm">LinkedRuns · two runs on one session</h3>
+            <p className="text-small text-secondary">
+              A legitimate day: the log form warns about a second run and the
+              athlete confirms. Each gets its own summary and its own Edit run.
+            </p>
+            <LinkedRuns runs={sampleRuns.slice(0, 2)} />
           </div>
 
           <RunDemo

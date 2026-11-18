@@ -1,45 +1,31 @@
 /**
- * Whether the delete dialog offers to put the linked session back. Pure and
- * framework free.
+ * Whether deleting a run puts its session back to planned. Pure and framework
+ * free.
  *
- * The checkbox exists because deleting a run usually means the session did not
- * happen after all, and leaving it marked completed with nothing behind it is a
- * lie the athlete has to go and find. But it must only appear when ticking it
- * would actually do something, because `delete_run` refuses a reset it cannot
- * honour -- a run with no session, or a session another run still points at --
- * and a checkbox that produces an error is worse than no checkbox.
+ * It is not a question any more. A session is completed if and only if a run is
+ * linked to it, so deleting the only run against a session MUST put that
+ * session back: leaving it marked completed with nothing behind it would be
+ * exactly the state the rule exists to make impossible. There is nothing for
+ * the athlete to decide, so there is no checkbox -- the dialog says what will
+ * happen and the deletion does it.
+ *
+ * The one case that is not a reset is a session another run still points at:
+ * that session is still done, by the same rule. `delete_run` RAISES on a reset
+ * it cannot honour -- a run with no session, or a session with another run --
+ * so this has to agree with it exactly, and the Server Action asks this
+ * function against freshly read facts rather than trusting anything submitted.
  */
 
-export const RESET_WITHHELD_CODES = ["no_link", "other_runs", "not_completed"] as const;
-
-export type ResetWithheld = (typeof RESET_WITHHELD_CODES)[number];
-
-export type ResetOffer =
-  | { offered: true; workoutTitle: string }
-  | { offered: false; withheld: ResetWithheld };
-
-export type ResetOfferInput = {
-  workoutTitle: string | null;
-  /** The session's stored status, or null when there is no session. */
-  workoutStatus: string | null;
+export type ResetInput = {
+  /** Whether the run points at a session at all. */
+  linked: boolean;
   /** Runs linked to that session other than the one being deleted. */
   otherRuns: number;
 };
 
-export function resetOffer({
-  workoutTitle,
-  workoutStatus,
-  otherRuns,
-}: ResetOfferInput): ResetOffer {
-  if (workoutTitle === null || workoutStatus === null) {
-    return { offered: false, withheld: "no_link" };
-  }
-  // delete_run raises rather than silently skipping, so this must match it.
-  if (otherRuns > 0) return { offered: false, withheld: "other_runs" };
-  // Already planned or skipped: there is nothing to put back.
-  if (workoutStatus !== "completed") {
-    return { offered: false, withheld: "not_completed" };
-  }
-
-  return { offered: true, workoutTitle };
+export function resetsLinkedSession({ linked, otherRuns }: ResetInput): boolean {
+  // No session to put back. delete_run raises rather than silently skipping.
+  if (!linked) return false;
+  // The session still has a run against it, so it is still done.
+  return otherRuns === 0;
 }

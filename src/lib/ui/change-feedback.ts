@@ -67,8 +67,9 @@ export function changeFeedback(
 ): ChangeFeedback {
   switch (event.type) {
     // A new change replaces whatever was on screen, with its own fresh window.
-    // The previous event stays undoable from "Recent changes": what expires is
-    // the shortcut, not the history.
+    // The previous event is not offered again: this toast is the only route to
+    // an undo, and `undo_plan_event` would refuse the older one anyway now that
+    // a newer accepted change sits above it on the stack.
     case "changed":
       return {
         kind: "changed",

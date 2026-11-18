@@ -57,6 +57,10 @@ Before opening a PR, `pnpm lint && pnpm typecheck && pnpm test` must pass.
 - Pace-based training, not heart-rate-based. Heart rate is secondary and shown late.
 - An activity stores `hr_source` (`strap` or `wrist`) if and only if it has an `avg_hr`. Never mix or average the two. Enforced in SQL by `activities_hr_source_present_check` and in TypeScript by `validateRun` (`src/lib/runs/rules.ts`), in both directions: a reading with no source is refused, and so is a source with no reading.
 - Logging a run is a **fact**, not a plan change. `log_run`, `update_run` and `delete_run` write no `plan_events` row and are outside the undo stack: there is nothing to propose and nothing to reverse. Only the plan is undoable.
+- A session is **completed if and only if a run is linked to it**. Completion is a consequence of logging, never something the athlete ticks: `completed` is written by `log_run` and `update_run` in SQL and by nothing else. There is no "Mark done" and no `done` status action — `STATUS_ACTIONS` is `skipped` and `planned`. `set_workout_status` in SQL still takes all three values, deliberately, because `undo_plan_event` has to restore `completed` on an event recorded before this rule existed. Deleting the only run on a session puts that session back to planned, which is `resetsLinkedSession` (`src/lib/runs/deleting.ts`) and not a question the athlete is asked. Anything reading "is this done" reads the linked runs, never the status column: a legacy row can say `completed` with nothing behind it, and that is a session still waiting for its run.
+- **What a session offers** is decided in one pure function, `sessionActions` (`src/lib/plan/session-actions.ts`), from the session, its linked runs and `today`. The detail page, the calendar card and the drag layer render from it and nothing else decides. `canMove` and `canLighten` are derived from the validators the Server Actions re-run — `isSourceInPast` out of `validateMove`, `canLighten` out of `validateLighten` — so nothing offered can be refused. It is deliberately **stricter** than the server for a session dated today: that session is offered Log run rather than Move. The tests assert that one direction only.
+- An **imported run's measurements cannot be edited by hand**. A run whose `source` is not `manual` refuses any change to its date, start time, distance, duration, heart rate or heart-rate source; `rpe`, `notes` and `planned_workout_id` stay editable for every source. Enforced in SQL by `update_run` (`20261117190000_update_run_source_guard.sql`, `P0001`) and in TypeScript by `refusesStatsEdit` (`src/lib/runs/source-guard.ts`), which the Server Action re-runs and the form renders those fields read-only from. Compared field by field with `is not distinct from`, never refused outright: a form re-sends every field on every submit, so changing only the note must succeed.
+- **Notes live on the run**, in `activities.notes`, written in the log and edit form and shown in the linked-run summary. A session has no notes editor: logging a run from a session prefills its note into the run's. `planned_workouts.notes` and `set_workout_notes` remain for the events already recorded against them.
 
 ## Coach architecture
 Plain code measures and validates. The LLM only proposes and explains.
@@ -96,6 +100,12 @@ object *or* as an array of one and normalises it, rather than guessing and havin
 fail on a row the database answered correctly. Treat any new embed the same way, or
 verify it against a running stack first.
 
+There are now **two** such embeds, in both directions over the same key.
+`storedWorkoutWithRunsSchema` (`src/lib/plan/rows-schema.ts`) is the other: the calendar
+reads each session's runs, because "is this day done" cannot be answered from the status
+column. It accepts an array, a single object, `null` and an absent field, and normalises
+all four to an array. Neither embed is covered by any test against a real PostgREST.
+
 ### Run logging and the undo stack
 `log_run` sets a linked session to `completed`, and `delete_run` can set it back to
 `planned`, both without writing a `plan_events` row. One visible consequence: mark a
@@ -108,12 +118,29 @@ overwrite a fact with a stale plan state. It needs no code, only this note.
 Neither function touches distance, so the 60 km ceiling gains no third TypeScript-only
 writer.
 
+### No change history
+`plan_events` is written by every plan change, `undo_plan_event` reverses the newest one,
+and the **undo toast** after a change is how that is reached. There is no list of recent
+changes and no history button: the component, its per-row Undo and the loader that read
+the table are gone, and nothing reads `plan_events` any more. Do not reintroduce a
+standing history without being asked — and note the consequence, which is written on
+`UndoToast`: the toast is now the only route to an undo, so a change not reversed before
+its countdown runs out stands, even though the event is still there and the database
+would still accept it.
+
 ## Screens
 - `/` the calendar. `/workouts/[id]` one planned session. `/design` the hidden
   specimen page.
 - `/runs` the whole logbook, newest first, 20 to a page. `/runs/new` logs one by hand.
   `/runs/[id]` views, edits and deletes one. Reached from the calendar header and from
   a session's own page, which also lists the runs logged against it.
+- A session page offers **Log run** when the day has come and nothing is logged, and the
+  run's summary with **Edit run** once something is. Nothing else: no Skip, no lighter
+  day and no drag handle on a session that happened. `/runs/new?workout=<id>` is the
+  log-from-session entry — it reads that session by id, prefills the day, the planned
+  distance and the session's note, and shows a read-only line instead of the picker. The
+  generic entry keeps the picker and the soft "already has a run" warning. Unlinking
+  exists only on the run's own page.
 - Rules live in `src/lib/runs` and are the same functions the Server Actions re-run, so
   the form and the server never disagree about why a run is refused. Copy lives in
   `src/lib/runs/messages.ts`, apart from the rules, as the move rules keep theirs in

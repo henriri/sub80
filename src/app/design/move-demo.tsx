@@ -5,7 +5,6 @@ import { Calendar } from "@/components/calendar/Calendar";
 import { DropHint } from "@/components/calendar/DropHint";
 import { MoveDialog } from "@/components/calendar/MoveDialog";
 import { MovePicker } from "@/components/calendar/MovePicker";
-import { RecentChanges } from "@/components/calendar/RecentChanges";
 import { UndoToast } from "@/components/calendar/UndoToast";
 import type { MoveAction, UndoAction } from "@/components/calendar/CalendarBoard";
 import {
@@ -13,11 +12,9 @@ import {
   movedMessage,
   planEventMessage,
   rejectMessage,
-  undoableIndex,
   undoneChangeMessage,
   undoneMessage,
   type CalendarViewModel,
-  type PlanEventSummary,
 } from "@/lib/calendar";
 import { validateMove, type MoveCheck, type MoveWarning, type Ymd } from "@/lib/plan";
 import {
@@ -145,62 +142,6 @@ const seeds: { label: string; seed: ChangeFeedbackEvent }[] = [
 ];
 
 /**
- * A history that has just had an undo in it, with a change of every kind: the
- * undo is newest, the change it reversed is marked undone, and the one below
- * that is the only row the database would now accept. `undoableIndex` decides which, exactly as the
- * page does, so this specimen cannot drift from the rule it illustrates.
- */
-const history: (PlanEventSummary & { id: string })[] = [
-  {
-    id: "00000000-0000-4000-8000-00000000e005",
-    kind: "undo_change",
-    status: "accepted",
-    move: null,
-    before: { notes: "Calves tight on the second rep." },
-    after: { notes: null },
-    undoneKind: "edit_notes",
-  },
-  {
-    id: "00000000-0000-4000-8000-00000000e004",
-    kind: "edit_notes",
-    status: "undone",
-    move: null,
-    before: { notes: null },
-    after: { notes: "Calves tight on the second rep." },
-  },
-  {
-    id: "00000000-0000-4000-8000-00000000e003",
-    kind: "lighten_workout",
-    status: "accepted",
-    move: null,
-    before: { target_distance_m: 14_000, original_distance_m: null },
-    after: { target_distance_m: 11_000, original_distance_m: 14_000 },
-  },
-  {
-    id: "00000000-0000-4000-8000-00000000e002",
-    kind: "set_status",
-    status: "accepted",
-    move: null,
-    before: { status: "planned" },
-    after: { status: "skipped" },
-  },
-  {
-    id: "00000000-0000-4000-8000-00000000e001",
-    kind: "move_workout",
-    status: "accepted",
-    move: { from: "2027-03-18", to: "2027-03-20" },
-    before: { planned_date: "2027-03-18" },
-    after: { planned_date: "2027-03-20" },
-  },
-];
-
-const undoableRow = undoableIndex(history);
-const changes = history.map((event, index) => ({
-  ...event,
-  undoable: index === undoableRow,
-}));
-
-/**
  * A live calendar whose "server" is this component.
  *
  * /design has no session, so the real action would send the page to the login
@@ -302,7 +243,8 @@ export function MoveDemo({ week, month, today, sample }: MoveDemoProps) {
         <h3 className="text-heading-sm">UndoToast</h3>
         <p className="text-small text-secondary">
           The countdown pauses on hover and on keyboard focus. Only the
-          shortcut expires; the change itself stays in Recent changes.
+          shortcut expires: the change itself is still the newest one
+          undo_plan_event would accept, until the next change takes its place.
         </p>
         {seeds.map(({ label, seed }) => (
           <div key={label} className="flex flex-col gap-stack-sm">
@@ -310,18 +252,6 @@ export function MoveDemo({ week, month, today, sample }: MoveDemoProps) {
             <ToastSpecimen seed={seed} />
           </div>
         ))}
-      </div>
-
-      <div className={card}>
-        <h3 className="text-heading-sm">RecentChanges</h3>
-        <p className="text-small text-secondary">
-          Undo is a stack, so the button sits on the newest move that has not
-          been undone, which here is not the newest row.
-        </p>
-        <RecentChanges
-          changes={changes}
-          onUndo={async (eventId) => ({ status: "ok", eventId })}
-        />
       </div>
 
       <div className={card}>

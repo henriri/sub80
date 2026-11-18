@@ -5,7 +5,8 @@ import {
   RACE_DATE,
   addDays,
   buildWeek,
-  type StoredWorkout,
+  type StoredWorkoutWithRuns,
+  type WorkoutRun,
   type WorkoutKind,
   type ZoneKey,
 } from "@/lib/plan";
@@ -15,7 +16,9 @@ import {
   buildDayView,
   buildMonthView,
   buildWeekView,
+  describeDay,
   isPlanWeek,
+  isSessionDone,
   plannedKmFor,
   sumMetres,
   weekTitle,
@@ -34,8 +37,8 @@ let nextId = 1;
 
 function workout(
   planned_date: string,
-  overrides: Partial<StoredWorkout> = {},
-): StoredWorkout {
+  overrides: Partial<StoredWorkoutWithRuns> = {},
+): StoredWorkoutWithRuns {
   const id = String(nextId++).padStart(12, "0");
   return {
     id: `00000000-0000-4000-8000-${id}`,
@@ -50,11 +53,13 @@ function workout(
     strides: false,
     status: "planned",
     day_slot: 0,
+    // Nothing logged against it. A run is what makes a session done.
+    runs: [],
     ...overrides,
   };
 }
 
-const input = (date: string, today: string, workouts: StoredWorkout[] = []) => ({
+const input = (date: string, today: string, workouts: StoredWorkoutWithRuns[] = []) => ({
   date,
   today,
   workouts,
@@ -446,5 +451,89 @@ describe("the days loaded either side of the visible range", () => {
 
       for (const row of padding) expect(ids).not.toContain(row.id);
     }
+  });
+});
+
+/** One run, as the calendar embed carries it. */
+const loggedRun = (overrides: Partial<WorkoutRun> = {}): WorkoutRun => ({
+  id: `00000000-0000-4000-8000-${String(nextId++).padStart(12, "0")}`,
+  started_at: "2027-03-16T17:00:00Z",
+  distance_m: 8_200,
+  duration_s: 2_460,
+  avg_hr: null,
+  hr_source: null,
+  rpe: null,
+  ...overrides,
+});
+
+describe("isSessionDone", () => {
+  it("is a run being linked, and never the status column", () => {
+    // The status is a consequence of logging: log_run writes it. A legacy row
+    // can say completed with nothing behind it, and that is not done.
+    expect(isSessionDone({ runs: [loggedRun()] })).toBe(true);
+    expect(isSessionDone({ runs: [] })).toBe(false);
+  });
+
+  it("is done on two runs, which is a legitimate day", () => {
+    expect(isSessionDone({ runs: [loggedRun(), loggedRun()] })).toBe(true);
+  });
+});
+
+describe("a session's runs on the model", () => {
+  const date = "2027-03-16";
+
+  it("reach the item, so a card can say what happened", () => {
+    const run = loggedRun();
+    const model = buildDayView(
+      input(date, date, [workout(date, { runs: [run] })]),
+    );
+
+    expect(model.day.items[0]?.runs).toEqual([run]);
+  });
+
+  it("are empty on a session still to come", () => {
+    const model = buildDayView(input(date, date, [workout(date)]));
+    expect(model.day.items[0]?.runs).toEqual([]);
+  });
+
+  it("do not change the day's planned distance", () => {
+    // The day total is what the plan asks for. What was run is the card's own
+    // line, so a long day never inflates the week's planned volume.
+    const model = buildDayView(
+      input(date, date, [
+        workout(date, { target_distance_m: 8_000, runs: [loggedRun()] }),
+      ]),
+    );
+
+    expect(model.day.metres).toBe(8_000);
+  });
+});
+
+describe("describeDay and what happened", () => {
+  const date = "2027-03-16";
+
+  it("says a day is done, because a filled marker cannot say it alone", () => {
+    const model = buildDayView(
+      input(date, date, [workout(date, { runs: [loggedRun()] })]),
+    );
+
+    expect(describeDay(model.day)).toMatch(/, done$/);
+  });
+
+  it("counts the done ones when a double day is half finished", () => {
+    const model = buildDayView(
+      input(date, date, [
+        workout(date, { day_slot: 0, runs: [loggedRun()] }),
+        workout(date, { day_slot: 1 }),
+      ]),
+    );
+
+    expect(describeDay(model.day)).toMatch(/, 1 of 2 done$/);
+  });
+
+  it("says nothing about an outcome on a day still to come", () => {
+    const model = buildDayView(input(date, date, [workout(date)]));
+
+    expect(describeDay(model.day)).not.toContain("done");
   });
 });

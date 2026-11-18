@@ -19,7 +19,13 @@ import type { MoveCheck, Ymd } from "@/lib/plan";
  * still need confirming once the server has looked at its neighbours.
  */
 export type MoveApi = {
-  /** Whether this session can be picked up at all. */
+  /**
+   * Whether this session can be picked up at all.
+   *
+   * Answered by `canMoveSession`, the same function the detail page renders its
+   * buttons from, so a card never offers a handle for a session that page says
+   * cannot move.
+   */
   canMove(item: CalendarItem): boolean;
   /** What would happen if the session landed on that day. */
   check(workoutId: string, toDate: Ymd): MoveCheck;

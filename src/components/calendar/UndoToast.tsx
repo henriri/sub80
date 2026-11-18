@@ -72,8 +72,13 @@ function useSecondHand(active: boolean) {
  * everything else on the page; this way the sentence is announced once and the
  * clock ticks silently. The button keeps a steady name for the same reason.
  *
- * When the window runs out only the shortcut goes. The event is permanent and
- * "Recent changes" still offers it, which is what makes expiring acceptable.
+ * When the window runs out, the offer goes. This toast is now the ONLY route to
+ * an undo: the change history it used to share that job with is gone, so a
+ * change the athlete does not reverse within the window stands. The event is
+ * still there and `undo_plan_event` would still accept it while it is the
+ * newest, but nothing in the interface asks for it any more. That is the
+ * trade-off the window now carries on its own, and it is why the countdown
+ * pauses on hover and on focus rather than running regardless.
  */
 export function UndoToast({
   state,

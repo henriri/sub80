@@ -166,6 +166,22 @@ function inPlan(date: Ymd): boolean {
 }
 
 /**
+ * The `source_in_past` rule on its own: a session whose day is behind today has
+ * already happened, and what happened cannot be re-planned.
+ *
+ * Exported because `sessionActions` has to know whether a session can be picked
+ * up at all, which is a question with no destination in it. `validateMove`
+ * calls this at the position it always checked, so the order of rejections is
+ * unchanged and there is one definition of "past" rather than two.
+ */
+export function isSourceInPast(
+  workout: Pick<MoveCandidate, "planned_date">,
+  today: Ymd,
+): boolean {
+  return diffDays(today, workout.planned_date) < 0;
+}
+
+/**
  * Whether a move is allowed, and what the athlete must confirm first.
  *
  * Rejections are checked in a fixed order, cheapest and most fundamental
@@ -190,7 +206,7 @@ export function validateMove({
 
   // A workout that has already happened is history, not a plan, so it cannot
   // be moved and nothing can be moved onto a past day.
-  if (diffDays(today, workout.planned_date) < 0) {
+  if (isSourceInPast(workout, today)) {
     return reject({ code: "source_in_past", date: workout.planned_date, today });
   }
 

@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import { zoneRange, ZONE_KEYS } from "@/lib/plan";
 import {
   RPE_BANDS,
+  deleteRunConsequence,
   hrSourceChoices,
   hrSourceLabel,
+  loggingForLine,
   paceVsZoneLine,
   rpeBandLabel,
   rpeBandsHint,
@@ -275,5 +277,54 @@ describe("the choice groups", () => {
 
   it("keeps the two sources in step with the ones the rules allow", () => {
     expect(hrSourceChoices().map((choice) => choice.value)).toEqual([...HR_SOURCES]);
+  });
+});
+
+describe("loggingForLine", () => {
+  const session = {
+    title: "Easy",
+    planned_date: "2027-03-18",
+    target_distance_m: 8_000,
+  };
+
+  it("says the day, the session and the distance it asks for", () => {
+    expect(loggingForLine(session)).toBe("Thu 18 Mar · Easy · 8.0 km");
+  });
+
+  it("leaves the distance off a session that asks for none", () => {
+    expect(loggingForLine({ ...session, target_distance_m: null })).toBe(
+      "Thu 18 Mar · Easy",
+    );
+  });
+
+  it("is a statement, with nothing in it that reads as a question", () => {
+    // The choice was made by pressing Log run on the session. This only says
+    // which session the form heard.
+    expect(loggingForLine(session)).not.toMatch(/\?/);
+  });
+});
+
+describe("deleteRunConsequence", () => {
+  it("says the session goes back when this was its only run", () => {
+    expect(deleteRunConsequence(true)).toContain("goes back to planned");
+  });
+
+  it("says nothing about a session another run still points at", () => {
+    // It is still done, and this run was never what made it so.
+    expect(deleteRunConsequence(false)).not.toContain("planned");
+  });
+
+  it("always says the deletion cannot be undone", () => {
+    // A run is a fact, not a plan change: there is no plan_events row and no
+    // undo for it, however the session is left.
+    for (const resets of [true, false]) {
+      expect(deleteRunConsequence(resets)).toContain("cannot be undone");
+    }
+  });
+
+  it("states rather than asks: there is no decision left to the athlete", () => {
+    for (const resets of [true, false]) {
+      expect(deleteRunConsequence(resets)).not.toMatch(/\?/);
+    }
   });
 });

@@ -17,6 +17,7 @@ import { hrSourceLabel, paceVsZoneLine, rpeLabel } from "./messages";
 import { paceSecPerKm } from "./parse";
 import type { RawRun } from "./rules";
 import type { StoredRun } from "./schemas";
+import type { StoredStats } from "./source-guard";
 import { paceVsZone } from "./zone";
 
 /** How many runs a page of the list shows. */
@@ -155,6 +156,27 @@ export function parseRunsPage(raw: string | string[] | undefined): number {
 /** '/runs', or '/runs?page=3'. Page 1 has no query, so the URL stays clean. */
 export function runsHref(page: number): string {
   return page <= 1 ? "/runs" : `/runs?page=${page}`;
+}
+
+/**
+ * A stored run's measurements, as the source guard compares them.
+ *
+ * Derived from the same instant and the same `start_time_known` flag that
+ * `toRawRun` renders the fields from, so "unchanged" means what the athlete is
+ * looking at. `update_run` reconstructs exactly these two values from
+ * `started_at` in Europe/Paris for the same comparison.
+ */
+export function toStoredStats(run: StoredRun): StoredStats {
+  const instant = new Date(run.started_at);
+
+  return {
+    date: parisDate(instant),
+    time: run.start_time_known ? parisClock(instant) : null,
+    distanceM: run.distance_m,
+    durationS: run.duration_s,
+    avgHr: run.avg_hr,
+    hrSource: run.hr_source,
+  };
 }
 
 /**

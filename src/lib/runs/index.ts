@@ -1,4 +1,16 @@
 export {
+  isStatsLocked,
+  refusesStatsEdit,
+  statsChanged,
+  type StoredStats,
+} from "./source-guard";
+export {
+  actualOverPlanned,
+  doneFacts,
+  type DoneFacts,
+  type DoneRun,
+} from "./done";
+export {
   formatDuration,
   formatHr,
   formatPacePerKm,
@@ -6,15 +18,16 @@ export {
 } from "./format";
 export {
   RPE_BANDS,
+  deleteRunConsequence,
   hrSourceChoices,
   hrSourceLabel,
+  loggingForLine,
   paceVsZoneLine,
   rpeBandLabel,
   rpeBandsHint,
   rpeChoices,
-  resetCheckboxLabel,
-  resetWithheldMessage,
   rpeLabel,
+  statsLockedMessage,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
@@ -22,13 +35,7 @@ export {
   runWarningTitle,
   type RunChoice,
 } from "./messages";
-export {
-  RESET_WITHHELD_CODES,
-  resetOffer,
-  type ResetOffer,
-  type ResetOfferInput,
-  type ResetWithheld,
-} from "./deleting";
+export { resetsLinkedSession, type ResetInput } from "./deleting";
 export { RUN_FIELDS, reasonField, type RunField } from "./fields";
 export {
   LINK_WINDOW_DAYS,
@@ -75,10 +82,12 @@ export {
   type ValidateRunInput,
 } from "./rules";
 export {
+  chosenWorkoutSchema,
   linkableWorkoutSchema,
   linkableWorkoutsSchema,
   storedRunSchema,
   storedRunsSchema,
+  type ChosenWorkout,
   type LinkableWorkout,
   type LinkedWorkout,
   type StoredRun,
@@ -91,6 +100,7 @@ export {
   parseRunsPage,
   runsHref,
   toRawRun,
+  toStoredStats,
   toRunRow,
   type RunListModel,
   type RunRow,

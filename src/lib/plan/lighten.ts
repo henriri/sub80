@@ -165,6 +165,19 @@ export function validateLighten({
 }
 
 /**
+ * Whether any reduction is on offer at all.
+ *
+ * Built on `validateLighten` rather than beside it: the gate the interface asks
+ * is then the same function the Server Action re-runs, and a rule added to
+ * `validateLighten` cannot be missed here. Both fractions are tried, because a
+ * day that refuses one only for being lighter than it already still has the
+ * other.
+ */
+export function canLighten(workout: LightenCandidate, today: Ymd): boolean {
+  return LIGHTEN_FRACTIONS.some((by) => validateLighten({ workout, by, today }).ok);
+}
+
+/**
  * Whether the planned distance can be put back.
  *
  * This is the one action in the branch that can raise a week's total, so it

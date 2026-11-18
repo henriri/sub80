@@ -7,7 +7,6 @@ import { RunForm } from "@/components/runs/RunForm";
 import { WorkoutPicker } from "@/components/runs/WorkoutPicker";
 import type { Ymd } from "@/lib/plan";
 import {
-  resetOffer,
   runLoggedMessage,
   type LinkableWorkout,
   type RawRun,
@@ -129,17 +128,13 @@ export function RunDemo({ initial, workouts, today, vdot }: RunDemoProps) {
       <div className={card}>
         <h3 className="text-heading-sm">DeleteRunButton</h3>
         <p className="text-small text-secondary">
-          The checkbox is offered only when ticking it would do something, and
-          is ticked by default: deleting a run almost always means the session
-          did not happen after all.
+          No checkbox. A session is done if and only if a run is linked to it,
+          so deleting the only run against one puts it back to planned: that is
+          not a decision to offer, and the dialog states it.
         </p>
         <DeleteRunButton
           runId="00000000-0000-4000-8000-000000000001"
-          offer={resetOffer({
-            workoutTitle: "Threshold 3 × 12′ (2′ jog)",
-            workoutStatus: "completed",
-            otherRuns: 0,
-          })}
+          resetsSession
           action={deletes}
         />
       </div>
@@ -149,16 +144,12 @@ export function RunDemo({ initial, workouts, today, vdot }: RunDemoProps) {
           DeleteRunButton · another run is still linked
         </h3>
         <p className="text-small text-secondary">
-          No checkbox, and a sentence saying why: this is the one case the
-          athlete might have expected it.
+          The session keeps its status, and the sentence says nothing about it:
+          it is still done, and the run being deleted was never what made it so.
         </p>
         <DeleteRunButton
           runId="00000000-0000-4000-8000-000000000002"
-          offer={resetOffer({
-            workoutTitle: "Threshold 3 × 12′ (2′ jog)",
-            workoutStatus: "completed",
-            otherRuns: 1,
-          })}
+          resetsSession={false}
           action={deletes}
         />
       </div>
@@ -196,6 +187,48 @@ export function RunDemo({ initial, workouts, today, vdot }: RunDemoProps) {
           runId={null}
           initial={initial}
           workouts={workouts}
+          today={today}
+          vdot={vdot}
+          action={action}
+          submitLabel="Log this run"
+        />
+      </div>
+
+      <div className={card}>
+        <h3 className="text-heading-sm">RunForm · a run that came from a device</h3>
+        <p className="text-small text-secondary">
+          The measurements are the file&rsquo;s record, so the day, the start
+          time, the distance, the time and the heart rate are read-only with one
+          line saying why. The effort, the notes and the session stay the
+          athlete&rsquo;s to change. The heart-rate source states itself rather
+          than offering the choice: a disabled control submits nothing, and the
+          server compares what it is sent against what is stored.
+        </p>
+        <RunForm
+          runId="00000000-0000-4000-8000-000000000003"
+          initial={{ ...initial, avgHr: "158", hrSource: "strap", rpe: "7" }}
+          workouts={workouts}
+          source="fit_upload"
+          today={today}
+          vdot={vdot}
+          action={action}
+          submitLabel="Save changes"
+        />
+      </div>
+
+      <div className={card}>
+        <h3 className="text-heading-sm">RunForm · logging for a chosen session</h3>
+        <p className="text-small text-secondary">
+          Reached with Log run on a session&rsquo;s own page. The session is
+          already chosen, so the picker gives way to a line saying which one the
+          form heard; the day and the planned distance arrive prefilled, as a
+          starting point to correct. Unlinking lives on the run&rsquo;s own page.
+        </p>
+        <RunForm
+          runId={null}
+          initial={initial}
+          workouts={[]}
+          lockedSession={workouts[0] ?? null}
           today={today}
           vdot={vdot}
           action={action}

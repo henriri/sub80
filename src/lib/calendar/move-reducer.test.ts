@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { weekStart, type StoredWorkout } from "@/lib/plan";
+import { weekStart, type StoredWorkoutWithRuns } from "@/lib/plan";
 import { applyMove, applyMoves } from "./move-reducer";
 import {
   buildDayView,
@@ -25,8 +25,8 @@ let nextId = 1;
 
 function workout(
   planned_date: string,
-  overrides: Partial<StoredWorkout> = {},
-): StoredWorkout {
+  overrides: Partial<StoredWorkoutWithRuns> = {},
+): StoredWorkoutWithRuns {
   const id = String(nextId++).padStart(12, "0");
   return {
     id: `00000000-0000-4000-8000-${id}`,
@@ -41,11 +41,13 @@ function workout(
     strides: false,
     status: "planned",
     day_slot: 0,
+    // Nothing logged against it. A run is what makes a session done.
+    runs: [],
     ...overrides,
   };
 }
 
-const input = (date: string, workouts: StoredWorkout[]) => ({
+const input = (date: string, workouts: StoredWorkoutWithRuns[]) => ({
   date,
   today: MONDAY,
   workouts,

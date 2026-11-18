@@ -3,9 +3,11 @@ import { z } from "zod";
 import {
   PICKER_WINDOW_DAYS,
   RUNS_PER_PAGE,
+  chosenWorkoutSchema,
   linkableWorkoutsSchema,
   storedRunSchema,
   storedRunsSchema,
+  type ChosenWorkout,
   type LinkableWorkout,
   type ParsedRun,
   type StoredRun,
@@ -182,7 +184,7 @@ export async function readLinkableWorkouts(
 
   const { data, error } = await supabase
     .from("planned_workouts")
-    .select("id, title, planned_date, pace_zone, status, target_distance_m, activities(count)")
+    .select(LINKABLE_COLUMNS)
     .eq("user_id", userId)
     .gte("planned_date", addDays(date, -withinDays))
     .lte("planned_date", addDays(date, withinDays))
@@ -191,16 +193,48 @@ export async function readLinkableWorkouts(
 
   if (error) throw new Error(`Could not read the sessions: ${error.message}`);
 
-  // The embedded aggregate arrives as [{ count: n }], or [] when there are
-  // none. Flattened here so the schema and the form see a plain number.
-  const rows = (data ?? []).map((row) => {
-    const { activities, ...rest } = row as typeof row & {
-      activities: { count: number }[] | null;
-    };
-    return { ...rest, run_count: activities?.[0]?.count ?? 0 };
-  });
+  return linkableWorkoutsSchema.parse((data ?? []).map(withRunCount));
+}
 
-  return linkableWorkoutsSchema.parse(rows);
+/** The columns a linkable session needs, with its run count as an aggregate. */
+const LINKABLE_COLUMNS =
+  "id, title, planned_date, pace_zone, status, target_distance_m, activities(count)";
+
+/**
+ * The embedded count as a plain number.
+ *
+ * It arrives as `[{ count: n }]`, or `[]` when there are none. Flattened here
+ * so the schema and the form see a number rather than either shape.
+ */
+function withRunCount(row: object) {
+  const { activities, ...rest } = row as typeof row & {
+    activities: { count: number }[] | null;
+  };
+  return { ...rest, run_count: activities?.[0]?.count ?? 0 };
+}
+
+/**
+ * One session the form can link to, by id, or null when it is not the caller's.
+ *
+ * For logging a run FROM a session, where the session is already chosen and the
+ * form shows it rather than a picker. Read by id rather than taken out of the
+ * date window: a session the athlete pressed Log run on has to be the one the
+ * form logs against, however far its day is from the date in the field.
+ */
+export async function readLinkableWorkout(
+  workoutId: string,
+): Promise<ChosenWorkout | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("planned_workouts")
+    // Its own note too, which the picker's rows do not carry: it is prefilled
+    // into the run's notes field, and it is one row rather than a window.
+    .select(`${LINKABLE_COLUMNS}, notes`)
+    .eq("id", workoutId)
+    .maybeSingle();
+
+  if (error) throw new Error(`Could not read the session: ${error.message}`);
+  return data === null ? null : chosenWorkoutSchema.parse(withRunCount(data));
 }
 
 /**

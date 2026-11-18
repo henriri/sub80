@@ -80,3 +80,18 @@ export const linkableWorkoutSchema = z.object({
 export const linkableWorkoutsSchema = z.array(linkableWorkoutSchema);
 
 export type LinkableWorkout = z.infer<typeof linkableWorkoutSchema>;
+
+/**
+ * The one session a run is being logged FOR, read by id.
+ *
+ * It carries the session's note as well, which the picker's rows do not: the
+ * note is prefilled into the run's own notes field, so what the athlete wrote
+ * about the session while planning it is in front of them while they say how it
+ * actually went. Read for one session only, never for the ten-day window the
+ * picker asks for.
+ */
+export const chosenWorkoutSchema = linkableWorkoutSchema.extend({
+  notes: z.string().nullable(),
+});
+
+export type ChosenWorkout = z.infer<typeof chosenWorkoutSchema>;
