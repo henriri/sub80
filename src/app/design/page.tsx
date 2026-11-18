@@ -6,6 +6,7 @@ import { TextField } from "@/components/TextField";
 import { WorkoutList } from "@/components/WorkoutList";
 import { Calendar } from "@/components/calendar/Calendar";
 import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
+import { DoneBadge } from "@/components/calendar/DoneBadge";
 import { KindBadge } from "@/components/calendar/KindBadge";
 import { WorkoutCard } from "@/components/calendar/WorkoutCard";
 import type { WorkoutActionsProps } from "@/components/workout/WorkoutActions";
@@ -33,7 +34,7 @@ import {
   plannedDistance,
   sessionActions,
   type SessionCandidate,
-  type StoredWorkout,
+  type StoredWorkoutWithRuns,
   type WorkoutDetail,
 } from "@/lib/plan";
 import { tokens, type TokenGroup, type TokenLayer } from "@/lib/design/tokens";
@@ -62,6 +63,7 @@ const sampleWorkouts = [
     strides: false,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     id: "00000000-0000-4000-8000-000000000002",
@@ -76,6 +78,7 @@ const sampleWorkouts = [
     strides: true,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     id: "00000000-0000-4000-8000-000000000003",
@@ -91,6 +94,7 @@ const sampleWorkouts = [
     strides: false,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     id: "00000000-0000-4000-8000-000000000004",
@@ -105,11 +109,16 @@ const sampleWorkouts = [
     strides: false,
     status: "planned",
     day_slot: 0,
+    runs: [],
   },
   {
     // A double day, sharing 2027-03-19 with the time trial above. Slot 1, so
     // it renders second in the week view and gives the month cell its second
     // marker: the two-per-day case needs a specimen like any other state.
+    //
+    // It is also the DONE one: a run is logged against it, which is what makes
+    // a session done, so its status reads completed and the day it shares with
+    // the time trial is one of two done. Both states on one cell is the point.
     id: "00000000-0000-4000-8000-000000000005",
     generated_key: null,
     planned_date: "2027-03-19",
@@ -120,10 +129,23 @@ const sampleWorkouts = [
     week_index: 22,
     pace_zone: "E",
     strides: false,
-    status: "planned",
+    status: "completed",
     day_slot: 1,
+    runs: [
+      {
+        id: "00000000-0000-4000-8000-00000000000a",
+        started_at: "2027-03-19T17:40:00Z",
+        // A little over the 5 km asked for, which is the normal case and what
+        // the "5.4 / 5.0 km" line on the card exists to show.
+        distance_m: 5400,
+        duration_s: 1680,
+        avg_hr: 139,
+        hr_source: "strap",
+        rpe: 3,
+      },
+    ],
   },
-] satisfies StoredWorkout[];
+] satisfies StoredWorkoutWithRuns[];
 
 /** The VDOT the sample paces are derived from: the plan's starting point. */
 const SAMPLE_VDOT = 47;
@@ -495,9 +517,20 @@ function Sample() {
       <WorkoutList items={sampleWorkouts.slice(0, 1)} vdot={SAMPLE_VDOT} />
       <KindBadges size="label" />
       <KindBadges size="short" />
+      <div className="flex flex-wrap items-center gap-inline-md">
+        <DoneBadge />
+        <DoneBadge size="short" kindLabel="Easy" />
+      </div>
+      {/* The planned card and the done one, so both tints are in the matrix. */}
       {sampleItems.slice(0, 1).map((item) => (
         <WorkoutCard key={item.id} item={item} />
       ))}
+      {sampleItems
+        .filter((item) => item.runs.length > 0)
+        .slice(0, 1)
+        .map((item) => (
+          <WorkoutCard key={`done-${item.id}`} item={item} />
+        ))}
     </>
   );
 }
@@ -591,7 +624,32 @@ export default function DesignPage() {
           </div>
 
           <div className={card}>
+            <h3 className="text-heading-sm">DoneBadge</h3>
+            <p className="text-small text-secondary">
+              A session that happened. Filled, where a planned marker is a pale
+              tint, and carrying a check and the word: the cue is never the
+              colour on its own. In a month cell the short marker takes the kind
+              marker&rsquo;s place — at seven columns on a phone there is room
+              for one glyph — and speaks the kind it replaced.
+            </p>
+            <div className="flex flex-wrap items-center gap-inline-md">
+              <DoneBadge />
+              <DoneBadge size="short" kindLabel="Easy" />
+              {/* Beside the planned marker it replaces, to see the pair. */}
+              <KindBadge kind="easy" size="short" />
+            </div>
+          </div>
+
+          <div className={card}>
             <h3 className="text-heading-sm">WorkoutCard</h3>
+            <p className="text-small text-secondary">
+              The last of these is done: a run is logged against it, which is
+              what makes a session done. It takes the check badge, the done tint
+              and the distance actually run over the distance asked for. In the
+              day view the run&rsquo;s own numbers become the content and the
+              plan&rsquo;s target drops to one small line beneath. No verdict is
+              passed on the difference between the two.
+            </p>
             <p className="text-small text-secondary">Compact, as in a week column.</p>
             <div className="flex flex-col gap-stack-sm">
               {sampleItems.map((item) => (

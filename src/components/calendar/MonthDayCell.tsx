@@ -3,13 +3,16 @@
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import Link from "next/link";
 import {
+  KIND_META,
   calendarHref,
   describeDay,
   dropState,
   formatKmValue,
+  isSessionDone,
   type CalendarItem,
   type MonthDay,
 } from "@/lib/calendar";
+import { DoneBadge } from "./DoneBadge";
 import { DropHint, dropSurfaceClasses } from "./DropHint";
 import { KindBadge } from "./KindBadge";
 import { useMove } from "./move-context";
@@ -84,6 +87,7 @@ function surfaceClasses({ isToday, isEvent, inMonth }: MonthDay) {
 function Session({ item }: { item: CalendarItem }) {
   const move = useMove();
   const draggable = move !== null && move.canMove(item);
+  const done = isSessionDone(item);
   const { ref, handleRef, isDragging } = useDraggable({
     id: item.id,
     data: { workoutId: item.id },
@@ -99,9 +103,22 @@ function Session({ item }: { item: CalendarItem }) {
       )}
     >
       <Link href={item.href} className={sessionLink}>
-        <span aria-hidden="true">
-          <KindBadge kind={item.kind} size="short" />
-        </span>
+        {/*
+          One marker, not two: at seven columns on a phone a cell is about 45px
+          wide and there is room for a single glyph. A finished session takes
+          the done marker -- filled, with a check, where the kind marker is a
+          pale tint with a letter -- so the change from planned to done is a
+          change of shape and glyph and not only of colour. The kind is not lost
+          with the letter: the marker speaks it, and the cell's own accessible
+          name says the kinds and how many are done.
+        */}
+        {done ? (
+          <DoneBadge size="short" kindLabel={KIND_META[item.kind].label} />
+        ) : (
+          <span aria-hidden="true">
+            <KindBadge kind={item.kind} size="short" />
+          </span>
+        )}
         <span className="truncate">{item.title}</span>
       </Link>
 

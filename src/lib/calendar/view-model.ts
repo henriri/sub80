@@ -12,7 +12,8 @@ import {
   dayOfWeek,
   paceRangeLabel,
   weekIndexOf,
-  type StoredWorkout,
+  type StoredWorkoutWithRuns,
+  type WorkoutRun,
   type WorkoutKind,
   type WorkoutStatus,
   type Ymd,
@@ -44,6 +45,20 @@ export type CalendarItem = {
   isKey: boolean;
   /** Only a planned workout may be moved. */
   status: WorkoutStatus;
+  /**
+   * The runs logged against it, newest first.
+   *
+   * A session is completed if and only if one of these exists, so this is what
+   * says whether the day is done -- not `status`, which is a consequence of
+   * logging and can be stale on a legacy row. Empty is the usual case for a
+   * session still to come.
+   *
+   * The rows are carried rather than summarised here because the summary needs
+   * the run formatters, and `src/lib/runs` already imports this module: turning
+   * that around would make a cycle. `doneFacts` does the summarising on the
+   * other side of that line.
+   */
+  runs: readonly WorkoutRun[];
   /**
    * This workout's own page, carrying the view and date it was opened from so
    * the back link returns to the calendar the athlete was looking at.
@@ -120,7 +135,7 @@ export type CalendarViewModel = WeekViewModel | MonthViewModel | DayViewModel;
 export type ViewInput = {
   date: Ymd;
   today: Ymd;
-  workouts: readonly StoredWorkout[];
+  workouts: readonly StoredWorkoutWithRuns[];
   /** The athlete's current VDOT: every pace shown is derived from it. */
   vdot: number;
 };
@@ -149,7 +164,7 @@ export function sumMetres(items: readonly { metres: number | null }[]): number {
 }
 
 function toItem(
-  workout: StoredWorkout,
+  workout: StoredWorkoutWithRuns,
   vdot: number,
   back: CalendarParams,
 ): CalendarItem {
@@ -163,6 +178,7 @@ function toItem(
     strides: workout.strides,
     isKey: workout.is_key,
     status: workout.status,
+    runs: workout.runs,
     daySlot: workout.day_slot,
     href: workoutHref(workout.id, back),
   };
@@ -191,7 +207,7 @@ export function compareCalendarItems(a: CalendarItem, b: CalendarItem): number {
 
 /** Rows by date, each day's items in render order. */
 function itemsByDate(
-  workouts: readonly StoredWorkout[],
+  workouts: readonly StoredWorkoutWithRuns[],
   vdot: number,
   back: CalendarParams,
 ): Map<Ymd, CalendarItem[]> {
@@ -223,9 +239,22 @@ function toDay(date: Ymd, today: Ymd, items: CalendarItem[]): CalendarDay {
 }
 
 /**
- * A day cell's accessible name: the whole date, then what is planned on it.
- * The visible cell shows a bare day number and a marker or two, which on its
- * own tells a screen-reader user almost nothing.
+ * Whether a session happened: a run is linked to it.
+ *
+ * The one definition the components share, so a card, a month marker and a day
+ * label cannot come to different conclusions -- and so none of them reads
+ * `status`, which is a consequence of logging rather than the fact.
+ */
+export function isSessionDone(item: Pick<CalendarItem, "runs">): boolean {
+  return item.runs.length > 0;
+}
+
+/**
+ * A day cell's accessible name: the whole date, then what is planned on it,
+ * then whether it happened. The visible cell shows a bare day number and a
+ * marker or two, which on its own tells a screen-reader user almost nothing --
+ * and the filled marker that says "done" is exactly the kind of cue that has
+ * to be said in words as well.
  */
 export function describeDay(day: CalendarDay): string {
   if (day.items.length === 0) {
@@ -235,7 +264,15 @@ export function describeDay(day: CalendarDay): string {
   }
 
   const kinds = day.items.map((item) => KIND_META[item.kind].label).join(", ");
-  return `${day.fullLabel}, ${kinds}, ${formatKm(day.metres)}`;
+  const done = day.items.filter(isSessionDone).length;
+  const outcome =
+    done === 0
+      ? ""
+      : done === day.items.length
+        ? ", done"
+        : `, ${done} of ${day.items.length} done`;
+
+  return `${day.fullLabel}, ${kinds}, ${formatKm(day.metres)}${outcome}`;
 }
 
 export function buildWeekView({ date, today, workouts, vdot }: ViewInput): WeekViewModel {

@@ -4,10 +4,11 @@ import { addDays, type Ymd } from "@/lib/plan/dates";
 import type { PlannedWorkoutRow } from "@/lib/plan/rows";
 import {
   storedWorkoutSchema,
-  storedWorkoutsSchema,
+  storedWorkoutsWithRunsSchema,
   vdotSchema,
   workoutDetailSchema,
   type StoredWorkout,
+  type StoredWorkoutWithRuns,
   type WorkoutDetail,
 } from "@/lib/plan/rows-schema";
 import type { WorkoutStatus } from "@/lib/plan/types";
@@ -50,16 +51,30 @@ export async function readVdot(userId: string): Promise<number> {
   return vdotSchema.parse(data.vdot);
 }
 
-/** Workouts from `from` (inclusive) over the next `days` days. */
+/**
+ * The runs on a session, embedded, because the calendar has to read them.
+ *
+ * A session is completed if and only if a run is linked to it, so "is this day
+ * done" cannot be answered from the status column alone: that column is a
+ * consequence of logging, and a legacy row can say `completed` with nothing
+ * behind it. Only the numbers a card shows are read.
+ *
+ * How the embed comes back is the one thing CI cannot check -- see
+ * `storedWorkoutWithRunsSchema`, which accepts either shape.
+ */
+const RUN_COLUMNS =
+  "runs:activities (id, started_at, distance_m, duration_s, avg_hr, hr_source, rpe)";
+
+/** Workouts from `from` (inclusive) over the next `days` days, with their runs. */
 export async function readNextWorkouts(
   userId: string,
   from: Ymd,
   days: number,
-): Promise<StoredWorkout[]> {
+): Promise<StoredWorkoutWithRuns[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("planned_workouts")
-    .select(COLUMNS)
+    .select(`${COLUMNS}, ${RUN_COLUMNS}`)
     .eq("user_id", userId)
     .gte("planned_date", from)
     .lt("planned_date", addDays(from, days))
@@ -69,7 +84,7 @@ export async function readNextWorkouts(
 
   if (error) throw new Error(`Could not read planned workouts: ${error.message}`);
   // Rows cross a boundary, so they are validated rather than trusted.
-  return storedWorkoutsSchema.parse(data);
+  return storedWorkoutsWithRunsSchema.parse(data);
 }
 
 /**

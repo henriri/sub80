@@ -1,4 +1,10 @@
 export {
+  actualOverPlanned,
+  doneFacts,
+  type DoneFacts,
+  type DoneRun,
+} from "./done";
+export {
   formatDuration,
   formatHr,
   formatPacePerKm,

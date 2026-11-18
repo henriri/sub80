@@ -77,6 +77,7 @@ export {
   buildWeekView,
   compareCalendarItems,
   describeDay,
+  isSessionDone,
   isPlanWeek,
   plannedKmFor,
   sumMetres,

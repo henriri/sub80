@@ -2,8 +2,10 @@
 
 import { useDraggable } from "@dnd-kit/react";
 import Link from "next/link";
-import { formatKm, type CalendarItem } from "@/lib/calendar";
+import { formatKm, isSessionDone, type CalendarItem } from "@/lib/calendar";
+import { actualOverPlanned, doneFacts } from "@/lib/runs";
 import { DRAG_INSTRUCTIONS } from "@/lib/ui/drag-announce";
+import { DoneBadge } from "./DoneBadge";
 import { KindBadge } from "./KindBadge";
 import { useMove } from "./move-context";
 import { focusRing, joinClasses } from "./styles";
@@ -18,9 +20,15 @@ const base = [
   "flex flex-col gap-(--cal-card-gap)",
   "min-h-(--cal-card-min-height)",
   "px-(--cal-card-padding-x) py-(--cal-card-padding-y)",
-  "rounded-(--cal-card-radius) bg-(--cal-card-bg) text-(color:--cal-card-fg)",
-  "border-(length:--border-width-default) border-(--cal-card-border)",
+  "rounded-(--cal-card-radius)",
+  "border-(length:--border-width-default)",
 ].join(" ");
+
+/** One string per state: two arbitrary values of one property would race. */
+const surface = {
+  planned: "bg-(--cal-card-bg) text-(color:--cal-card-fg) border-(--cal-card-border)",
+  done: "bg-(--cal-done-bg) text-(color:--cal-card-fg) border-(--cal-done-border)",
+} as const;
 
 /**
  * The link fills the heading and underlines on hover, so it reads as the way
@@ -93,7 +101,14 @@ function Controls({
 }
 
 /**
- * One planned session.
+ * One planned session, and what happened on it.
+ *
+ * A run logged against it is what makes it done, so a done card reads as a
+ * record rather than a plan: the check badge and the tint say so, and the
+ * distance becomes what was actually run over what was asked for. In the day
+ * view, where there is room, the numbers of the run ARE the content and the
+ * plan's target drops to one small line beneath. No verdict is passed on any of
+ * it -- the card states both numbers and the athlete reads the difference.
  *
  * Draggable only when the calendar is interactive and `sessionActions` says the
  * session can move: a day that has come is history, a session with a run
@@ -107,6 +122,8 @@ function Controls({
 export function WorkoutCard({ item, size = "compact" }: WorkoutCardProps) {
   const move = useMove();
   const draggable = move !== null && move.canMove(item);
+  const done = isSessionDone(item);
+  const facts = doneFacts(item.runs);
 
   const { ref, handleRef, isDragging } = useDraggable({
     id: item.id,
@@ -121,6 +138,7 @@ export function WorkoutCard({ item, size = "compact" }: WorkoutCardProps) {
       data-workout-id={item.id}
       className={joinClasses(
         base,
+        surface[done ? "done" : "planned"],
         size === "full" && "gap-stack-sm",
         // Lift, not colour: a card that has left its day has to look picked
         // up to someone who cannot tell the tints apart.
@@ -128,9 +146,19 @@ export function WorkoutCard({ item, size = "compact" }: WorkoutCardProps) {
       )}
     >
       <div className="flex flex-wrap items-center justify-between gap-inline-sm">
-        <KindBadge kind={item.kind} />
-        {item.metres === null ? null : (
-          <span className="text-small text-secondary">{formatKm(item.metres)}</span>
+        <span className="flex flex-wrap items-center gap-inline-sm">
+          <KindBadge kind={item.kind} />
+          {done ? <DoneBadge /> : null}
+        </span>
+
+        {facts === null ? (
+          item.metres === null ? null : (
+            <span className="text-small text-secondary">{formatKm(item.metres)}</span>
+          )
+        ) : (
+          <span className="font-strong text-small">
+            {actualOverPlanned(facts.metres, item.metres)}
+          </span>
         )}
       </div>
 
@@ -146,7 +174,46 @@ export function WorkoutCard({ item, size = "compact" }: WorkoutCardProps) {
         </Link>
       </h3>
 
-      {item.paceLabel === null ? null : (
+      {/*
+        The day view of a finished session: what was run, then what was asked
+        for. Several runs on one session sum their distance and time; the heart
+        rate and the effort are then left off rather than averaged, because a
+        strap reading and a wrist one are never mixed.
+      */}
+      {size === "full" && facts !== null ? (
+        <>
+          <p className="flex flex-wrap items-baseline gap-inline-md text-body">
+            <span className="font-strong">{facts.distanceLabel}</span>
+            <span>{facts.timeLabel}</span>
+            <span className="text-secondary">{facts.paceLabel}</span>
+            {facts.hrLabel ? (
+              <span className="text-small text-secondary">
+                {facts.hrLabel} ({facts.hrSourceLabel})
+              </span>
+            ) : null}
+            {facts.rpeLabel ? (
+              <span className="text-small text-secondary">{facts.rpeLabel}</span>
+            ) : null}
+          </p>
+
+          {facts.runs > 1 ? (
+            <p className="text-small text-secondary">
+              {facts.runs} runs logged against this session.
+            </p>
+          ) : null}
+
+          <p className="text-small text-secondary">
+            Planned{item.metres === null ? "" : `: ${formatKm(item.metres)}`}
+            {item.paceLabel === null ? "" : ` · ${item.paceZone} ${item.paceLabel}`}
+          </p>
+        </>
+      ) : null}
+
+      {/*
+        What the session asks for. Dropped from a finished card in the day view,
+        where the line above has already said it in full.
+      */}
+      {item.paceLabel === null || (size === "full" && facts !== null) ? null : (
         <p className="flex flex-wrap items-center gap-inline-sm text-small text-secondary">
           <span className="rounded-control bg-raised px-inline-sm font-code">
             {item.paceZone}
@@ -155,7 +222,7 @@ export function WorkoutCard({ item, size = "compact" }: WorkoutCardProps) {
         </p>
       )}
 
-      {item.strides ? (
+      {item.strides && !done ? (
         <p className="text-small text-secondary">
           {size === "full" ? "Finishes with strides." : "+ strides"}
         </p>

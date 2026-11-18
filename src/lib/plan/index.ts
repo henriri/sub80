@@ -65,10 +65,15 @@ export {
   insertRowsSchema,
   storedWorkoutSchema,
   storedWorkoutsSchema,
+  storedWorkoutWithRunsSchema,
+  storedWorkoutsWithRunsSchema,
   vdotSchema,
   workoutDetailSchema,
+  workoutRunSchema,
   type StoredWorkout,
+  type StoredWorkoutWithRuns,
   type WorkoutDetail,
+  type WorkoutRun,
 } from "./rows-schema";
 export {
   canMoveSession,
