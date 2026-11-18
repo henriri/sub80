@@ -14,10 +14,13 @@ import {
 import { MAX_NOTES_LENGTH, parisDate } from "@/lib/plan";
 import {
   RUN_WARNING_CODES,
+  refusesStatsEdit,
   resetsLinkedSession,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
+  statsLockedMessage,
+  toStoredStats,
   validateRun,
   type RawRun,
   type RunWarning,
@@ -201,6 +204,20 @@ export async function editRun(
 
     const result = await check(raw, id.data);
     if (!result.ok) return failed(runRejectMessage(result.reason));
+
+    /*
+     * An imported run's measurements are the device's record of what happened.
+     * Refused here, against the row just read, by the same function the form
+     * renders those fields read-only with -- and `update_run` checks it again
+     * inside the transaction, so this is the sentence rather than the guarantee.
+     *
+     * Field by field, not a flat refusal: the form re-sends everything on every
+     * submit, so changing only the note posts the distance back unchanged and
+     * has to succeed.
+     */
+    if (refusesStatsEdit(existing.source, result.run, toStoredStats(existing))) {
+      return failed(statsLockedMessage(existing.source));
+    }
 
     const unconfirmed = result.warnings.filter(
       (warning) => !confirmed.includes(warning.code),

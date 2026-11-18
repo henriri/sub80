@@ -133,6 +133,7 @@ async function RunSection({ params }: { params: PageProps<"/runs/[id]">["params"
           workouts={workouts}
           today={parisDate(new Date())}
           vdot={vdot}
+          source={run.source}
           action={editRun}
           submitLabel="Save changes"
         />

@@ -195,6 +195,28 @@ export function RunDemo({ initial, workouts, today, vdot }: RunDemoProps) {
       </div>
 
       <div className={card}>
+        <h3 className="text-heading-sm">RunForm · a run that came from a device</h3>
+        <p className="text-small text-secondary">
+          The measurements are the file&rsquo;s record, so the day, the start
+          time, the distance, the time and the heart rate are read-only with one
+          line saying why. The effort, the notes and the session stay the
+          athlete&rsquo;s to change. The heart-rate source states itself rather
+          than offering the choice: a disabled control submits nothing, and the
+          server compares what it is sent against what is stored.
+        </p>
+        <RunForm
+          runId="00000000-0000-4000-8000-000000000003"
+          initial={{ ...initial, avgHr: "158", hrSource: "strap", rpe: "7" }}
+          workouts={workouts}
+          source="fit_upload"
+          today={today}
+          vdot={vdot}
+          action={action}
+          submitLabel="Save changes"
+        />
+      </div>
+
+      <div className={card}>
         <h3 className="text-heading-sm">RunForm · logging for a chosen session</h3>
         <p className="text-small text-secondary">
           Reached with Log run on a session&rsquo;s own page. The session is

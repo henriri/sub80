@@ -1,4 +1,13 @@
 export {
+  MEASURED_FIELDS,
+  OWN_FIELDS,
+  isStatsLocked,
+  refusesStatsEdit,
+  statsChanged,
+  type MeasuredField,
+  type StoredStats,
+} from "./source-guard";
+export {
   actualOverPlanned,
   doneFacts,
   type DoneFacts,
@@ -21,6 +30,8 @@ export {
   rpeBandsHint,
   rpeChoices,
   rpeLabel,
+  sourceName,
+  statsLockedMessage,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
@@ -93,6 +104,7 @@ export {
   parseRunsPage,
   runsHref,
   toRawRun,
+  toStoredStats,
   toRunRow,
   type RunListModel,
   type RunRow,

@@ -21,7 +21,13 @@ import {
   type ZoneKey,
 } from "@/lib/plan";
 import { formatPacePerKm } from "./format";
-import { HR_SOURCES, type HrSource, type RunReason, type RunWarning } from "./rules";
+import {
+  HR_SOURCES,
+  type HrSource,
+  type RunReason,
+  type RunSource,
+  type RunWarning,
+} from "./rules";
 import type { PaceComparison } from "./zone";
 
 /**
@@ -224,6 +230,32 @@ export function loggingForLine(session: {
   ].filter((part) => part !== null);
 
   return parts.join(" · ");
+}
+
+/**
+ * Why an imported run's measurements cannot be typed over.
+ *
+ * Names the source, because that is the whole answer: the file is the record,
+ * and the way to correct it is to fix it where it came from. Says what IS still
+ * editable in the same breath, so the sentence is not only a refusal.
+ */
+export function statsLockedMessage(source: RunSource): string {
+  const where = sourceName(source);
+  return `This run came from ${where}, so its distance, time and heart rate are what was recorded. The effort, the notes and the session it belongs to are still yours to change.`;
+}
+
+/** A source in words, for a sentence rather than for a column. */
+export function sourceName(source: RunSource): string {
+  switch (source) {
+    case "manual":
+      return "your own entry";
+    case "fit_upload":
+      return "a FIT file";
+    case "polar":
+      return "Polar";
+    case "wahoo":
+      return "Wahoo";
+  }
 }
 
 /**

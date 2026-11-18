@@ -27,7 +27,7 @@
 
 begin;
 
-select plan(61);
+select plan(81);
 
 insert into auth.users (id, email) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'runner-a@example.test'),
@@ -502,6 +502,216 @@ select throws_ok(
   $$select public.delete_run('b0000000-0000-0000-0000-0000000000a1', false)$$,
   'P0002', null,
   'another user''s run cannot be deleted'
+);
+
+-- An imported run's measurements ---------------------------------------------
+
+-- The fixture a FIT upload would leave: source is not 'manual', and avg_hr and
+-- hr_source are set TOGETHER, which activities_hr_source_present_check requires
+-- of every row. Inserted as the owner, so row-level security lets it through.
+--
+-- 13100 is its distance, outside the 11900-11999 refusal band and distinct from
+-- every other run here, so it can be read back by it.
+insert into public.activities
+  (id, user_id, started_at, start_time_known, distance_m, duration_s,
+   avg_hr, hr_source, rpe, notes, source)
+values
+  ('a0000000-0000-0000-0000-0000000000f1', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+   -- 07:30 Europe/Paris in November, which is 06:30 UTC.
+   '2026-11-15T06:30:00Z', true, 13100, 3900, 158, 'strap', 7, 'From the watch.',
+   'fit_upload');
+
+select is(
+  (select source from public.activities where distance_m = 13100),
+  'fit_upload',
+  'the fixture is an imported run, so its measurements are the device''s record'
+);
+
+-- Refused: every measurement, one at a time, so one failure names one field.
+
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 14000, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses a change to its distance'
+);
+
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3600,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses a change to its duration'
+);
+
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-14', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses a change to its date'
+);
+
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '08:00',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses a change to its start time'
+);
+
+-- Dropping the start time is a change like any other: the stored run has one,
+-- and a null would make started_at midday and start_time_known false.
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => null,
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses having its start time taken away'
+);
+
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 150, p_hr_source => 'strap', p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses a change to its heart rate'
+);
+
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'wrist', p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses having its heart-rate source rewritten: the two are never mixed'
+);
+
+-- Clearing the pair is still a change to the measurement, even though it is
+-- the one edit that leaves no contradictory number behind.
+select throws_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => null, p_hr_source => null, p_rpe => 7,
+      p_notes => 'From the watch.')$$,
+  'P0001', null,
+  'an imported run refuses having its heart rate removed'
+);
+
+select is(
+  (select count(*) from public.activities where distance_m = 13100),
+  1::bigint,
+  'none of those refusals changed or duplicated the row'
+);
+
+select is(
+  (select distance_m || '/' || duration_s || '/' || avg_hr || '/' || hr_source
+     from public.activities where id = 'a0000000-0000-0000-0000-0000000000f1'),
+  '13100/3900/158/strap',
+  'the measurements are exactly as the device recorded them'
+);
+
+-- Allowed: the athlete's own fields, with every measurement re-sent unchanged,
+-- which is what a form does on every submit.
+
+select lives_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 4,
+      p_notes => 'Harder than it looked.')$$,
+  'an imported run accepts a change to its effort and its notes'
+);
+
+select is(
+  (select rpe from public.activities where distance_m = 13100),
+  4::smallint,
+  'the effort is the athlete''s own, whatever the source'
+);
+
+select is(
+  (select notes from public.activities where distance_m = 13100),
+  'Harder than it looked.',
+  'so are the notes'
+);
+
+select lives_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 4,
+      p_notes => 'Harder than it looked.',
+      p_planned_workout_id => 'a0000000-0000-0000-0000-000000000005')$$,
+  'an imported run accepts being linked to a session: which session a run was is the athlete''s judgement'
+);
+
+select is(
+  (select planned_workout_id from public.activities where distance_m = 13100),
+  'a0000000-0000-0000-0000-000000000005'::uuid,
+  'the link is stored'
+);
+
+select is(
+  (select status from public.planned_workouts
+    where id = 'a0000000-0000-0000-0000-000000000005'),
+  'completed',
+  'and the session stays done: a further run against it never un-completes one'
+);
+
+-- An unchanged resend of everything, which is what submitting a form the
+-- athlete only looked at amounts to. It must not be refused.
+select lives_ok(
+  $$select public.update_run(
+      p_activity_id => 'a0000000-0000-0000-0000-0000000000f1',
+      p_date => '2026-11-15', p_time => '07:30',
+      p_distance_m => 13100, p_duration_s => 3900,
+      p_avg_hr => 158, p_hr_source => 'strap', p_rpe => 4,
+      p_notes => 'Harder than it looked.',
+      p_planned_workout_id => 'a0000000-0000-0000-0000-000000000005')$$,
+  'an unchanged resend of every field succeeds, which is why the guard compares rather than refusing outright'
+);
+
+-- And a run entered by hand is still entirely the athlete's. 10000 is the
+-- unlinked run logged at the top of this file.
+select lives_ok(
+  $$select public.update_run(
+      p_activity_id => (select id from public.activities where distance_m = 10000),
+      p_date => '2026-11-14', p_time => '06:15',
+      p_distance_m => 13200, p_duration_s => 3400,
+      p_avg_hr => 142, p_hr_source => 'wrist')$$,
+  'a manual run accepts every one of those changes, because nothing but the athlete recorded it'
+);
+
+select is(
+  (select distance_m || '/' || duration_s || '/' || avg_hr || '/' || hr_source
+     from public.activities where distance_m = 13200),
+  '13200/3400/142/wrist',
+  'the manual run is whatever the athlete says it was'
 );
 
 -- A run is a fact ------------------------------------------------------------

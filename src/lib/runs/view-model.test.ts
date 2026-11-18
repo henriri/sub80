@@ -9,6 +9,7 @@ import {
   parseRunsPage,
   runsHref,
   toRawRun,
+  toStoredStats,
   toRunRow,
 } from "./view-model";
 
@@ -348,5 +349,37 @@ describe("toRawRun", () => {
       expect(check.run.hrSource).toBe(stored.hr_source);
       expect(check.run.rpe).toBe(stored.rpe);
     }
+  });
+});
+
+describe("toStoredStats", () => {
+  it("reads the measurements the source guard compares", () => {
+    expect(toStoredStats(run())).toEqual({
+      date: "2027-11-20",
+      time: "07:30",
+      distanceM: 10_000,
+      durationS: 3_000,
+      avgHr: null,
+      hrSource: null,
+    });
+  });
+
+  it("has no start time when none was recorded, rather than midday", () => {
+    // started_at holds midday Paris so the row has an instant at all. That
+    // placeholder must never read back as a time the athlete entered.
+    expect(toStoredStats(run({ start_time_known: false })).time).toBeNull();
+  });
+
+  it("agrees with the fields the form renders, so unchanged means unchanged", () => {
+    // toRawRun is what fills the inputs; these two have to describe the same
+    // run, or an untouched form would look like an edit to the guard.
+    const stored = run({ avg_hr: 148, hr_source: "strap" });
+    const raw = toRawRun(stored);
+    const stats = toStoredStats(stored);
+
+    expect(raw.date).toBe(stats.date);
+    expect(raw.time).toBe(stats.time ?? "");
+    expect(raw.avgHr).toBe(String(stats.avgHr));
+    expect(raw.hrSource).toBe(stats.hrSource);
   });
 });

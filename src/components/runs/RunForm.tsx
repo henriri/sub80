@@ -19,6 +19,7 @@ import {
   hrSourceChoices,
   isBlank,
   isLinkFar,
+  isStatsLocked,
   linkableOn,
   loggingForLine,
   paceVsZone,
@@ -27,10 +28,12 @@ import {
   rpeBandsHint,
   rpeChoices,
   runRejectMessage,
+  statsLockedMessage,
   validateRun,
   type LinkableWorkout,
   type RawRun,
   type RunField,
+  type RunSource,
   type RunWarning,
 } from "@/lib/runs";
 import type { RunResult } from "@/app/runs/actions";
@@ -60,6 +63,16 @@ export type RunFormProps = {
    * session is corrected.
    */
   lockedSession?: LinkableWorkout | null;
+  /**
+   * Where the run came from, when one is being edited.
+   *
+   * Anything but `manual` and its measurements are the device's record: the
+   * date, time, distance, duration and heart rate render read-only with one
+   * line saying why, while the effort, the notes and the session stay the
+   * athlete's to change. `update_run` refuses the same edit in SQL, so this is
+   * the courtesy rather than the guarantee.
+   */
+  source?: RunSource;
   /** Today in Europe/Paris, so the rules never read a clock in the browser. */
   today: Ymd;
   /**
@@ -90,11 +103,17 @@ export function RunForm({
   initial,
   workouts,
   lockedSession = null,
+  source = "manual",
   today,
   vdot,
   action,
   submitLabel,
 }: RunFormProps) {
+  /*
+   * An imported run's measurements are read-only. The same predicate the Server
+   * Action refuses with, so a field is never editable here and refused there.
+   */
+  const locked = isStatsLocked(source);
   const [result, dispatch, pending] = useActionState(action, null);
   const [draft, setDraft] = useState<RawRun>(initial);
   const [confirmed, setConfirmed] = useState<readonly RunWarning["code"][]>([]);
@@ -235,6 +254,15 @@ export function RunForm({
           <input key={code} type="hidden" name="confirmed" value={code} />
         ))}
 
+        {/*
+          One line, once: the measurements below are the device's record. Said
+          at the top rather than beside each field, which would be five copies
+          of the same sentence.
+        */}
+        {locked ? (
+          <p className="text-small text-secondary">{statsLockedMessage(source)}</p>
+        ) : null}
+
         <section className={runPanel}>
           <TextField
             id={field("date")}
@@ -245,6 +273,7 @@ export function RunForm({
             value={draft.date}
             onChange={(event) => update({ date: event.target.value })}
             error={errorFor("date")}
+            readOnly={locked}
             required
           />
 
@@ -253,10 +282,15 @@ export function RunForm({
             name="time"
             type="time"
             label="Start time"
-            hint="Optional. Left empty, the run is filed without a time."
+            hint={
+              locked
+                ? undefined
+                : "Optional. Left empty, the run is filed without a time."
+            }
             value={draft.time}
             onChange={(event) => update({ time: event.target.value })}
             error={errorFor("time")}
+            readOnly={locked}
           />
         </section>
 
@@ -265,12 +299,15 @@ export function RunForm({
             id={field("distanceKm")}
             name="distanceKm"
             label="Distance in kilometres"
-            hint="A comma or a dot, whichever your keyboard gives you."
+            hint={
+              locked ? undefined : "A comma or a dot, whichever your keyboard gives you."
+            }
             inputMode="decimal"
             autoComplete="off"
             value={draft.distanceKm}
             onChange={(event) => update({ distanceKm: event.target.value })}
             error={errorFor("distanceKm")}
+            readOnly={locked}
             required
           />
 
@@ -278,12 +315,13 @@ export function RunForm({
             id={field("duration")}
             name="duration"
             label="Time"
-            hint="42:30, 1:23:45, or a number of minutes."
+            hint={locked ? undefined : "42:30, 1:23:45, or a number of minutes."}
             inputMode="text"
             autoComplete="off"
             value={draft.duration}
             onChange={(event) => update({ duration: event.target.value })}
             error={errorFor("duration")}
+            readOnly={locked}
             required
           />
 
@@ -317,7 +355,7 @@ export function RunForm({
             id={field("avgHr")}
             name="avgHr"
             label="Average heart rate"
-            hint="Optional."
+            hint={locked ? undefined : "Optional."}
             inputMode="numeric"
             autoComplete="off"
             value={draft.avgHr}
@@ -331,23 +369,43 @@ export function RunForm({
               })
             }
             error={errorFor("avgHr")}
+            readOnly={locked}
           />
 
           {/*
             Only once there is a reading, and required from then on: the two
             sources are never mixed or averaged, so a reading whose source
             nobody recorded is worse than no reading at all.
+
+            An imported reading states its source rather than offering the
+            choice. A hidden field, not a disabled radio group: a disabled
+            control submits nothing at all, and the server compares what it is
+            sent against what is stored, so an absent source would read as an
+            edit and be refused.
           */}
           {hrGiven ? (
-            <ChoiceGroup
-              name="hrSource"
-              legend="Where did it come from?"
-              options={hrSourceChoices()}
-              value={draft.hrSource === "" ? null : draft.hrSource}
-              onChange={(value) => update({ hrSource: value })}
-              error={errorFor("hrSource")}
-              required
-            />
+            locked ? (
+              <>
+                <p className="text-small text-secondary">
+                  Measured with{" "}
+                  {hrSourceChoices()
+                    .find((choice) => choice.value === draft.hrSource)
+                    ?.label.toLowerCase() ?? draft.hrSource}
+                  .
+                </p>
+                <input type="hidden" name="hrSource" value={draft.hrSource} />
+              </>
+            ) : (
+              <ChoiceGroup
+                name="hrSource"
+                legend="Where did it come from?"
+                options={hrSourceChoices()}
+                value={draft.hrSource === "" ? null : draft.hrSource}
+                onChange={(value) => update({ hrSource: value })}
+                error={errorFor("hrSource")}
+                required
+              />
+            )
           ) : null}
         </section>
 
