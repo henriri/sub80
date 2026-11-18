@@ -162,6 +162,19 @@
   --size-dialog-max: 28rem;
 
   /*
+   * A plot's own geometry. Not on the spacing scale: the height of a chart and
+   * the gutter its axis labels need are decided by the chart, as 44px is
+   * decided by the thumb.
+   *
+   * `--size-chart-bar-min` is the floor under a bar that has a value at all: a
+   * 2 km month against a 400 km axis is 0.5% of the plot and would otherwise
+   * round away to nothing, which would read as a month that never happened.
+   */
+  --size-chart-plot: 10rem;
+  --size-chart-axis: 2.5rem;
+  --size-chart-bar-min: 2px;
+
+  /*
    * Scrims. Transparent black rather than a neutral step, because what is
    * behind a dialog has to stay recognisable: an opaque tint would hide the
    * calendar the athlete is deciding about. Two steps, since a scrim that
@@ -271,6 +284,27 @@
   --color-done-mark-fg: var(--color-neutral-0);
 
   /*
+   * The year chart: what was run against what was asked for.
+   *
+   * `logged` follows the accent, unlike the kind and done tints: it is not a
+   * category, it is the headline measure, and it is the same hue as the big
+   * number above the chart.
+   *
+   * `planned` is deliberately quiet and therefore deliberately FAILS 3:1
+   * against the surface -- a bar for what was asked should not shout over the
+   * bar for what happened. Its meaning is carried by `planned-border` instead,
+   * which contrast.test.ts holds at 3:1 against both the surface and the fill.
+   * The gridline is held to no ratio: it is a ruler, not a meaning, like
+   * --color-border-default everywhere else.
+   */
+  --color-chart-logged: var(--color-accent);
+  --color-chart-planned: var(--color-neutral-200);
+  --color-chart-planned-border: var(--color-text-secondary);
+  --color-chart-current: var(--color-accent);
+  --color-chart-gridline: var(--color-border-default);
+  --color-chart-axis: var(--color-text-secondary);
+
+  /*
    * Workout kinds. A pale tint with same-hue dark text. These do not follow
    * the palette: a kind is categorical identity, not branding, so `easy` is
    * green under both palettes. contrast.test.ts holds every pair at 4.5:1.
@@ -327,6 +361,14 @@
   --color-done-border: var(--color-green-400);
   --color-done-mark: var(--color-green-300);
   --color-done-mark-fg: var(--color-green-950);
+
+  /* The same six names. Only the quiet fill changes: the rest are aliases. */
+  --color-chart-logged: var(--color-accent);
+  --color-chart-planned: var(--color-neutral-700);
+  --color-chart-planned-border: var(--color-text-secondary);
+  --color-chart-current: var(--color-accent);
+  --color-chart-gridline: var(--color-border-default);
+  --color-chart-axis: var(--color-text-secondary);
 
   /* Same twenty names, inverted: a deep tint with same-hue light text. */
   --kind-easy: var(--color-green-950);
@@ -419,6 +461,15 @@
   --line-height-heading: var(--line-height-tight);
   --size-touch-min: var(--size-touch-target);
   --size-dialog-width: var(--size-dialog-max);
+  /*
+   * A plot's height, the gutter its axis labels sit in, and the floor under a
+   * bar that has a value. Mode-independent: a chart is the same size in either
+   * theme, and the density modes change padding rather than how tall a
+   * measurement is drawn.
+   */
+  --size-chart-height: var(--size-chart-plot);
+  --size-chart-gutter: var(--size-chart-axis);
+  --size-chart-floor: var(--size-chart-bar-min);
   --border-width-default: var(--border-width-1);
   --border-width-focus: var(--border-width-2);
   --space-focus-offset: var(--space-0-5);
@@ -532,4 +583,23 @@
   --cal-header-gap: var(--space-inline-sm);
   --cal-nav-min-size: var(--size-touch-min);
   --cal-weekday-fg: var(--color-text-secondary);
+
+  /*
+   * The year view's chart and its progress bar. Two series, a ruler and an
+   * axis; the current month's accent is a cue the column carries as well as a
+   * thicker rule beneath it, never colour on its own.
+   */
+  --chart-logged-bg: var(--color-chart-logged);
+  --chart-planned-bg: var(--color-chart-planned);
+  --chart-planned-border: var(--color-chart-planned-border);
+  --chart-current-accent: var(--color-chart-current);
+  --chart-gridline: var(--color-chart-gridline);
+  --chart-axis-fg: var(--color-chart-axis);
+  --chart-plot-height: var(--size-chart-height);
+  --chart-axis-width: var(--size-chart-gutter);
+  --chart-bar-min-height: var(--size-chart-floor);
+  --chart-progress-track: var(--color-bg-raised);
+  --chart-progress-fill: var(--color-chart-logged);
+  /* A space token as a thickness, as --cal-marker-size already does. */
+  --chart-progress-height: var(--space-inset-sm);
 }
