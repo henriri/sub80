@@ -12,6 +12,7 @@ export {
 } from "./format";
 export {
   RPE_BANDS,
+  deleteRunConsequence,
   hrSourceChoices,
   hrSourceLabel,
   loggingForLine,
@@ -19,8 +20,6 @@ export {
   rpeBandLabel,
   rpeBandsHint,
   rpeChoices,
-  resetCheckboxLabel,
-  resetWithheldMessage,
   rpeLabel,
   runLoggedMessage,
   runRejectMessage,
@@ -29,13 +28,7 @@ export {
   runWarningTitle,
   type RunChoice,
 } from "./messages";
-export {
-  RESET_WITHHELD_CODES,
-  resetOffer,
-  type ResetOffer,
-  type ResetOfferInput,
-  type ResetWithheld,
-} from "./deleting";
+export { resetsLinkedSession, type ResetInput } from "./deleting";
 export { RUN_FIELDS, reasonField, type RunField } from "./fields";
 export {
   LINK_WINDOW_DAYS,

@@ -1,7 +1,7 @@
 "use client";
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
-import { useActionState, useId, useState } from "react";
+import { useActionState, useState } from "react";
 import {
   dialog,
   dialogAction,
@@ -11,13 +11,8 @@ import {
   scrim,
 } from "@/components/calendar/dialog-styles";
 import { focusRing, joinClasses } from "@/components/calendar/styles";
-import {
-  resetCheckboxLabel,
-  resetWithheldMessage,
-  type ResetOffer,
-} from "@/lib/runs";
+import { deleteRunConsequence } from "@/lib/runs";
 import type { RunResult } from "@/app/runs/actions";
-import { hasFocusRing } from "./styles";
 
 export type RemoveAction = (
   previous: RunResult | null,
@@ -26,8 +21,14 @@ export type RemoveAction = (
 
 type DeleteRunButtonProps = {
   runId: string;
-  /** Whether putting the session back is on the table, and why not if it is not. */
-  offer: ResetOffer;
+  /**
+   * Whether this deletion puts the session back to planned.
+   *
+   * For the sentence only. The Server Action asks `resetsLinkedSession` again
+   * against freshly read facts and sends the flag itself, so nothing the
+   * browser could tamper with decides what happens to a session.
+   */
+  resetsSession: boolean;
   action: RemoveAction;
 };
 
@@ -41,41 +42,26 @@ const danger = [
   focusRing,
 ].join(" ");
 
-const checkboxRow = [
-  "flex min-h-touch cursor-pointer items-center gap-inline-sm",
-  "rounded-(--choice-radius) px-(--choice-padding-x) py-(--choice-padding-y)",
-  "border-(length:--border-width-default) border-(--choice-border)",
-  hasFocusRing,
-].join(" ");
-
 /**
  * Deleting a run, behind a confirmation.
  *
- * The dialog carries the one decision that comes with the deletion: whether
- * the session the run was logged against goes back to planned. The checkbox
- * only appears when ticking it would actually do something -- `delete_run`
- * refuses a reset it cannot honour, so `resetOffer` is what decides, and the
- * one case the athlete might have expected gets a sentence instead.
- *
- * Ticked by default when it is offered: deleting a run almost always means the
- * session did not happen after all, and leaving it marked completed with
- * nothing behind it is a state the athlete would have to go and find.
+ * There is no checkbox. A session is completed if and only if a run is linked
+ * to it, so deleting the only run against a session MUST put that session back
+ * to planned -- leaving it marked done with nothing behind it is the state the
+ * rule exists to make impossible. That is not a decision to offer, so the
+ * dialog states it and the deletion does it. A session another run still points
+ * at keeps its status, because it is still done.
  *
  * Cancel takes the initial focus, so return on a dialog nobody has read keeps
  * the run.
  */
-export function DeleteRunButton({ runId, offer, action }: DeleteRunButtonProps) {
+export function DeleteRunButton({
+  runId,
+  resetsSession,
+  action,
+}: DeleteRunButtonProps) {
   const [result, dispatch, pending] = useActionState(action, null);
   const [open, setOpen] = useState(false);
-  const id = useId();
-
-  const withheldNote = offer.offered
-    ? null
-    : resetWithheldMessage(
-        offer.withheld,
-        // Only 'other_runs' says anything, and it reads without a title too.
-        null,
-      );
 
   return (
     <div className="flex flex-col gap-stack-sm">
@@ -92,37 +78,11 @@ export function DeleteRunButton({ runId, offer, action }: DeleteRunButtonProps) 
             </AlertDialog.Title>
 
             <AlertDialog.Description className="text-small text-secondary">
-              This cannot be undone. A run is a fact, not a plan change, so
-              there is no undo for it.
+              {deleteRunConsequence(resetsSession)}
             </AlertDialog.Description>
 
-            {/*
-              Inside the form, so the checkbox is submitted with the deletion.
-              A checkbox sends nothing at all when it is not ticked, which is
-              exactly what the action reads it as.
-            */}
             <form action={dispatch} className="flex flex-col gap-stack-md">
               <input type="hidden" name="runId" value={runId} />
-
-              {offer.offered ? (
-                <label htmlFor={id} className={checkboxRow}>
-                  <input
-                    id={id}
-                    type="checkbox"
-                    name="resetWorkout"
-                    value="on"
-                    defaultChecked
-                    className="size-(--space-4)"
-                  />
-                  <span className="text-body">
-                    {resetCheckboxLabel(offer.workoutTitle)}
-                  </span>
-                </label>
-              ) : null}
-
-              {withheldNote ? (
-                <p className="text-small text-secondary">{withheldNote}</p>
-              ) : null}
 
               <div className="flex flex-wrap justify-end gap-inline-sm">
                 <AlertDialog.Cancel

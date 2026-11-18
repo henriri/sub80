@@ -13,7 +13,12 @@ import {
 } from "@/lib/data/activities";
 import { readVdot } from "@/lib/data/planned-workouts";
 import { parisDate } from "@/lib/plan";
-import { resetOffer, toRawRun, toRunRow, type StoredRun } from "@/lib/runs";
+import {
+  resetsLinkedSession,
+  toRawRun,
+  toRunRow,
+  type StoredRun,
+} from "@/lib/runs";
 import { editRun, removeRun } from "../actions";
 
 /** One fact of the run, as a term and a value. */
@@ -137,11 +142,15 @@ async function RunSection({ params }: { params: PageProps<"/runs/[id]">["params"
         <h2 id="delete-run" className="text-heading-sm">
           Delete
         </h2>
+        {/*
+          The dialog states what the deletion will do; the Server Action asks
+          the same function again against rows read at the time, so the sentence
+          and the deed cannot disagree and nothing submitted decides it.
+        */}
         <DeleteRunButton
           runId={run.id}
-          offer={resetOffer({
-            workoutTitle: run.planned_workout?.title ?? null,
-            workoutStatus: run.planned_workout?.status ?? null,
+          resetsSession={resetsLinkedSession({
+            linked: run.planned_workout_id !== null,
             otherRuns,
           })}
           action={removeRun}

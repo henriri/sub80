@@ -20,7 +20,6 @@ import {
   type Ymd,
   type ZoneKey,
 } from "@/lib/plan";
-import type { ResetWithheld } from "./deleting";
 import { formatPacePerKm } from "./format";
 import { HR_SOURCES, type HrSource, type RunReason, type RunWarning } from "./rules";
 import type { PaceComparison } from "./zone";
@@ -228,31 +227,18 @@ export function loggingForLine(session: {
 }
 
 /**
- * Why the dialog is not offering to put the session back, or null when there
- * is nothing worth saying.
+ * What deleting this run will do, stated rather than asked.
  *
- * Only one of the three is worth a sentence. A run with no session, or one
- * whose session is not marked completed, has nothing to put back and silence
- * is the honest rendering -- explaining the absence of a checkbox nobody
- * expected is noise. A session another run still points at is different: the
- * athlete might reasonably expect the reset, so the dialog says why not.
+ * Putting the session back is not a decision the athlete makes: a session is
+ * completed if and only if a run is linked to it, so deleting the last run has
+ * to put its session back. The dialog says so, and there is no checkbox to
+ * disagree with.
+ *
+ * A session another run still points at keeps its status, which needs no
+ * sentence of its own: it is still done, and the run being deleted was never
+ * what made it so.
  */
-export function resetWithheldMessage(
-  withheld: ResetWithheld,
-  workoutTitle: string | null,
-): string | null {
-  switch (withheld) {
-    case "no_link":
-    case "not_completed":
-      return null;
-    case "other_runs":
-      return workoutTitle === null
-        ? "Another run is still linked to that session, so it keeps its status."
-        : `Another run is still linked to ${workoutTitle}, so it keeps its status.`;
-  }
-}
-
-/** The checkbox itself: what ticking it will do, named. */
-export function resetCheckboxLabel(workoutTitle: string): string {
-  return `Put ${workoutTitle} back to planned`;
+export function deleteRunConsequence(resetsSession: boolean): string {
+  const undo = "This cannot be undone: a run is a fact, not a plan change.";
+  return resetsSession ? `The session goes back to planned. ${undo}` : undo;
 }

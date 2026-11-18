@@ -14,6 +14,7 @@ import {
 import { MAX_NOTES_LENGTH, parisDate } from "@/lib/plan";
 import {
   RUN_WARNING_CODES,
+  resetsLinkedSession,
   runLoggedMessage,
   runRejectMessage,
   runUpdatedMessage,
@@ -227,25 +228,21 @@ export async function editRun(
   }
 }
 
-const removeSchema = z.object({
-  runId,
-  // The dialog's checkbox. A checkbox submits nothing at all when it is not
-  // ticked, whatever its value attribute says, so anything non-empty is a tick
-  // and an absent field is not.
-  resetWorkout: z.string().max(20).transform((value) => value !== ""),
-});
+/**
+ * Only the run. Whether the session goes back to planned is NOT submitted:
+ * a session is completed if and only if a run is linked to it, so the answer
+ * follows from facts read here and there is nothing for a form to say about it.
+ */
+const removeSchema = z.object({ runId });
 
 export async function removeRun(
   _previous: RunResult | null,
   formData: FormData,
 ): Promise<RunResult> {
-  const parsed = removeSchema.safeParse({
-    runId: formData.get("runId"),
-    resetWorkout: formData.get("resetWorkout") ?? "",
-  });
+  const parsed = removeSchema.safeParse({ runId: formData.get("runId") });
   if (!parsed.success) return failed("That deletion did not make sense.");
 
-  const { runId: id, resetWorkout } = parsed.data;
+  const { runId: id } = parsed.data;
   await requireUser();
 
   try {
@@ -254,6 +251,22 @@ export async function removeRun(
     // from.
     const existing = await readRunDetail(id);
     if (existing === null) return failed(GONE);
+
+    /*
+     * Deleting the only run on a session puts that session back to planned,
+     * because a session with no run against it is not done. Decided here,
+     * against rows read now, by the same function the dialog words its sentence
+     * with -- and `delete_run` RAISES on a reset it cannot honour, so the two
+     * have to agree.
+     */
+    const otherRuns =
+      existing.planned_workout_id === null
+        ? 0
+        : await countRunsForWorkout(existing.planned_workout_id, id);
+    const resetWorkout = resetsLinkedSession({
+      linked: existing.planned_workout_id !== null,
+      otherRuns,
+    });
 
     const outcome = await deleteRunRow(id, resetWorkout);
     if (!outcome.ok) return failed(outcome.message);

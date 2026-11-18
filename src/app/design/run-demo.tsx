@@ -7,7 +7,6 @@ import { RunForm } from "@/components/runs/RunForm";
 import { WorkoutPicker } from "@/components/runs/WorkoutPicker";
 import type { Ymd } from "@/lib/plan";
 import {
-  resetOffer,
   runLoggedMessage,
   type LinkableWorkout,
   type RawRun,
@@ -129,17 +128,13 @@ export function RunDemo({ initial, workouts, today, vdot }: RunDemoProps) {
       <div className={card}>
         <h3 className="text-heading-sm">DeleteRunButton</h3>
         <p className="text-small text-secondary">
-          The checkbox is offered only when ticking it would do something, and
-          is ticked by default: deleting a run almost always means the session
-          did not happen after all.
+          No checkbox. A session is done if and only if a run is linked to it,
+          so deleting the only run against one puts it back to planned: that is
+          not a decision to offer, and the dialog states it.
         </p>
         <DeleteRunButton
           runId="00000000-0000-4000-8000-000000000001"
-          offer={resetOffer({
-            workoutTitle: "Threshold 3 × 12′ (2′ jog)",
-            workoutStatus: "completed",
-            otherRuns: 0,
-          })}
+          resetsSession
           action={deletes}
         />
       </div>
@@ -149,16 +144,12 @@ export function RunDemo({ initial, workouts, today, vdot }: RunDemoProps) {
           DeleteRunButton · another run is still linked
         </h3>
         <p className="text-small text-secondary">
-          No checkbox, and a sentence saying why: this is the one case the
-          athlete might have expected it.
+          The session keeps its status, and the sentence says nothing about it:
+          it is still done, and the run being deleted was never what made it so.
         </p>
         <DeleteRunButton
           runId="00000000-0000-4000-8000-000000000002"
-          offer={resetOffer({
-            workoutTitle: "Threshold 3 × 12′ (2′ jog)",
-            workoutStatus: "completed",
-            otherRuns: 1,
-          })}
+          resetsSession={false}
           action={deletes}
         />
       </div>
