@@ -9,7 +9,6 @@ export {
   statusActionLabel,
   statusRejectMessage,
   statusWord,
-  undoableIndex,
   undoneChangeMessage,
   type ChangeSnapshot,
   type PlanEventSummary,

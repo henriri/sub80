@@ -18,7 +18,6 @@ import {
   statusActionLabel,
   statusRejectMessage,
   statusWord,
-  undoableIndex,
   undoneChangeMessage,
   type PlanEventSummary,
 } from "./change-messages";
@@ -209,47 +208,6 @@ describe("isUndoKind", () => {
     for (const kind of UNDO_KINDS) expect(isUndoKind(kind)).toBe(true);
     for (const kind of UNDOABLE_EVENT_KINDS) expect(isUndoKind(kind)).toBe(false);
     expect(isUndoKind("coach_proposal")).toBe(false);
-  });
-});
-
-describe("undoableIndex", () => {
-  const change = (status = "accepted") => ({ kind: "edit_notes", status });
-  const move = (status = "accepted") => ({ kind: "move_workout", status });
-  const undo = { kind: "undo_change", status: "accepted" };
-
-  it("is the newest change when nothing has been undone", () => {
-    expect(undoableIndex([change(), move()])).toBe(0);
-  });
-
-  it("skips the undo row that sits above the change it reversed", () => {
-    // What the list looks like straight after an undo: the undo is newest,
-    // the change it reversed is marked undone, and the one below is next.
-    expect(undoableIndex([undo, change("undone"), move()])).toBe(2);
-  });
-
-  it("skips an already undone change", () => {
-    expect(undoableIndex([change("undone"), move()])).toBe(1);
-  });
-
-  it("does not care which kind the undoable row is", () => {
-    for (const kind of UNDOABLE_EVENT_KINDS) {
-      expect(undoableIndex([{ kind, status: "accepted" }])).toBe(0);
-    }
-  });
-
-  it("never points at an undo, because there is no redo", () => {
-    expect(undoableIndex([undo, { kind: "undo_move", status: "accepted" }])).toBe(-1);
-  });
-
-  it("has nothing to offer for an empty list", () => {
-    expect(undoableIndex([])).toBe(-1);
-  });
-
-  it("offers nothing a coach only proposed", () => {
-    // The database accepts an undo for an accepted event alone, so the
-    // interface must not offer one for a proposal.
-    expect(undoableIndex([{ kind: "coach_proposal", status: "proposed" }])).toBe(-1);
-    expect(undoableIndex([{ kind: "set_status", status: "rejected" }])).toBe(-1);
   });
 });
 

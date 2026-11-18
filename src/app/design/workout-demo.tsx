@@ -106,9 +106,9 @@ export function WorkoutDemo({ facts, vdot, actions }: WorkoutDemoProps) {
         <div key={label} className={card}>
           <h3 className="text-heading-sm">Workout actions · {label}</h3>
           <p className="text-small text-secondary">
-            Every form answers the way the real one does. The toast counts down,
-            pauses on hover and on focus, and its Undo expires while the row in
-            &ldquo;Recent changes&rdquo; does not.
+            Every form answers the way the real one does. The toast counts down
+            and pauses on hover and on focus. It is the only route to an undo, so
+            a change not reversed before it expires stands.
           </p>
           <WorkoutActions
             {...props}

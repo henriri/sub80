@@ -47,8 +47,8 @@ import {
  *
  * Each result carries the sentence the toast should show and the sentence to
  * show if its Undo is pressed, both from the one table in
- * src/lib/calendar/change-messages.ts, so the toast and "Recent changes"
- * cannot word the same event differently.
+ * src/lib/calendar/change-messages.ts, so two actions cannot word the same kind
+ * of change differently.
  */
 
 export type ChangeResult =

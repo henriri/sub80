@@ -3,18 +3,15 @@ import { Suspense } from "react";
 import { Button } from "@/components/Button";
 import { Calendar } from "@/components/calendar/Calendar";
 import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
-import { RecentChanges } from "@/components/calendar/RecentChanges";
 import { requireUser } from "@/lib/auth/require-user";
 import {
   buildCalendarView,
   calendarHref,
   fetchRange,
   parseCalendarParams,
-  undoableIndex,
   visibleEnd,
   visibleRange,
 } from "@/lib/calendar";
-import { readRecentPlanEvents } from "@/lib/data/plan-events";
 import {
   countPlannedWorkouts,
   readNextWorkouts,
@@ -41,9 +38,6 @@ const panel = [
   "flex flex-col gap-stack-sm rounded-surface bg-surface p-inset-md",
   "border-(length:--border-width-default) border-default",
 ].join(" ");
-
-/** How much history "Recent changes" shows. */
-const RECENT_CHANGES = 10;
 
 /** Nothing to show a calendar of yet, so the seed path lives here. */
 function NoPlan() {
@@ -79,29 +73,14 @@ async function CalendarSection({
   // consecutive-key warning appears before the drop rather than after it.
   const { from, days } = fetchRange(view, date);
 
-  // Four reads, one round trip. Only the range the rules need is fetched.
-  const [planned, vdot, workouts, events] = await Promise.all([
+  // Three reads, one round trip. Only the range the rules need is fetched.
+  const [planned, vdot, workouts] = await Promise.all([
     countPlannedWorkouts(user.id),
     readVdot(user.id),
     readNextWorkouts(user.id, from, days),
-    readRecentPlanEvents(user.id, RECENT_CHANGES),
   ]);
 
   if (planned === 0) return <NoPlan />;
-
-  // Undo is a stack, so exactly one row may be undone and it is not always
-  // the first: an undo, or an already undone change, can sit above it.
-  const undoable = undoableIndex(events);
-  const changes = events.map((event, index) => ({
-    id: event.id,
-    kind: event.kind,
-    status: event.status,
-    move: event.move,
-    before: event.before,
-    after: event.after,
-    undoneKind: event.undoneKind,
-    undoable: index === undoable,
-  }));
 
   // The padding days are move candidates only. `buildCalendarView` reads just
   // the dates it renders, so they cannot reach a day, a total or the grid; the
@@ -112,16 +91,23 @@ async function CalendarSection({
       workout.planned_date < visible.from || workout.planned_date > visible.to,
   );
 
+  /*
+   * The calendar, and nothing beneath it.
+   *
+   * There is no change history here. `plan_events` is still written by every
+   * plan change and `undo_plan_event` still reverses the newest one -- the undo
+   * toast that appears after a change is how that is reached, while the change
+   * is still the thing on the athlete's mind. A standing list of what was
+   * rearranged weeks ago is not what a training calendar is for, and nothing
+   * read the table any more, so its loader went with the list.
+   */
   return (
-    <>
-      <Calendar
-        model={buildCalendarView(view, { date, today, workouts, vdot })}
-        today={today}
-        neighbours={neighbours}
-        interactive
-      />
-      <RecentChanges changes={changes} />
-    </>
+    <Calendar
+      model={buildCalendarView(view, { date, today, workouts, vdot })}
+      today={today}
+      neighbours={neighbours}
+      interactive
+    />
   );
 }
 
