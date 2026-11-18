@@ -245,7 +245,7 @@ export function statsLockedMessage(source: RunSource): string {
 }
 
 /** A source in words, for a sentence rather than for a column. */
-export function sourceName(source: RunSource): string {
+function sourceName(source: RunSource): string {
   switch (source) {
     case "manual":
       return "your own entry";

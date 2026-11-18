@@ -23,21 +23,6 @@
 
 import type { ParsedRun, RunSource } from "./rules";
 
-/** The fields that belong to the measurement, and so to its source. */
-export const MEASURED_FIELDS = [
-  "date",
-  "time",
-  "distanceKm",
-  "duration",
-  "avgHr",
-  "hrSource",
-] as const;
-
-export type MeasuredField = (typeof MEASURED_FIELDS)[number];
-
-/** Editable whatever the source: the athlete's own judgements. */
-export const OWN_FIELDS = ["rpe", "notes", "plannedWorkoutId"] as const;
-
 /** Whether this run's measurements are the device's rather than the athlete's. */
 export function isStatsLocked(source: RunSource): boolean {
   return source !== "manual";

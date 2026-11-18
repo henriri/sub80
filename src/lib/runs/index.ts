@@ -1,10 +1,7 @@
 export {
-  MEASURED_FIELDS,
-  OWN_FIELDS,
   isStatsLocked,
   refusesStatsEdit,
   statsChanged,
-  type MeasuredField,
   type StoredStats,
 } from "./source-guard";
 export {
@@ -30,7 +27,6 @@ export {
   rpeBandsHint,
   rpeChoices,
   rpeLabel,
-  sourceName,
   statsLockedMessage,
   runLoggedMessage,
   runRejectMessage,

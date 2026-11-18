@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RUN_SOURCES, type ParsedRun } from "./rules";
 import {
-  MEASURED_FIELDS,
-  OWN_FIELDS,
   isStatsLocked,
   refusesStatsEdit,
   statsChanged,
@@ -125,24 +123,5 @@ describe("refusesStatsEdit", () => {
     expect(
       refusesStatsEdit("manual", resend({ distanceM: 1_000, avgHr: null, hrSource: null }), stored),
     ).toBe(false);
-  });
-});
-
-describe("the two field lists", () => {
-  it("name the measurements and the athlete's own, with no overlap", () => {
-    expect([...MEASURED_FIELDS]).toEqual([
-      "date",
-      "time",
-      "distanceKm",
-      "duration",
-      "avgHr",
-      "hrSource",
-    ]);
-    expect([...OWN_FIELDS]).toEqual(["rpe", "notes", "plannedWorkoutId"]);
-
-    const overlap = MEASURED_FIELDS.filter((name) =>
-      (OWN_FIELDS as readonly string[]).includes(name),
-    );
-    expect(overlap).toEqual([]);
   });
 });
