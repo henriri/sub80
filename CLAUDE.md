@@ -5,7 +5,11 @@ A training app for one athlete (the owner) aiming at a half marathon under 1:20 
 The full plan lives in the Claude Docs page "sub80: Project Plan". This file is the short version Claude Code must follow.
 
 ## Stack
-- Next.js (App Router) + TypeScript (strict), deployed on Vercel
+- Next.js (App Router) + TypeScript (strict), deployed on Vercel. `next` and
+  `eslint-config-next` are pinned to an exact version and move together — the lint config is
+  versioned with the framework it checks. The version lives in `package.json` and nowhere else,
+  so it is never written down twice. `next build` **fails** on a version with a known advisory,
+  once, then succeeds on retry: that is the signal to patch, not something to work around.
 - Supabase: Postgres with row-level security, Auth (email one-time codes), Storage for raw FIT files, EU region
 - Tailwind v4, Radix primitives, dnd-kit for drag and drop (touch and keyboard must work)
 - pnpm, Node 26 LTS (check Vercel's supported versions before changing)
