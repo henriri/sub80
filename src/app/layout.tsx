@@ -1,10 +1,30 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { MANIFEST_THEME_COLOR } from "@/lib/design/manifest-theme";
 import { defaultModes, modeAttributes } from "@/lib/design/tokens";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "sub80",
   description: "Half marathon training toward 1:20.",
+  manifest: "/manifest.webmanifest",
+  /** The 180px icon iOS uses for a home-screen bookmark. */
+  icons: { apple: "/icons/apple-touch-icon-180.png" },
+};
+
+export const viewport: Viewport = {
+  /*
+   * One value, light. `<html>` is pinned to `defaultModes` below, so the app is
+   * always `data-theme="light"` -- dark exists in the /design preview and
+   * nowhere else. A dark media variant here would darken the status bar over a
+   * light page on a phone set to dark mode, which is worse than having none.
+   * It goes in when a theme switcher does.
+   */
+  themeColor: MANIFEST_THEME_COLOR,
+  /*
+   * Let the viewport reach under the rounded corners and the gesture bar, so
+   * the page can decide what to do about them. `<body>` reserves the insets.
+   */
+  viewportFit: "cover",
 };
 
 /**
