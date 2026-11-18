@@ -62,6 +62,24 @@ export const storedRunSchema = z.object({
 
 export const storedRunsSchema = z.array(storedRunSchema);
 
+/**
+ * One run as the year view reads it: an instant and a distance, nothing else.
+ *
+ * Its own schema rather than `storedRunSchema`, because a year is some 300
+ * runs and the chart adds up one number per month. The link is not read at
+ * all: every run counts towards the month it happened in, whether a session
+ * claims it or not.
+ */
+export const yearRunRowSchema = z.object({
+  /** An ISO instant. The Paris month is derived from it, never stored. */
+  started_at: z.string().min(1),
+  distance_m: z.int().nonnegative(),
+});
+
+export const yearRunRowsSchema = z.array(yearRunRowSchema);
+
+export type YearRunRow = z.infer<typeof yearRunRowSchema>;
+
 export type StoredRun = z.infer<typeof storedRunSchema>;
 export type LinkedWorkout = z.infer<typeof linkedWorkoutShape>;
 

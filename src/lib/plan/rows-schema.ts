@@ -60,6 +60,23 @@ export const storedWorkoutsSchema = z.array(storedWorkoutSchema);
 export type StoredWorkout = z.infer<typeof storedWorkoutSchema>;
 
 /**
+ * One session as the year view reads it: a date and a distance, nothing else.
+ *
+ * Its own schema rather than `storedWorkoutSchema`, because a year is some 400
+ * rows and the chart adds up two numbers per month. Nothing here is rendered
+ * as a session, so the kind, the title, the zone and the status are not read.
+ */
+export const yearPlannedRowSchema = z.object({
+  planned_date: ymd,
+  /** Null on a rest day, which the totals count as 0. */
+  target_distance_m: z.int().positive().nullable(),
+});
+
+export const yearPlannedRowsSchema = z.array(yearPlannedRowSchema);
+
+export type YearPlannedRow = z.infer<typeof yearPlannedRowSchema>;
+
+/**
  * One row read back for the detail view, which shows what a card has no room
  * for. A separate schema rather than more columns on storedWorkoutSchema: the
  * calendar reads six weeks of rows at a time and has no use for a note.

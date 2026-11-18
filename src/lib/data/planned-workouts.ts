@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { yearRange } from "@/lib/calendar/year";
 import { addDays, type Ymd } from "@/lib/plan/dates";
 import type { PlannedWorkoutRow } from "@/lib/plan/rows";
 import {
@@ -7,12 +8,15 @@ import {
   storedWorkoutsWithRunsSchema,
   vdotSchema,
   workoutDetailSchema,
+  yearPlannedRowsSchema,
   type StoredWorkout,
   type StoredWorkoutWithRuns,
   type WorkoutDetail,
+  type YearPlannedRow,
 } from "@/lib/plan/rows-schema";
 import type { WorkoutStatus } from "@/lib/plan/types";
 import { createClient } from "@/lib/supabase/server";
+import { POSTGREST_MAX_ROWS, assertAllRows } from "./limits";
 import { isRefusal, refusal } from "./rpc";
 
 /**
@@ -85,6 +89,41 @@ export async function readNextWorkouts(
   if (error) throw new Error(`Could not read planned workouts: ${error.message}`);
   // Rows cross a boundary, so they are validated rather than trusted.
   return storedWorkoutsWithRunsSchema.parse(data);
+}
+
+/**
+ * A year's sessions, as two numbers a month: the date and the distance.
+ *
+ * Every status, deliberately. A session skipped is still what the plan asked
+ * for, so it stays in the planned total and the shortfall shows up as the gap
+ * it is -- which is the whole point of the year chart.
+ *
+ * The distance read is `target_distance_m`, the plan as it stands: a day made
+ * lighter counts as the lighter number, not as the original with a gap the
+ * athlete never created. `original_distance_m` is not read here.
+ */
+export async function readYearPlanned(
+  userId: string,
+  year: number,
+): Promise<YearPlannedRow[]> {
+  const { start, end } = yearRange(year);
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("planned_workouts")
+    .select("planned_date, target_distance_m")
+    .eq("user_id", userId)
+    .gte("planned_date", start)
+    .lte("planned_date", end)
+    .order("planned_date", { ascending: true })
+    .limit(POSTGREST_MAX_ROWS);
+
+  if (error) throw new Error(`Could not read the year's sessions: ${error.message}`);
+
+  // A year is some 400 rows, so the limit means something has gone wrong --
+  // and a truncated year reads as a plan that asked for less than it did.
+  assertAllRows(data.length, `The sessions for ${year}`);
+  // Rows cross a boundary, so they are validated rather than trusted.
+  return yearPlannedRowsSchema.parse(data);
 }
 
 /**
