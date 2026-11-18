@@ -5,6 +5,7 @@ import {
   formatFullDate,
   formatKm,
   formatKmValue,
+  formatMonthName,
   formatMonthTitle,
   formatWeekdayShort,
 } from "./format";
@@ -17,6 +18,24 @@ describe("formatMonthTitle", () => {
     ["2028-04-16", "April 2028"],
   ])("%s is in %s", (date, expected) => {
     expect(formatMonthTitle(date)).toBe(expected);
+  });
+});
+
+describe("formatMonthName", () => {
+  it.each([
+    ["2027-01-01", "January"],
+    ["2027-03-31", "March"],
+    ["2027-12-01", "December"],
+  ])("%s is %s", (date, expected) => {
+    expect(formatMonthName(date)).toBe(expected);
+  });
+
+  it("gives twelve distinct names whose initials are the chart's labels", () => {
+    const names = Array.from({ length: 12 }, (_, month) =>
+      formatMonthName(`2027-${String(month + 1).padStart(2, "0")}-01`),
+    );
+    expect(new Set(names).size).toBe(12);
+    expect(names.map((name) => name[0]).join("")).toBe("JFMAMJJASOND");
   });
 });
 

@@ -28,6 +28,19 @@ export function formatMonthTitle(date: Ymd): string {
   return monthTitleFormatter.format(middayUtc(date));
 }
 
+const monthNameFormatter = new Intl.DateTimeFormat("en-GB", {
+  timeZone: PARIS,
+  month: "long",
+});
+
+/**
+ * 'January', with no year: the accessible name of a column in the year chart,
+ * where the heading above it is the year and the visible label is one letter.
+ */
+export function formatMonthName(date: Ymd): string {
+  return monthNameFormatter.format(middayUtc(date));
+}
+
 const weekdayFormatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: PARIS,
   weekday: "short",
