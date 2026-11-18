@@ -24,11 +24,14 @@ export function FocusCard({ focus, headingLevel }: FocusCardProps) {
   const Title = headings[headingLevel];
   const { loggedKm, plannedKm, toGoKm, percent, barPercent, monthName } = focus;
 
+  /*
+   * No `aria-labelledby` on the section: a fixed id would be a duplicate the
+   * moment two of these are on one page, which /design does. The heading is
+   * still a heading.
+   */
   return (
-    <section aria-labelledby="focus" className={joinClasses(panel, "gap-stack-sm")}>
-      <Title id="focus" className="text-heading-sm">
-        {monthName} in focus
-      </Title>
+    <section className={joinClasses(panel, "gap-stack-sm")}>
+      <Title className="text-heading-sm">{monthName} in focus</Title>
 
       <p className="flex items-baseline gap-inline-xs">
         <span className="font-heading text-heading-md">
@@ -43,16 +46,20 @@ export function FocusCard({ focus, headingLevel }: FocusCardProps) {
           <p className="text-small text-secondary">{percent}% of planned</p>
           {/*
             The numbers themselves, not a percentage: a screen reader hears
-            "96 of 168 km" rather than a bar's own fraction. The bar is clamped
-            at 100 while the sentence keeps the real figure, so a month run
-            past its plan still says so.
+            "96 of 168 km" rather than a bar's own fraction.
+
+            `aria-valuenow` is clamped to the maximum, because a value outside
+            min..max is not valid ARIA and a reader may say anything about it.
+            The truth about a month run past its plan is in `aria-valuetext`,
+            which is what a reader announces when it is present -- so nothing
+            is lost, and the bar and the number agree with each other.
           */}
           <div
             role="progressbar"
             aria-label={`${monthName} against its plan`}
             aria-valuemin={0}
             aria-valuemax={plannedKm}
-            aria-valuenow={loggedKm}
+            aria-valuenow={Math.min(loggedKm, plannedKm)}
             aria-valuetext={`${loggedKm} of ${plannedKm} km, ${percent}% of planned`}
             className="h-(--chart-progress-height) w-full overflow-hidden rounded-control bg-(--chart-progress-track)"
           >

@@ -115,14 +115,13 @@ export function YearChart({ year, headingLevel }: YearChartProps) {
   const { axis } = year;
   const empty = axis.max === 0;
 
+  /*
+   * No `aria-labelledby` on the section: /design puts two of these on one
+   * page, and a fixed id would be a duplicate. The heading is still a heading.
+   */
   return (
-    <section
-      aria-labelledby={`chart-${year.year}`}
-      className={joinClasses(panel, "gap-stack-md")}
-    >
-      <Title id={`chart-${year.year}`} className="text-heading-sm">
-        Distance by month
-      </Title>
+    <section className={joinClasses(panel, "gap-stack-md")}>
+      <Title className="text-heading-sm">Distance by month</Title>
 
       {/* The series are named in words: the fills are a shorthand, not the
           only way to tell the two apart. */}
