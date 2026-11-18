@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   /** The 180px icon iOS uses for a home-screen bookmark. */
   icons: { apple: "/icons/apple-touch-icon-180.png" },
+  /*
+   * One athlete's training log behind auth. Set once here rather than per
+   * page, so a page added later is private by default; /design and /login keep
+   * their own, which now say the same thing twice and cost nothing.
+   */
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
