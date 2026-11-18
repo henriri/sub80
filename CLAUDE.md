@@ -173,6 +173,16 @@ mobile, so the athlete installs once by hand. For one user that is the right tra
   committed. The Figma pass replaces them.
 - The app is private: `src/app/robots.ts` disallows everything and the layout sets
   `robots: { index: false, follow: false }`.
+- The **install files are public by design** and must stay that way:
+  `/manifest.webmanifest`, `/robots.txt`, `/favicon.ico` and `/icons/*`. Chrome fetches a
+  manifest **without cookies**, so anything auth-gated there is answered with the login page's
+  HTML — which shows up as a manifest "Line: 1, column: 1, Syntax error" and a failed install,
+  never as an auth problem. They are listed twice, deliberately: in the matcher in
+  `src/proxy.ts`, which skips them so no session work runs, and in `publicFiles` in
+  `src/lib/supabase/public-paths.ts`, which is the pure decision `isPublicPath` makes for
+  anything the proxy does see. A matcher cannot import the list, so `src/proxy.test.ts` asserts
+  the two agree. `isPublicPath` normalises before matching: a traversal is judged by where it
+  lands, so `/icons/../runs` is `/runs` and stays private.
 
 ## Code conventions
 - TypeScript strict, no `any`. Validate all external input (forms, FIT files, webhooks) with a schema.
